@@ -126,6 +126,9 @@
         return function (targetElement, path, offset, text) {
             var nodeName = targetElement.nodeName;
             if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+                if (targetElement !== document.activeElement) {
+                    targetElement.focus();
+                }
                 var selectedElem = document.activeElement;
             } else {
                 selectElement(targetElement, path, offset);
