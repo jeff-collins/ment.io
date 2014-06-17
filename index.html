@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html ng-app="mentio-demo">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Ment.io Demo</title>
+    <link data-require="bootstrap-css@3.1.1" data-semver="3.1.1" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <script>document.write('<base href="' + document.location + '" />');</script>
+    <link rel="stylesheet" href="demo.css" />
+    <script data-require="angular.js@1.2.x" src="http://code.angularjs.org/1.2.13/angular.js" data-semver="1.2.13"></script>
+    <script src="dist/js/mentio.js"></script>
+    <script src="demo.js"></script>
+  </head>
+  <body>
+<div ng-controller="mentio-demo-ctrl" class="content-area">
+
+     <header>
+      <h1>Ment.io</h1>
+     </header>
+
+      <div>
+        <span class="title">Content Editable:</span>
+        <div class="editor" contenteditable ng-model="htmlContent">
+          Try me @
+        </div>
+        <span class="caption">Mentioned: {{atVar}}</span>
+      </div>
+
+      <div>
+        <span class="title">Text Area:</span>
+        <textarea ng-model="theTextArea" ng-trim="false" class="editor"></textarea>
+        <span class="caption">Mentioned: {{atVar2}}</span>
+      </div>
+
+      <div>
+        <span class="title">Simple Input:</span>
+        <input type="text" ng-model="theText" ng-trim="false" size="100"/>
+        <span class="caption">Mentioned: {{atVar3}}</span>
+      </div>
+
+        <!-- the following are menus that bind to the various controls -->
+        <div mentio-menu bind="htmlContent" items="products" ng-model="atVar" class="product-search" 
+                search="searchProducts(term)" select="getText(item)" ng-cloak>
+              <div class="menu">
+                  <h3>Products</h3>
+                  <ul>
+                      <li mentio-menu-item="product" ng-repeat="product in products" class="results">
+                          <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
+                              class="description">{{product._source.description.substring(0,30)}}</p>
+                      </li>
+                  </ul>
+              </div>
+        </div>
+
+        <div mentio-menu bind="theTextArea" items="products" ng-model="atVar2" class="product-search" 
+              search="searchProducts(term)" select="getTextRaw(item)" ng-cloak>
+              <div class="menu">
+                  <h3>Products</h3>
+                  <ul>
+                      <li mentio-menu-item="product" ng-repeat="product in products" class="results">
+                          <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
+                              class="description">{{product._source.description.substring(0,30)}}</p>
+                      </li>
+                  </ul>
+              </div>
+        </div>
+ 
+         <div mentio-menu bind="theText" items="products" ng-model="atVar3" class="product-search"
+              search="searchProducts(term)" select="getTextRaw(item)" ng-cloak>
+              <div class="menu">
+                  <h3>Products</h3>
+                  <ul>
+                      <li mentio-menu-item="product" ng-repeat="product in products" class="results">
+                          <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
+                              class="description">{{product._source.description.substring(0,30)}}</p>
+                      </li>
+                  </ul>
+              </div>
+        </div>
+
+</div>
+</body>
+
+</html>
+

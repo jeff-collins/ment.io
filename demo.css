@@ -1,0 +1,111 @@
+
+.body {
+      margin: 20px;    
+      padding: 20px;    
+}
+
+.h1 {
+      line-height: 30px;
+      font-weight: bold;	
+}
+
+.editor {
+	height: 160px;
+	width: 90%;
+	border: 1px solid #dadada;
+	border-radius: 4px;
+	padding: 5px 8px;
+	outline: 0 none;
+	margin: 10px 0;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	background: white;
+	font-size: inherit;
+	overflow-y: scroll;
+	display: block;
+}
+.editor:focus {
+	border: 1px solid rgb(6, 150, 247);
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 300;
+	padding: 0px 0px;
+	margin-top: 20px;
+	display: block;
+}
+
+.caption {
+    font-size: 12px;
+    font-weight: 300;
+	display: block;
+}
+
+.content-area {
+    margin-left: 40px;
+}
+
+.product-search .menu {
+    background-color: rgb(45, 45, 45);
+}
+
+.product-search h3 {
+    width: 125px;
+    margin-top: 0px;
+    font-size: 20px;
+    font-weight: 300;
+    color: rgb(187, 187, 187);
+    float: left;
+}
+
+.product-search ul {
+    background-color: #FFF;
+    margin: 0;
+    margin-left: 100px;
+    padding: 0;
+    list-style: none;
+}
+
+.product-search .results {
+    width: 375px;
+    margin: auto;
+    text-align: left;
+    min-height: 64px;
+    padding: 5px;
+}
+
+.product-search .results.active {
+    background-color: rgb(46, 79, 156);
+}
+
+.product-search .results.active .name {
+    color: #FFF;
+}
+
+.product-search .results.active {
+    background-color: rgb(46, 79, 156);
+}
+
+.product-search .results .name {
+    font-size: 16px;
+    line-height: 30px;
+}
+
+.product-search .results p {
+    margin-bottom: 5px;
+    margin-left: 74px;
+}
+
+.product-search .results .description {
+    font-size: 14px;
+    line-height: 16px;
+    color: #999;
+    margin-left: 74px;
+}
+
+.product-search .results img {
+    width: 64px;
+    height: 64px;
+    float: left;
+}
