@@ -1,4 +1,6 @@
 .idea
 
+coverage
+test-reports
 node_modules
 bower_components
