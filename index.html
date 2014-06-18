@@ -38,45 +38,62 @@
         <span class="caption">Mentioned: {{atVar3}}</span>
       </div>
 
-        <!-- the following are menus that bind to the various controls -->
-        <div mentio-menu bind="htmlContent" items="products" ng-model="atVar" class="product-search" 
-                search="searchProducts(term)" select="getText(item)" ng-cloak>
-              <div class="menu">
-                  <h3>Products</h3>
-                  <ul>
-                      <li mentio-menu-item="product" ng-repeat="product in products" class="results">
-                          <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
-                              class="description">{{product._source.description.substring(0,30)}}</p>
-                      </li>
-                  </ul>
-              </div>
-        </div>
+      <script type="text/javascript">
+        var mentionLookup = {
+          'brb': 'Be right back',
+          'omw': 'On my way'
+        }
+      </script>
 
-        <div mentio-menu bind="theTextArea" items="products" ng-model="atVar2" class="product-search" 
-              search="searchProducts(term)" select="getTextRaw(item)" ng-cloak>
-              <div class="menu">
-                  <h3>Products</h3>
-                  <ul>
-                      <li mentio-menu-item="product" ng-repeat="product in products" class="results">
-                          <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
-                              class="description">{{product._source.description.substring(0,30)}}</p>
-                      </li>
-                  </ul>
+        <mentio-menu bind="htmlContent" ng-model="atVar" ng-cloak>
+          <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
+                search="searchPeople(term)" select="getPeopleText(item)"></mentio-rule>
+          <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
+                search="searchProducts(term)" select="getProductText(item)"></mentio-rule>
+          <mentio-macro data="mentionLookup"><smention-macro>
+        </mentio-menu>
+
+        <mentio-menu bind="theTextArea" ng-model="atVar2" ng-cloak>
+          <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
+                search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>
+          <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl" 
+                search="searchProducts(term)" select="getProductTextRaw(item)"></mentio-rule>
+        </mentio-menu>
+
+        <mentio-menu bind="theText" ng-model="atVar3" ng-cloak>
+          <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl" 
+                search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>
+          <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
+                search="searchProducts(term)" select="getProductTextRaw(item)"></mentio-rule>
+        </mentio-menu>
+
+        <script type="text/ng-template" id="/product-mentions.tpl">
+              <div class="product-search">
+                <div class="menu">
+                    <h3>Products</h3>
+                    <ul>
+                        <li mentio-menu-item="product" ng-repeat="product in items" class="results">
+                            <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
+                                class="description">{{product._source.description.substring(0,30)}}</p>
+                        </li>
+                    </ul>
+                </div>
               </div>
-        </div>
- 
-         <div mentio-menu bind="theText" items="products" ng-model="atVar3" class="product-search"
-              search="searchProducts(term)" select="getTextRaw(item)" ng-cloak>
-              <div class="menu">
-                  <h3>Products</h3>
-                  <ul>
-                      <li mentio-menu-item="product" ng-repeat="product in products" class="results">
-                          <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
-                              class="description">{{product._source.description.substring(0,30)}}</p>
-                      </li>
-                  </ul>
+       </script>
+
+        <script type="text/ng-template" id="/people-mentions.tpl">
+              <div class="people-search">
+                <div class="menu">
+                    <h3>People</h3>
+                    <ul>
+                        <li mentio-menu-item="person" ng-repeat="person in items" class="results">
+                            <img ng-src="{{person._source.imageUrl}}"><p class="name">{{person._source.name}}</p><p 
+                                class="bio">{{person._source.bio.substring(0,30)}}</p>
+                        </li>
+                    </ul>
+                </div>
               </div>
-        </div>
+       </script>
 
 </div>
 </body>
