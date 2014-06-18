@@ -38,19 +38,11 @@
         <span class="caption">Mentioned: {{atVar3}}</span>
       </div>
 
-      <script type="text/javascript">
-        var mentionLookup = {
-          'brb': 'Be right back',
-          'omw': 'On my way'
-        }
-      </script>
-
-        <mentio-menu bind="htmlContent" ng-model="atVar" ng-cloak>
+        <mentio-menu bind="htmlContent" ng-model="atVar" macros="macros" ng-cloak>
           <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
                 search="searchPeople(term)" select="getPeopleText(item)"></mentio-rule>
           <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
                 search="searchProducts(term)" select="getProductText(item)"></mentio-rule>
-          <mentio-macro data="mentionLookup"><smention-macro>
         </mentio-menu>
 
         <mentio-menu bind="theTextArea" ng-model="atVar2" ng-cloak>

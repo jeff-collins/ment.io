@@ -122,17 +122,56 @@
         };
     })();
 
-    var replaceAtMentionText = (function () {
-        return function (targetElement, path, offset, triggerCharSet, text) {
+    var resetSelection = (function () {
+        return function (targetElement, path, offset) {
             var nodeName = targetElement.nodeName;
             if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
                 if (targetElement !== document.activeElement) {
                     targetElement.focus();
                 }
-                var selectedElem = document.activeElement;
             } else {
                 selectElement(targetElement, path, offset);
             }
+        };
+    })();
+       
+   var replaceMacroText = (function () {
+        return function (targetElement, path, offset, macros, text) {
+             resetSelection(targetElement, path, offset);
+
+            var macroMatchInfo = getMacroMatch(macros);
+
+            if (macroMatchInfo !== undefined) {
+                 if (selectedElementIsTextAreaOrInput()) {
+                    var myField = document.activeElement;
+                    //IE support
+                    if (document.selection) {
+                        myField.focus();
+                        var sel = document.selection.createRange();
+                        sel.selectStartOffset(macroMatchInfo.macroPosition);
+                        sel.selectEndOffset(macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
+                        sel.text = text;
+                    }
+                    //MOZILLA and others
+                    else {
+                        var startPos = macroMatchInfo.macroPosition;
+                        var endPos = macroMatchInfo.macroPosition + macroMatchInfo.macroText.length;
+                        myField.value = myField.value.substring(0, startPos) + text +
+                            myField.value.substring(endPos, myField.value.length);
+                        myField.selectionStart = startPos + text.length;
+                        myField.selectionEnd = startPos + text.length;
+                    }
+                } else {
+                    pasteHtml(text, macroMatchInfo.macroPosition,
+                        macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
+                }
+            }
+        };
+    })();
+       
+    var replaceAtMentionText = (function () {
+        return function (targetElement, path, offset, triggerCharSet, text) {
+            resetSelection(targetElement, path, offset);
 
             var mentionInfo = getAtMentionInfo(triggerCharSet);
 
@@ -179,7 +218,55 @@
         };
     })();
 
-    var getAtMentionInfo = (function () {
+    var getMacroMatch = (function () {
+        return function (macros) {
+            var selected, path = [],
+                offset;
+            if (selectedElementIsTextAreaOrInput()) {
+                selected = document.activeElement;
+            } else {
+                // content editable
+                var sel = window.getSelection();
+                selected = sel.anchorNode;
+                if (selected != null) {
+                    var i;
+                    var ce = selected.contentEditable;
+                    while (selected !== null && ce !== 'true') {
+                        i = getNodePositionInParent(selected);
+                        path.push(i);
+                        selected = selected.parentNode;
+                        if (selected !== null) {
+                            ce = selected.contentEditable;
+                        }
+                    }
+                    path.reverse();
+                    // getRangeAt may not exist, need alternative
+                    offset = sel.getRangeAt(0).startOffset;
+                }
+            }
+            var effectiveRange = getTextPrecedingCurrentSelection();
+            if (effectiveRange !== undefined && effectiveRange !== null) {
+                var triggerChar;
+                for (var c in macros) {
+                    var idx = effectiveRange.lastIndexOf(c);
+                    if (idx >= 0 && c.length + idx === effectiveRange.length) {
+                        var prevCharPos = idx - 1;
+                        if (idx === 0 || effectiveRange.charAt(prevCharPos) === '\xA0' || effectiveRange.charAt(prevCharPos) === ' ' ) {
+                            return { 
+                                macroPosition: idx,
+                                macroText: c,
+                                macroSelectedElement: selected,
+                                macroSelectedPath: path,
+                                macroSelectedOffset: offset
+                            };
+                        }
+                    }
+                }
+            }
+        };
+    })();
+       
+     var getAtMentionInfo = (function () {
         return function (triggerCharSet) {
             var selected, path = [],
                 offset;
@@ -443,9 +530,10 @@
                 require: 'ngModel',
                 scope: {
                     bind: "&",
-                    atVar: "=ngModel"
+                    atVar: "=ngModel",
+                    macros: "="
                 },
-                controller: function($scope) {
+                controller: function($scope, $timeout) {
                     this.addRule = function(rule) {
                         $scope.map[rule.triggerChar] = rule;
                         $scope.triggerCharSet.push(rule.triggerChar);
@@ -479,8 +567,18 @@
                           }
                         }                      
                     };
-                },
-                link: function (scope, element, attrs) {
+
+                    $scope.replaceMacro = function(macro) {
+                        var timer = $timeout(function() {
+                            replaceMacroText($scope.targetElement, $scope.targetElementPath,
+                                $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
+                        }, 300);
+                        $scope.$on('$destroy', function() {
+                          $timeout.cancel(timer);
+                        });
+                    }
+               },
+                link: function (scope, element, attrs, timeout) {
                     scope.map = {};
                     scope.triggerCharSet = [];
                     scope.$watch(
@@ -503,10 +601,18 @@
                             } else {
                                 scope.atVar = '';
                                 scope.hideAll();
+
+                                var macroMatchInfo = getMacroMatch(scope.macros);
+                                if(macroMatchInfo !== undefined) {
+                                    scope.targetElement = macroMatchInfo.macroSelectedElement;
+                                    scope.targetElementPath = macroMatchInfo.macroSelectedPath;
+                                    scope.targetElementSelectedOffset = macroMatchInfo.macroSelectedOffset;
+                                    scope.replaceMacro(macroMatchInfo.macroText);
+                                }
                             }
                         }
                     );
-                }
+                                    }
             };
         }
     )

@@ -5,7 +5,12 @@
 angular.module('mentio-demo', ['mentio'])
 
 	.controller('mentio-demo-ctrl', function ($scope, $http) {
-  
+
+			$scope.macros = {
+          		'brb': 'Be right back',
+          		'omw': 'On my way',
+          		'(smile)' : '<img src="http://a248.e.akamai.net/assets.github.com/images/icons/emoji/smile.png" height="20" width="20">'
+        	};
 
 			$scope.searchProducts = function(term) {
 				var prodList = [];
