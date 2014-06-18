@@ -4,9 +4,9 @@
 
     var popUnderMention = (function () {
 
-        return function (selectionEl) {
+        return function (triggerCharSet, selectionEl) {
             var coordinates;
-            var mentionInfo = getAtMentionInfo();
+            var mentionInfo = getAtMentionInfo(triggerCharSet);
 
             if (mentionInfo !== undefined) {
 
@@ -123,7 +123,7 @@
     })();
 
     var replaceAtMentionText = (function () {
-        return function (targetElement, path, offset, text) {
+        return function (targetElement, path, offset, triggerCharSet, text) {
             var nodeName = targetElement.nodeName;
             if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
                 if (targetElement !== document.activeElement) {
@@ -134,7 +134,7 @@
                 selectElement(targetElement, path, offset);
             }
 
-            var mentionInfo = getAtMentionInfo();
+            var mentionInfo = getAtMentionInfo(triggerCharSet);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
@@ -180,7 +180,7 @@
     })();
 
     var getAtMentionInfo = (function () {
-        return function () {
+        return function (triggerCharSet) {
             var selected, path = [],
                 offset;
             if (selectedElementIsTextAreaOrInput()) {
@@ -207,17 +207,27 @@
             }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
-                var mostRecentAtSymbol = effectiveRange.lastIndexOf('@');
+                var mostRecentAtSymbol = -1;
+                var triggerChar;
+                triggerCharSet.forEach(function(c) {
+                    var idx = effectiveRange.lastIndexOf(c);
+                    if (idx > mostRecentAtSymbol) {
+                        mostRecentAtSymbol = idx;
+                        triggerChar = c;
+                    }
+                });
                 if (mostRecentAtSymbol === 0 || /[\xA0\s]/g.test(
                     effectiveRange.substring(mostRecentAtSymbol - 1, mostRecentAtSymbol))) {
                     var currentAtMentionSnippet = effectiveRange.substring(mostRecentAtSymbol + 1, effectiveRange.length);
+                    var triggerChar = effectiveRange.substring(mostRecentAtSymbol, mostRecentAtSymbol+1);
                     if (!(/[\xA0\s]/g.test(currentAtMentionSnippet))) {
                         return {
                             mentionPosition: mostRecentAtSymbol,
                             mentionText: currentAtMentionSnippet,
                             mentionSelectedElement: selected,
                             mentionSelectedPath: path,
-                            mentionSelectedOffset: offset
+                            mentionSelectedOffset: offset,
+                            mentionTriggerChar: triggerChar
                         };
                     }
                 }
@@ -426,189 +436,244 @@
     })();
 
     angular.module('mentio', [])
-
-    .directive('mentioMenu', ["$timeout",
-            function ($timeout) {
-                var setupKeyCapture = function (scope, input) {
-                    angular.element(input).bind("keydown keypress", function (event) {
-                        if (!scope.hide) {
-                            if (event.which === 27) {
-                                scope.$apply(function () {
-                                    scope.hide = true;
-                                });
-                                event.preventDefault();
-                            }
-
-                            if (event.which === 40) {
-                                event.preventDefault();
-                                scope.$apply(function () {
-                                    scope.activateNextItem();
-                                });
-                            }
-
-                            if (event.which === 38) {
-                                event.preventDefault();
-                                scope.$apply(function () {
-                                    scope.activatePreviousItem();
-                                });
-                            }
-
-                            if (event.which === 13) {
-                                event.preventDefault();
-                                scope.$apply(function () {
-                                    scope.selectActive();
-                                });
-                            }
-                        }
-                    });
-                };
-
-                return {
-                    restrict: 'A',
-                    require: 'ngModel',
-                    transclude: true,
-                    replace: true,
-                    template: '<div><div ng-transclude></div></div>',
-                    scope: {
-                        bind: "&",
-                        search: "&",
-                        select: "&",
-                        items: "=",
-                        atVar: "=ngModel"
-                    },
-                    controller: ["$scope",
-                        function ($scope) {
-                            $scope.items = [];
-                            $scope.hide = true;
-
-                            this.activate = $scope.activate = function (item) {
-                                $scope.active = item;
-                            };
-
-                            $scope.activateNextItem = function () {
-                                var index = $scope.items.indexOf($scope.active);
-                                this.activate($scope.items[(index + 1) % $scope.items.length]);
-                            };
-
-                            $scope.activatePreviousItem = function () {
-                                var index = $scope.items.indexOf($scope.active);
-                                this.activate($scope.items[index === 0 ? $scope.items.length - 1 : index - 1]);
-                            };
-
-                            this.isActive = function (item) {
-                                return $scope.active === item;
-                            };
-
-                            $scope.selectActive = function () {
-                                $scope.selector($scope.active);
-                            };
-
-                            this.selector = $scope.selector = function (item) {
-                                $scope.hide = true;
-                                var text = $scope.select({
-                                    item: item
-                                });
-                                replaceAtMentionText($scope.targetElement, $scope.targetElementPath,
-                                    $scope.targetElementSelectedOffset, text);
-                                $scope.atVar = '';
-                            };
-
-                            $scope.isVisible = function () {
-                                return !$scope.hide;
-                            };
-
-                            $scope.query = function () {
-                                $scope.requestVisiblePendingSearch = true;
-                                $scope.search({
-                                    term: $scope.atVar
-                                });
-                            };
-                        }
-                    ],
-
-                    link: function (scope, element, attrs) {
-
-                        var $list = element;
-                        element[0].parentNode.removeChild(element[0]);
-                        document.body.appendChild(element[0]);
-
-                        setupKeyCapture(scope, document.body);
-
-                        scope.$watch('items', function (items) {
-                            if (items.length > 0) {
-                                if (scope.hide && scope.requestVisiblePendingSearch) {
-                                    scope.hide = false;
-                                    scope.requestVisiblePendingSearch = false;
-                                }
-                                scope.activate(items[0]);
-                            } else {
-                                scope.hide = true;
-                            }
-                        });
-
-                        scope.$watch('isVisible()', function (visible) {
-                            if (visible) {
-                                popUnderMention($list);
-                            } else {
-                                $list.css('display', 'none');
-                            }
-                        });
-
-                        scope.$watch(
-                            function (scope) {
-                                return scope.$eval(scope.bind);
-                            },
-                            function (value) {
-                                var mentionInfo = getAtMentionInfo();
-                                if (mentionInfo !== undefined) {
-                                    scope.targetElement = mentionInfo.mentionSelectedElement;
-                                    scope.targetElementPath = mentionInfo.mentionSelectedPath;
-                                    scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
-                                    scope.atVar = mentionInfo.mentionText;
-                                    scope.query();
-                                } else {
-                                    scope.atVar = '';
-                                    scope.hide = true;
-                                }
-                            }
-                        );
-                    }
-                };
-            }
-        ])
-        .directive('mentioMenuItem', function () {
+    .directive('mentioMenu', 
+        function () {
             return {
-                restrict: 'A',
+                restrict: 'E',
+                require: 'ngModel',
                 scope: {
-                    mentioMenuItem: "="
+                    bind: "&",
+                    atVar: "=ngModel"
                 },
-                require: '^mentioMenu',
-                link: function (scope, element, attrs, controller) {
-
-                    var item = scope.mentioMenuItem;
-
-                    scope.$watch(function () {
-                        return controller.isActive(item);
-                    }, function (active) {
-                        if (active) {
-                            element.addClass('active');
-                        } else {
-                            element.removeClass('active');
+                controller: function($scope) {
+                    this.addRule = function(rule) {
+                        $scope.map[rule.triggerChar] = rule;
+                        $scope.triggerCharSet.push(rule.triggerChar);
+                        if (this.triggerCharSet === undefined) {
+                            this.triggerCharSet = [];    
                         }
-                    });
-
-                    element.bind('mouseenter', function (e) {
-                        scope.$apply(function () {
-                            controller.activate(item);
+                        this.triggerCharSet.push(rule.triggerChar);
+                    };
+                    $scope.query = function (triggerChar, text) {
+                        var remoteScope = $scope.map[triggerChar];
+                        remoteScope.showMenu();
+                        remoteScope.search({
+                            term: $scope.atVar
                         });
-                    });
-
-                    element.bind('click', function (e) {
-                        scope.$apply(function () {
-                            controller.selector(item);
+                    };
+                    this.replaceText = $scope.replaceText = function (triggerChar, item) {
+                        // need to set up call to this
+                        var remoteScope = $scope.map[triggerChar];
+                        var text = remoteScope.select({
+                            item: item
                         });
-                    });
+                        replaceAtMentionText($scope.targetElement, $scope.targetElementPath,
+                            $scope.targetElementSelectedOffset, $scope.triggerCharSet, text);
+                        $scope.atVar = '';
+                    };
+
+                    $scope.hideAll = function (text) {
+                        for (var key in $scope.map) {
+                          if ($scope.map.hasOwnProperty(key)) {
+                            $scope.map[key].hideMenu();
+                          }
+                        }                      
+                    };
+                },
+                link: function (scope, element, attrs) {
+                    scope.map = {};
+                    scope.triggerCharSet = [];
+                    scope.$watch(
+                        function (scope) {
+                            return scope.$eval(scope.bind);
+                        },
+                        function (value) {
+                            var mentionInfo = getAtMentionInfo(scope.triggerCharSet);
+                            if (mentionInfo !== undefined) {
+                                /** save selection info about the target control for later re-selection */
+                                scope.targetElement = mentionInfo.mentionSelectedElement;
+                                scope.targetElementPath = mentionInfo.mentionSelectedPath;
+                                scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
+
+                                /* store model */
+                                scope.atVar =  mentionInfo.mentionText;
+                                /* perform query */
+                                scope.query(mentionInfo.mentionTriggerChar,
+                                    mentionInfo.mentionText);
+                            } else {
+                                scope.atVar = '';
+                                scope.hideAll();
+                            }
+                        }
+                    );
                 }
             };
-        });
+        }
+    )
+    .directive('mentioRule', function () {
+        var setupKeyCapture = function (scope, input) {
+            angular.element(input).bind("keydown keypress", function (event) {
+                if (!scope.hide) {
+                    if (event.which === 27) {
+                        scope.$apply(function () {
+                            scope.hide = true;
+                        });
+                        event.preventDefault();
+                    }
+
+                    if (event.which === 40) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.activateNextItem();
+                        });
+                    }
+
+                    if (event.which === 38) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.activatePreviousItem();
+                        });
+                    }
+
+                    if (event.which === 13) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.selectActive();
+                        });
+                    }
+                }
+            });
+        };
+
+        return {
+            restrict: 'E',
+            scope: {
+                search: "&",
+                select: "&",
+                items: "="
+            },
+            require: '^mentioMenu',
+            templateUrl: function(tElement, tAttrs) {
+                return tAttrs.template;
+            },
+            controller: ['$scope', '$attrs', function ($scope, $attrs) {
+                $scope.items = [];
+                $scope.hide = true;
+
+                $scope.triggerChar = $attrs.triggerChar;
+
+                this.activate = $scope.activate = function (item) {
+                    $scope.active = item;
+                };
+
+                $scope.activateNextItem = function () {
+                    var index = $scope.items.indexOf($scope.active);
+                    this.activate($scope.items[(index + 1) % $scope.items.length]);
+                };
+
+                $scope.activatePreviousItem = function () {
+                    var index = $scope.items.indexOf($scope.active);
+                    this.activate($scope.items[index === 0 ? $scope.items.length - 1 : index - 1]);
+                };
+
+                this.isActive = $scope.isActive = function (item) {
+                    return $scope.active === item;
+                };
+
+                $scope.selectActive = function () {
+                    $scope.selector($scope.active);
+                };
+
+                this.selector = $scope.selector = function (item) {
+                    $scope.hide = true;
+                    $scope.controller.replaceText($scope.triggerChar, item);
+                };
+
+                $scope.isVisible = function () {
+                    return !$scope.hide;
+                };
+
+                $scope.showMenu = function () {
+                    $scope.requestVisiblePendingSearch = true;
+                };
+
+                $scope.hideMenu = function () {
+                    $scope.hide = true;
+                };
+                // $scope.query = function () {
+                //     $scope.requestVisiblePendingSearch = true;
+                //     $scope.search({
+                //         term: $scope.atVar
+                //     });
+                // };
+            }],
+
+            link: function (scope, element, attrs, controller) {
+                controller.addRule(scope);
+                scope.controller = controller;
+
+                var $list = element;
+                element[0].parentNode.removeChild(element[0]);
+                document.body.appendChild(element[0]);
+
+                setupKeyCapture(scope, document.body);
+
+                scope.$watch('items', function (items) {
+                    if (items.length > 0) {
+                        scope.activate(items[0]);
+                        if (scope.hide && scope.requestVisiblePendingSearch) {
+                            scope.hide = false;
+                            scope.requestVisiblePendingSearch = false;
+                        }
+                    } else {
+                        scope.hide = true;
+                    }
+                });
+
+                scope.$watch('isVisible()', function (visible) {
+                    if (visible) {
+                        popUnderMention(controller.triggerCharSet, $list);
+                    } else {
+                        $list.css('display', 'none');
+                    }
+                });
+
+            }
+        };
+    })
+    .directive('mentioMenuItem', function () {
+        return {
+            restrict: 'A',
+            scope: {
+                mentioMenuItem: "="
+            },
+            require: '^mentioRule',
+            link: function (scope, element, attrs, controller) {
+
+                var item = scope.mentioMenuItem;
+
+                scope.$watch(function () {
+                    return controller.isActive(item);
+                }, function (active) {
+                    if (active) {
+                        element.addClass('active');
+                    } else {
+                        element.removeClass('active');
+                    }
+                });
+
+                element.bind('mouseenter', function (e) {
+                    scope.$apply(function () {
+                        controller.activate(item);
+                    });
+                });
+
+                element.bind('click', function (e) {
+                    scope.$apply(function () {
+                        controller.selector(item);
+                    });
+                });
+            }
+        };
+    });
 })();

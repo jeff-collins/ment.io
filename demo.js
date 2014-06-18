@@ -19,15 +19,34 @@ angular.module('mentio-demo', ['mentio'])
 		       	});
 		    };
 		  
-			$scope.getText = function(item) {
+			$scope.searchPeople = function(term) {
+				var peopleList = [];
+		        $http.get('peopledata.json').success(function (response) {
+		        	angular.forEach(response, function(item) {
+		        		if (item._source.name.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
+		            		peopleList.push(item);		
+		            	}
+		            });
+		            $scope.people = peopleList;
+		       	});
+		    };
+		  
+			$scope.getProductText = function(item) {
 				return '[~<b>' + item._source.title + '</b>]';
 		    };
 
-			$scope.getTextRaw = function(item) {
-				return '@' + item._source.title;
+			$scope.getProductTextRaw = function(item) {
+				return '#' + item._source.title;
 		    };
 
-		    $scope.theTextArea = 'Type an @ and some text';
+			$scope.getPeopleText = function(item) {
+				return '[~<i>' + item._source.name + '</i>]';
+		    };
+
+			$scope.getPeopleTextRaw = function(item) {
+				return '@' + item._source.name;
+		    };
+		    $scope.theTextArea = 'Type an @ or # and some text';
 	}).directive('contenteditable', ['$sce', function($sce) {
 	    return {
 	      restrict: 'A', // only activate on element attribute

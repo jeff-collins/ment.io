@@ -51,7 +51,7 @@
 }
 
 .product-search h3 {
-    width: 125px;
+    width: 100px;
     margin-top: 0px;
     font-size: 20px;
     font-weight: 300;
@@ -105,6 +105,70 @@
 }
 
 .product-search .results img {
+    width: 64px;
+    height: 64px;
+    float: left;
+}
+
+.people-search .menu {
+    background-color: rgb(45, 45, 45);
+}
+
+.people-search h3 {
+    width: 100px;
+    margin-top: 0px;
+    font-size: 20px;
+    font-weight: 300;
+    color: rgb(187, 187, 187);
+    float: left;
+}
+
+.people-search ul {
+    background-color: #FFF;
+    margin: 0;
+    margin-left: 100px;
+    padding: 0;
+    list-style: none;
+}
+
+.people-search .results {
+    width: 375px;
+    margin: auto;
+    text-align: left;
+    min-height: 64px;
+    padding: 5px;
+}
+
+.people-search .results.active {
+    background-color: rgb(46, 79, 156);
+}
+
+.people-search .results.active .name {
+    color: #FFF;
+}
+
+.people-search .results.active {
+    background-color: rgb(46, 79, 156);
+}
+
+.people-search .results .name {
+    font-size: 16px;
+    line-height: 30px;
+}
+
+.people-search .results p {
+    margin-bottom: 5px;
+    margin-left: 74px;
+}
+
+.people-search .results .description {
+    font-size: 14px;
+    line-height: 16px;
+    color: #999;
+    margin-left: 74px;
+}
+
+.people-search .results img {
     width: 64px;
     height: 64px;
     float: left;
