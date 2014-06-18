@@ -1,69 +1,84 @@
 'use strict';
 
-describe('mentio-menu directive', function () {
-    var $compile, $rootScope;
+describe('mentio-menu', function () {
+    var $compile, $rootScope, $templateCache, ruleScope, menuScope, searchSpy, mockItems;
 
     beforeEach(module('mentio'));
 
-    beforeEach(inject(function (_$compile_, _$rootScope_) {
+    beforeEach(inject(function (_$compile_, _$rootScope_, _$templateCache_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
-    }));
+        $templateCache = _$templateCache_;
 
-    it('should search on items', function () {
-        var element, $renderScope, $scope, searchSpy, mockItems;
+        $templateCache.put('/people-mentions.tpl',
+                '<div>' +
+                '<li mentio-menu-item="person" ng-repeat="person in items">' +
+                '   <img ng-src="{{person._source.imageUrl}}"><p class="name">{{person._source.name}}</p>' +
+                '   <p>{{person._source.bio.substring(0,30)}}</p>' +
+                '</li>' +
+                '</ul>' +
+                '</div>');
 
-        mockItems = [
-            {
-                id: 1
-            },
-            {
-                id: 2
+        var $scope = $rootScope.$new();
+        var mentionableTextArea = angular.element('<div><textarea ng-model="textArea" ng-trim="false"></textarea>' +
+            '<span>Mentioned: {{atVar}}</span></div>');
+
+        $compile(mentionableTextArea)($scope);
+
+        var mentionMenu = angular.element('<mentio-menu bind="textArea" ng-model="atVar2" ng-cloak>' +
+            '<mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl" ' +
+            'search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>' +
+            '</mentio-menu>');
+
+        $compile(mentionMenu)($scope);
+        $scope.$apply();
+
+        // This is ugly, uses undocumented method to access the child scopes
+        // but there is no real way access the menu scope and rule scope
+        for(var cs = $scope.$$childHead; cs; cs = cs.$$nextSibling) {
+            if(cs.hide) {
+                ruleScope = cs;
             }
-        ];
+            if(cs.query) {
+                menuScope = cs;
+            }
+        }
 
-        $renderScope = $rootScope.$new();
+        mockItems = [ { id: 1 }, { id: 2 } ];
 
-        $renderScope.search = function (term) {
-            if (term === 'foo') {
-                $renderScope.items = mockItems;
+        ruleScope.search = function (object) {
+            if (object.term === 'foo') {
+                ruleScope.items = mockItems;
             } else {
-                $renderScope.items = [];
+                ruleScope.items = [];
             }
         };
 
-        searchSpy = spyOn($renderScope, 'search');
+        searchSpy = spyOn(ruleScope, 'search');
         searchSpy.andCallThrough();
+    }));
 
-        element = $compile('<div mentio-menu bind="content" items="items"' +
-            'search="search(term)" select="select(item)" ng-model="menuContent">')($renderScope);
+    it('should show mentio for valid search term', function () {
+        expect(ruleScope.hide).toBeTruthy();
 
-        $renderScope.$digest();
+        menuScope.atVar = 'foo';
+        menuScope.query('@');
+        menuScope.$apply();
 
-        $scope = element.isolateScope();
+        expect(searchSpy).toHaveBeenCalledWith({ term : 'foo' });
+        expect(ruleScope.items).toEqual(mockItems);
+        expect(ruleScope.hide).toBeFalsy();
+    });
 
-        // TODO: move getAtMentionInfo() into a service so it can be mocked
-        $scope.atVar = 'foo';
-        expect($scope.hide).toBeTruthy();
-        $scope.query();
+    it('should hide mentio for invalid search term', function () {
+        expect(ruleScope.hide).toBeTruthy();
 
-        $renderScope.$digest();
+        menuScope.atVar = 'fox';
+        menuScope.query('@');
+        menuScope.$apply();
 
-        expect(searchSpy).toHaveBeenCalledWith('foo');
-        expect($scope.items).toEqual(mockItems);
-        expect($scope.hide).toBeFalsy();
-
-
-        /*
-         * The menu should not display when the search returns no items
-         */
-        $scope.atVar = 'bar';
-        $scope.query();
-
-        $renderScope.$digest();
-
-        expect(searchSpy.callCount).toBe(2);
-        expect($scope.items).toEqual([]);
-        expect($scope.hide).toBeTruthy();
+        expect(searchSpy).toHaveBeenCalledWith({ term : 'fox' });
+        expect(ruleScope.items).toEqual([]);
+        expect(ruleScope.hide).toBeTruthy();
     });
 });
