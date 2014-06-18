@@ -7,7 +7,7 @@
     <link data-require="bootstrap-css@3.1.1" data-semver="3.1.1" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
     <script>document.write('<base href="' + document.location + '" />');</script>
     <link rel="stylesheet" href="demo.css" />
-    <script data-require="angular.js@1.2.x" src="http://code.angularjs.org/1.2.13/angular.js" data-semver="1.2.13"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
     <script src="dist/js/mentio.js"></script>
     <script src="demo.js"></script>
   </head>
@@ -22,6 +22,8 @@
         <span class="title">Content Editable:</span>
         <div class="editor" contenteditable ng-model="htmlContent">
           Try me @
+          <br>
+          or add a macro like brb, omw, (smile)
         </div>
         <span class="caption">Mentioned: {{atVar}}</span>
       </div>
