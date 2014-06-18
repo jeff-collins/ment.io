@@ -1,7 +1,7 @@
 'use strict';
 
 describe('mentio-menu', function () {
-    var $compile, $rootScope, $templateCache, mentionRuleScope, menuScope, searchSpy, mockItems;
+    var $compile, $rootScope, $templateCache, ruleScope, menuScope, searchSpy, mockItems;
 
     beforeEach(module('mentio'));
 
@@ -20,13 +20,10 @@ describe('mentio-menu', function () {
                 '</div>');
 
         var $scope = $rootScope.$new();
-
         var mentionableTextArea = angular.element('<div><textarea ng-model="textArea" ng-trim="false"></textarea>' +
             '<span>Mentioned: {{atVar}}</span></div>');
 
         $compile(mentionableTextArea)($scope);
-        var mentionableTextAreaScope = mentionableTextArea.scope();
-        mentionableTextAreaScope.$apply();
 
         var mentionMenu = angular.element('<mentio-menu bind="textArea" ng-model="atVar2" ng-cloak>' +
             '<mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl" ' +
@@ -34,13 +31,13 @@ describe('mentio-menu', function () {
             '</mentio-menu>');
 
         $compile(mentionMenu)($scope);
-        var mentionMenuScope = mentionMenu.scope();
-        mentionMenuScope.$apply();
+        $scope.$apply();
 
         // This is ugly, uses undocumented method to access the child scopes
+        // but there is no real way access the menu scope and rule scope
         for(var cs = $scope.$$childHead; cs; cs = cs.$$nextSibling) {
             if(cs.hide) {
-                mentionRuleScope = cs;
+                ruleScope = cs;
             }
             if(cs.query) {
                 menuScope = cs;
@@ -49,39 +46,39 @@ describe('mentio-menu', function () {
 
         mockItems = [ { id: 1 }, { id: 2 } ];
 
-        mentionRuleScope.search = function (object) {
+        ruleScope.search = function (object) {
             if (object.term === 'foo') {
-                mentionRuleScope.items = mockItems;
+                ruleScope.items = mockItems;
             } else {
-                mentionRuleScope.items = [];
+                ruleScope.items = [];
             }
         };
 
-        searchSpy = spyOn(mentionRuleScope, 'search');
+        searchSpy = spyOn(ruleScope, 'search');
         searchSpy.andCallThrough();
     }));
 
     it('should show mentio for valid search term', function () {
-        expect(mentionRuleScope.hide).toBeTruthy();
+        expect(ruleScope.hide).toBeTruthy();
 
         menuScope.atVar = 'foo';
         menuScope.query('@');
         menuScope.$apply();
 
         expect(searchSpy).toHaveBeenCalledWith({ term : 'foo' });
-        expect(mentionRuleScope.items).toEqual(mockItems);
-        expect(mentionRuleScope.hide).toBeFalsy();
+        expect(ruleScope.items).toEqual(mockItems);
+        expect(ruleScope.hide).toBeFalsy();
     });
 
     it('should hide mentio for invalid search term', function () {
-        expect(mentionRuleScope.hide).toBeTruthy();
+        expect(ruleScope.hide).toBeTruthy();
 
         menuScope.atVar = 'fox';
         menuScope.query('@');
         menuScope.$apply();
 
         expect(searchSpy).toHaveBeenCalledWith({ term : 'fox' });
-        expect(mentionRuleScope.items).toEqual([]);
-        expect(mentionRuleScope.hide).toBeTruthy();
+        expect(ruleScope.items).toEqual([]);
+        expect(ruleScope.hide).toBeTruthy();
     });
 });
