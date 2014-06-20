@@ -585,6 +585,16 @@
                             });
                         }
                     );
+
+                    $document.on(
+                        "keydown keypress", function(e) {
+                            if (event.which === 9) {
+                                $scope.$apply(function() {
+                                    $scope.hideAll();
+                                });
+                            }
+                        }
+                    );
                 },
                 link: function (scope, element, attrs, timeout) {
                     scope.map = {};
