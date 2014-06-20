@@ -533,7 +533,7 @@
                     atVar: "=ngModel",
                     macros: "="
                 },
-                controller: function($scope, $timeout) {
+                controller: function($scope, $timeout, $document) {
                     this.addRule = function(rule) {
                         $scope.map[rule.triggerChar] = rule;
                         $scope.triggerCharSet.push(rule.triggerChar);
@@ -577,7 +577,25 @@
                           $timeout.cancel(timer);
                         });
                     }
-               },
+
+                    $document.on(
+                        "click", function(e) {
+                            $scope.$apply(function() {
+                                $scope.hideAll();
+                            });
+                        }
+                    );
+
+                    $document.on(
+                        "keydown keypress", function(e) {
+                            if (event.which === 9) {
+                                $scope.$apply(function() {
+                                    $scope.hideAll();
+                                });
+                            }
+                        }
+                    );
+                },
                 link: function (scope, element, attrs, timeout) {
                     scope.map = {};
                     scope.triggerCharSet = [];
@@ -617,8 +635,8 @@
         }
     )
     .directive('mentioRule', function () {
-        var setupKeyCapture = function (scope, input) {
-            angular.element(input).bind("keydown keypress", function (event) {
+        var setupKeyCapture = function (scope, element) {
+            angular.element(element).bind("keydown keypress", function (event) {
                 if (!scope.hide) {
                     if (event.which === 27) {
                         scope.$apply(function () {
@@ -778,6 +796,7 @@
                     scope.$apply(function () {
                         controller.selector(item);
                     });
+                    e.preventDefault();
                 });
             }
         };
