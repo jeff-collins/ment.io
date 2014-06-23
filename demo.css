@@ -1,12 +1,12 @@
 
-.body {
-      margin: 20px;    
-      padding: 20px;    
+.content-area {
+    margin-left: 60px;
+    margin-top: 30px;
 }
 
-.h1 {
-      line-height: 30px;
-      font-weight: bold;	
+.heading {
+    text-align: center;
+    margin-bottom: 50px;
 }
 
 .editor {
@@ -40,10 +40,6 @@
     font-size: 12px;
     font-weight: 300;
 	display: block;
-}
-
-.content-area {
-    margin-left: 40px;
 }
 
 .product-search .menu {
