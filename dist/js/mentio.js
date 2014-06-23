@@ -560,10 +560,20 @@
                         $scope.atVar = '';
                     };
 
-                    $scope.hideAll = function (text) {
+                    $scope.hideAll = function () {
                         for (var key in $scope.map) {
                           if ($scope.map.hasOwnProperty(key)) {
                             $scope.map[key].hideMenu();
+                          }
+                        }                      
+                    };
+
+                    $scope.selectActive = function () {
+                        for (var key in $scope.map) {
+                          if ($scope.map.hasOwnProperty(key)) {
+                            if (!$scope.map[key].hide) {
+                                $scope.map[key].selectActive();
+                            }   
                           }
                         }                      
                     };
@@ -581,7 +591,7 @@
                     $document.on(
                         "click", function(e) {
                             $scope.$apply(function() {
-                                $scope.hideAll();
+                                $scope.selectActive();
                             });
                         }
                     );
@@ -590,7 +600,7 @@
                         "keydown keypress", function(e) {
                             if (event.which === 9) {
                                 $scope.$apply(function() {
-                                    $scope.hideAll();
+                                    $scope.selectActive();
                                 });
                             }
                         }
