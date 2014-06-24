@@ -8,14 +8,15 @@ module.exports = function(config) {
         files: [
             'bower_components/angular/angular.js',
             'bower_components/angular-mocks/angular-mocks.js',
-            './dist/**/*.js'
+            'src/*.js',
+            'tests/**/*.js'
         ],
 
         // list of files to exclude
         exclude: [],
 
         preprocessors: {
-            './dist/**/!(*.spec).js': 'coverage'
+            './src/**/*.js': 'coverage'
         },
 
         // use dots reporter, as travis terminal does not support escaping sequences
@@ -49,7 +50,8 @@ module.exports = function(config) {
         colors: true,
 
         // level of logging
-        // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+        // possible values: config.LOG_DISABLE || config.LOG_ERROR ||
+        // config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
         // CLI --log-level debug
         logLevel: config.LOG_INFO,
 

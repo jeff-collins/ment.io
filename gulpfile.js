@@ -3,6 +3,9 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var fs = require('fs');
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
+var wrap = require('gulp-wrap');
 
 var port = gutil.env.port || 3000;
 var covport = gutil.env.covport || 3001;
@@ -10,11 +13,11 @@ var lrport = gutil.env.lrport || 35729;
 var openBrowser = gutil.env.browser;
 
 /*
- * Default task is to start the examples
+ * Default task is to start the site
  */
-gulp.task('default', ['examples']);
+gulp.task('default', ['site']);
 
-gulp.task('examples', function () {
+gulp.task('site', ['dist'], function () {
     var express = require('express');
     var app = express();
 
@@ -27,16 +30,32 @@ gulp.task('examples', function () {
     app.listen(port, function () {
         var lrServer = require('gulp-livereload')();
 
-        gulp.watch(['dist/**/*.*', './demo.*', './index.html']).on('change', function (file) {
+        gulp.watch(['src/**/*.*', 'ment.io/*.*'], ['dist']).on('change', function (file) {
             console.log('Reload', file.path);
             lrServer.changed(file.path);
         });
 
         // open the browser
-        require('open')('http://localhost:' + port, openBrowser);
+        require('open')('http://localhost:' + port + '/ment.io', openBrowser);
 
         console.log('Example app started on port [%s]', port);
     });
+});
+
+gulp.task('dist', function () {
+    return gulp.src([
+//        'bower_components/textarea-caret-position/index.js',
+        'src/mentio.directive.js',
+        'src/mentio.service.js'
+    ])
+    .pipe(concat('mentio.js'))
+//    // hack to make componentjs libs to work
+//    .pipe(wrap('(function () {\n\n\'use strict\';\n\nvar Package = \'\';' +
+//        '\n\nvar getCaretCoordinates ;\n\n<%= contents %>\n\n})();'))
+    .pipe(gulp.dest('dist'))
+    .pipe(uglify())
+    .pipe(concat('mentio.min.js'))
+    .pipe(gulp.dest('dist'));
 });
 
 
@@ -63,7 +82,7 @@ function testTask (params) {
 /**
  * Run the karma spec tests
  */
-gulp.task('test', function () {
+gulp.task('test', ['dist'], function () {
     testTask({
         isWatch: gutil.env.hasOwnProperty('watch')
     });
@@ -108,5 +127,4 @@ gulp.task('coverage', function () {
             }
         });
     }, 3000);
-
 });
