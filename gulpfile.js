@@ -5,7 +5,7 @@ var gutil = require('gulp-util');
 var fs = require('fs');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-var wrap = require('gulp-wrap');
+//var wrap = require('gulp-wrap');
 
 var port = gutil.env.port || 3000;
 var covport = gutil.env.covport || 3001;

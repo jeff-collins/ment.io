@@ -7,17 +7,20 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             .when('/', {
                 templateUrl: 'examples.html',
                 tab: 'examples',
-                title: 'Ment.io examples'
+                title: 'Ment.io examples',
+                controller: 'mentio-demo-ctrl'
             })
             .when('/documentation', {
                 templateUrl: 'documentation.html',
                 tab: 'documentation',
-                title: 'Ment.io Documentation'
+                title: 'Ment.io Documentation',
+                controller: 'mentio-demo-ctrl'
             })
             .when('/examples', {
                 templateUrl: 'examples.html',
                 tab: 'examples',
-                title: 'Ment.io examples'
+                title: 'Ment.io examples',
+                controller: 'mentio-demo-ctrl'
             });
     })
 
@@ -25,11 +28,12 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $rootScope.$on('$routeChangeSuccess', function (event, current) {
             if (current.$$route) {
                 $rootScope.title = current.$$route.title;
+                $rootScope.tab = current.$$route.tab;
             }
         });
     })
 
-    .controller('mentio-demo-ctrl', function ($scope, $http, $q) {
+    .controller('mentio-demo-ctrl', function ($scope, $http) {
 
         $scope.macros = {
             'brb': 'Be right back',
@@ -41,28 +45,26 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $scope.searchProducts = function(term) {
             var prodList = [];
 
-            return $http.get('productdata.json').then(function (response) {
-                angular.forEach(response.data, function(item) {
+            $http.get('productdata.json').success(function (response) {
+                angular.forEach(response, function(item) {
                     if (item._source.title.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
                         prodList.push(item);
                     }
                 });
 
                 $scope.products = prodList;
-                return $q.when(prodList);
             });
         };
 
         $scope.searchPeople = function(term) {
             var peopleList = [];
-            return $http.get('peopledata.json').then(function (response) {
-                angular.forEach(response.data, function(item) {
+            $http.get('peopledata.json').success(function (response) {
+                angular.forEach(response, function(item) {
                     if (item._source.name.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
                         peopleList.push(item);
                     }
                 });
                 $scope.people = peopleList;
-                return $q.when(peopleList);
             });
         };
 
