@@ -26,6 +26,7 @@
   ],
   "devDependencies": {
     "angular": "~1.2.18",
-    "angular-mocks": "~1.2.18"
+    "angular-mocks": "~1.2.18",
+    "textarea-caret-position": "~2.1.0"
   }
 }

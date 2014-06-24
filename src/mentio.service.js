@@ -1,20 +1,22 @@
-(function () {
+'use strict';
 
-    'use strict';
+angular.module('mentio')
+    .factory('mentioUtil', function () {
 
-    var popUnderMention = (function () {
-
-        return function (triggerCharSet, selectionEl) {
+        // public
+        function popUnderMention (triggerCharSet, selectionEl) {
             var coordinates;
             var mentionInfo = getAtMentionInfo(triggerCharSet);
 
             if (mentionInfo !== undefined) {
 
                 if (selectedElementIsTextAreaOrInput()) {
-                    coordinates = getTextAreaOrInputUnderlinePosition(document.activeElement, mentionInfo.mentionPosition);
+                    coordinates = getTextAreaOrInputUnderlinePosition(document.activeElement,
+                        mentionInfo.mentionPosition);
                 } else {
                     coordinates = getContentEditableCaretPosition(mentionInfo.mentionPosition);
                 }
+
                 // Move the button into place.
                 selectionEl.css({
                     top: coordinates.top + 'px',
@@ -28,26 +30,18 @@
                     display: 'none'
                 });
             }
-        };
-    })();
+        }
 
-    var selectedElementIsTextAreaOrInput = (function () {
-        return function () {
+        function selectedElementIsTextAreaOrInput () {
             var element = document.activeElement;
             if (element !== null) {
                 var nodeName = element.nodeName;
-                if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
-                    return true;
-                } else {
-                    return false;
-                }
+                return nodeName === 'INPUT' || nodeName === 'TEXTAREA';
             }
             return false;
-        };
-    })();
+        }
 
-    var selectElement = (function () {
-        return function (targetElement, path, offset) {
+        function selectElement (targetElement, path, offset) {
             var range;
             var elem = targetElement;
             for (var i = 0; i < path.length; i++) {
@@ -80,11 +74,9 @@
                 sel.addRange(range);
                 targetElement.focus();
             }
-        };
-    })();
+        }
 
-    var pasteHtml = (function () {
-        return function (html, startPos, endPos) {
+        function pasteHtml (html, startPos, endPos) {
             var range, sel;
             if (document.selection && document.selection.createRange) {
                 range = document.selection.createRange().duplicate();
@@ -119,11 +111,9 @@
                     sel.addRange(range);
                 }
             }
-        };
-    })();
+        }
 
-    var resetSelection = (function () {
-        return function (targetElement, path, offset) {
+        function resetSelection (targetElement, path, offset) {
             var nodeName = targetElement.nodeName;
             if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
                 if (targetElement !== document.activeElement) {
@@ -132,17 +122,16 @@
             } else {
                 selectElement(targetElement, path, offset);
             }
-        };
-    })();
-       
-   var replaceMacroText = (function () {
-        return function (targetElement, path, offset, macros, text) {
-             resetSelection(targetElement, path, offset);
+        }
+
+        // public
+        function replaceMacroText (targetElement, path, offset, macros, text) {
+            resetSelection(targetElement, path, offset);
 
             var macroMatchInfo = getMacroMatch(macros);
 
             if (macroMatchInfo !== undefined) {
-                 if (selectedElementIsTextAreaOrInput()) {
+                if (selectedElementIsTextAreaOrInput()) {
                     var myField = document.activeElement;
                     //IE support
                     if (document.selection) {
@@ -163,14 +152,13 @@
                     }
                 } else {
                     pasteHtml(text, macroMatchInfo.macroPosition,
-                        macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
+                            macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
                 }
             }
-        };
-    })();
-       
-    var replaceAtMentionText = (function () {
-        return function (targetElement, path, offset, triggerCharSet, text) {
+        }
+
+        // public
+        function replaceAtMentionText (targetElement, path, offset, triggerCharSet, text) {
             resetSelection(targetElement, path, offset);
 
             var mentionInfo = getAtMentionInfo(triggerCharSet);
@@ -197,15 +185,12 @@
                     }
                 } else {
                     pasteHtml(text, mentionInfo.mentionPosition,
-                        mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
+                            mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
                 }
             }
+        }
 
-        };
-    })();
-
-    var getNodePositionInParent = (function () {
-        return function (elem) {
+        function getNodePositionInParent (elem) {
             if (elem.parentNode === null) {
                 return 0;
             }
@@ -215,13 +200,12 @@
                     return i;
                 }
             }
-        };
-    })();
+        }
 
-    var getMacroMatch = (function () {
-        return function (macros) {
-            var selected, path = [],
-                offset;
+        // public
+        function getMacroMatch (macros) {
+            var selected, path = [], offset;
+
             if (selectedElementIsTextAreaOrInput()) {
                 selected = document.activeElement;
             } else {
@@ -246,13 +230,18 @@
             }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
-                var triggerChar;
-                for (var c in macros) {
+
+                var matchInfo;
+
+                angular.forEach(macros, function (macro, c) {
                     var idx = effectiveRange.toUpperCase().lastIndexOf(c.toUpperCase());
+
                     if (idx >= 0 && c.length + idx === effectiveRange.length) {
                         var prevCharPos = idx - 1;
-                        if (idx === 0 || effectiveRange.charAt(prevCharPos) === '\xA0' || effectiveRange.charAt(prevCharPos) === ' ' ) {
-                            return { 
+                        if (idx === 0 || effectiveRange.charAt(prevCharPos) === '\xA0' ||
+                            effectiveRange.charAt(prevCharPos) === ' ' ) {
+
+                            matchInfo = {
                                 macroPosition: idx,
                                 macroText: c,
                                 macroSelectedElement: selected,
@@ -261,13 +250,15 @@
                             };
                         }
                     }
+                });
+                if (matchInfo) {
+                    return matchInfo;
                 }
             }
-        };
-    })();
-       
-     var getAtMentionInfo = (function () {
-        return function (triggerCharSet) {
+        }
+
+        // public
+        function getAtMentionInfo (triggerCharSet) {
             var selected, path = [],
                 offset;
             if (selectedElementIsTextAreaOrInput()) {
@@ -305,8 +296,10 @@
                 });
                 if (mostRecentAtSymbol === 0 || /[\xA0\s]/g.test(
                     effectiveRange.substring(mostRecentAtSymbol - 1, mostRecentAtSymbol))) {
-                    var currentAtMentionSnippet = effectiveRange.substring(mostRecentAtSymbol + 1, effectiveRange.length);
-                    var triggerChar = effectiveRange.substring(mostRecentAtSymbol, mostRecentAtSymbol+1);
+                    var currentAtMentionSnippet = effectiveRange.substring(mostRecentAtSymbol + 1,
+                        effectiveRange.length);
+
+                    triggerChar = effectiveRange.substring(mostRecentAtSymbol, mostRecentAtSymbol+1);
                     if (!(/[\xA0\s]/g.test(currentAtMentionSnippet))) {
                         return {
                             mentionPosition: mostRecentAtSymbol,
@@ -319,11 +312,9 @@
                     }
                 }
             }
-        };
-    })();
+        }
 
-    var getTextPrecedingCurrentSelection = (function () {
-        return function () {
+        function getTextPrecedingCurrentSelection () {
             var text;
             if (selectedElementIsTextAreaOrInput()) {
                 var textComponent = document.activeElement;
@@ -350,17 +341,13 @@
                 }
             }
             return text;
-        };
-    })();
+        }
 
-    var getContentEditableCaretPosition = (function () {
+        function getContentEditableCaretPosition (selectedNodePosition) {
+            var markerTextChar = '\ufeff';
+            var markerTextCharEntity = '&#xfeff;';
+            var markerEl, markerId = 'sel_' + new Date().getTime() + '_' + Math.random().toString().substr(2);
 
-        var markerTextChar = "\ufeff";
-        var markerTextCharEntity = "&#xfeff;";
-
-        var markerEl, markerId = "sel_" + new Date().getTime() + "_" + Math.random().toString().substr(2);
-
-        return function (selectedNodePosition) {
             var range;
             if (document.selection && document.selection.createRange) {
                 // Clone the TextRange and collapse
@@ -369,7 +356,8 @@
                 range.selectEndOffset(selectedNodePosition);
                 range.collapse(false);
 
-                // Create the marker element containing a single invisible character by creating literal HTML and insert it
+                // Create the marker element containing a single invisible character by
+                // creating literal HTML and insert it
                 range.pasteHTML('<span id="' + markerId + '" style="position: relative;">' +
                     markerTextCharEntity + '</span>');
                 markerEl = document.getElementById(markerId);
@@ -383,7 +371,7 @@
                 range.collapse(false);
 
                 // Create the marker element containing a single invisible character using DOM methods and insert it
-                markerEl = document.createElement("span");
+                markerEl = document.createElement('span');
                 markerEl.id = markerId;
                 markerEl.appendChild(document.createTextNode(markerTextChar));
                 range.insertNode(markerEl);
@@ -401,66 +389,63 @@
 
             markerEl.parentNode.removeChild(markerEl);
             return coordinates;
-        };
+        }
 
-    })();
+        function getTextAreaOrInputUnderlinePosition (element, position) {
+            /* jshint browser: true */
 
-    var getTextAreaOrInputUnderlinePosition = (function () {
+            // The properties that we copy into a mirrored div.
+            // Note that some browsers, such as Firefox,
+            // do not concatenate properties, i.e. padding-top, bottom etc. -> padding,
+            // so we have to do every single property specifically.
+            var properties = [
+                'direction', // RTL support
+                'boxSizing',
+                'width', //on Chrome and IE, exclude the scrollbar, so the mirror div wraps exactly as the textarea does
+                'height',
+                'overflowX',
+                'overflowY', // copy the scrollbar for IE
+
+                'borderTopWidth',
+                'borderRightWidth',
+                'borderBottomWidth',
+                'borderLeftWidth',
+
+                'paddingTop',
+                'paddingRight',
+                'paddingBottom',
+                'paddingLeft',
+
+                // https://developer.mozilla.org/en-US/docs/Web/CSS/font
+                'fontStyle',
+                'fontVariant',
+                'fontWeight',
+                'fontStretch',
+                'fontSize',
+                'fontSizeAdjust',
+                'lineHeight',
+                'fontFamily',
+
+                'textAlign',
+                'textTransform',
+                'textIndent',
+                'textDecoration', // might not make a difference, but better be safe
+
+                'letterSpacing',
+                'wordSpacing'
+            ];
+
+            var isFirefox = (window.mozInnerScreenX !== null);
 
 
-        /* jshint browser: true */
-
-        // The properties that we copy into a mirrored div.
-        // Note that some browsers, such as Firefox,
-        // do not concatenate properties, i.e. padding-top, bottom etc. -> padding,
-        // so we have to do every single property specifically.
-        var properties = [
-            'direction', // RTL support
-            'boxSizing',
-            'width', // on Chrome and IE, exclude the scrollbar, so the mirror div wraps exactly as the textarea does
-            'height',
-            'overflowX',
-            'overflowY', // copy the scrollbar for IE
-
-            'borderTopWidth',
-            'borderRightWidth',
-            'borderBottomWidth',
-            'borderLeftWidth',
-
-            'paddingTop',
-            'paddingRight',
-            'paddingBottom',
-            'paddingLeft',
-
-            // https://developer.mozilla.org/en-US/docs/Web/CSS/font
-            'fontStyle',
-            'fontVariant',
-            'fontWeight',
-            'fontStretch',
-            'fontSize',
-            'fontSizeAdjust',
-            'lineHeight',
-            'fontFamily',
-
-            'textAlign',
-            'textTransform',
-            'textIndent',
-            'textDecoration', // might not make a difference, but better be safe
-
-            'letterSpacing',
-            'wordSpacing'
-        ];
-
-        var isFirefox = (window.mozInnerScreenX !== null);
-
-        return function (element, position) {
             // mirrored div
             var div = document.createElement('div');
             div.id = 'input-textarea-caret-position-mirror-div';
             document.body.appendChild(div);
 
             var style = div.style;
-            var computed = window.getComputedStyle ? getComputedStyle(element) : element.currentStyle; // currentStyle for IE < 9
+            // currentStyle for IE < 9
+            var computed = window.getComputedStyle ? getComputedStyle(element) : element.currentStyle;
 
             // default textarea styles
             style.whiteSpace = 'pre-wrap';
@@ -480,7 +465,8 @@
             if (isFirefox) {
                 // Firefox adds 2 pixels to the padding - https://bugzilla.mozilla.org/show_bug.cgi?id=753662
                 style.width = (parseInt(computed.width) - 2) + 'px';
-                // Firefox lies about the overflow property for textareas: https://bugzilla.mozilla.org/show_bug.cgi?id=984275
+                // Firefox lies about the overflow property for textareas:
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=984275
                 if (element.scrollHeight > parseInt(computed.height))
                     style.overflowY = 'scroll';
             } else {
@@ -491,7 +477,7 @@
             // the second special handling for input type="text" vs textarea: spaces need to be
             // replaced with non-breaking spaces - http://stackoverflow.com/a/13402035/1269037
             if (element.nodeName === 'INPUT') {
-                div.textContent = div.textContent.replace(/\s/g, "\u00a0");
+                div.textContent = div.textContent.replace(/\s/g, '\u00a0');
             }
 
             var span = document.createElement('span');
@@ -519,296 +505,13 @@
             document.body.removeChild(div);
 
             return coordinates;
-        };
-    })();
-
-    angular.module('mentio', [])
-    .directive('mentioMenu', 
-        function () {
-            return {
-                restrict: 'E',
-                require: 'ngModel',
-                scope: {
-                    bind: "&",
-                    atVar: "=ngModel",
-                    macros: "="
-                },
-                controller: function($scope, $timeout, $document) {
-                    this.addRule = function(rule) {
-                        $scope.map[rule.triggerChar] = rule;
-                        $scope.triggerCharSet.push(rule.triggerChar);
-                        if (this.triggerCharSet === undefined) {
-                            this.triggerCharSet = [];    
-                        }
-                        this.triggerCharSet.push(rule.triggerChar);
-                    };
-                    $scope.query = function (triggerChar, text) {
-                        var remoteScope = $scope.map[triggerChar];
-                        remoteScope.showMenu();
-                        remoteScope.search({
-                            term: $scope.atVar
-                        });
-                    };
-                    this.replaceText = $scope.replaceText = function (triggerChar, item) {
-                        // need to set up call to this
-                        var remoteScope = $scope.map[triggerChar];
-                        var text = remoteScope.select({
-                            item: item
-                        });
-                        replaceAtMentionText($scope.targetElement, $scope.targetElementPath,
-                            $scope.targetElementSelectedOffset, $scope.triggerCharSet, text);
-                        $scope.atVar = '';
-                    };
-
-                    $scope.hideAll = function () {
-                        for (var key in $scope.map) {
-                          if ($scope.map.hasOwnProperty(key)) {
-                            $scope.map[key].hideMenu();
-                          }
-                        }                      
-                    };
-
-                    $scope.selectActive = function () {
-                        for (var key in $scope.map) {
-                          if ($scope.map.hasOwnProperty(key)) {
-                            if (!$scope.map[key].hide) {
-                                $scope.map[key].selectActive();
-                            }   
-                          }
-                        }                      
-                    };
-
-                    $scope.replaceMacro = function(macro) {
-                        var timer = $timeout(function() {
-                            replaceMacroText($scope.targetElement, $scope.targetElementPath,
-                                $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
-                        }, 300);
-                        $scope.$on('$destroy', function() {
-                          $timeout.cancel(timer);
-                        });
-                    }
-
-                    $document.on(
-                        "click", function(e) {
-                            $scope.$apply(function() {
-                                $scope.selectActive();
-                            });
-                        }
-                    );
-
-                    $document.on(
-                        "keydown keypress", function(e) {
-                            if (event.which === 9) {
-                                $scope.$apply(function() {
-                                    $scope.selectActive();
-                                });
-                            }
-                        }
-                    );
-                },
-                link: function (scope, element, attrs, timeout) {
-                    scope.map = {};
-                    scope.triggerCharSet = [];
-                    scope.$watch(
-                        function (scope) {
-                            return scope.$eval(scope.bind);
-                        },
-                        function (value) {
-                            var mentionInfo = getAtMentionInfo(scope.triggerCharSet);
-                            if (mentionInfo !== undefined) {
-                                /** save selection info about the target control for later re-selection */
-                                scope.targetElement = mentionInfo.mentionSelectedElement;
-                                scope.targetElementPath = mentionInfo.mentionSelectedPath;
-                                scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
-
-                                /* store model */
-                                scope.atVar =  mentionInfo.mentionText;
-                                /* perform query */
-                                scope.query(mentionInfo.mentionTriggerChar,
-                                    mentionInfo.mentionText);
-                            } else {
-                                scope.atVar = '';
-                                scope.hideAll();
-
-                                var macroMatchInfo = getMacroMatch(scope.macros);
-                                if(macroMatchInfo !== undefined) {
-                                    scope.targetElement = macroMatchInfo.macroSelectedElement;
-                                    scope.targetElementPath = macroMatchInfo.macroSelectedPath;
-                                    scope.targetElementSelectedOffset = macroMatchInfo.macroSelectedOffset;
-                                    scope.replaceMacro(macroMatchInfo.macroText);
-                                }
-                            }
-                        }
-                    );
-                                    }
-            };
         }
-    )
-    .directive('mentioRule', function () {
-        var setupKeyCapture = function (scope, element) {
-            angular.element(element).bind("keydown keypress", function (event) {
-                if (!scope.hide) {
-                    if (event.which === 27) {
-                        scope.$apply(function () {
-                            scope.hide = true;
-                        });
-                        event.preventDefault();
-                    }
-
-                    if (event.which === 40) {
-                        event.preventDefault();
-                        scope.$apply(function () {
-                            scope.activateNextItem();
-                        });
-                    }
-
-                    if (event.which === 38) {
-                        event.preventDefault();
-                        scope.$apply(function () {
-                            scope.activatePreviousItem();
-                        });
-                    }
-
-                    if (event.which === 13) {
-                        event.preventDefault();
-                        scope.$apply(function () {
-                            scope.selectActive();
-                        });
-                    }
-                }
-            });
-        };
 
         return {
-            restrict: 'E',
-            scope: {
-                search: "&",
-                select: "&",
-                items: "="
-            },
-            require: '^mentioMenu',
-            templateUrl: function(tElement, tAttrs) {
-                return tAttrs.template;
-            },
-            controller: ['$scope', '$attrs', function ($scope, $attrs) {
-                $scope.items = [];
-                $scope.hide = true;
-
-                $scope.triggerChar = $attrs.triggerChar;
-
-                this.activate = $scope.activate = function (item) {
-                    $scope.active = item;
-                };
-
-                $scope.activateNextItem = function () {
-                    var index = $scope.items.indexOf($scope.active);
-                    this.activate($scope.items[(index + 1) % $scope.items.length]);
-                };
-
-                $scope.activatePreviousItem = function () {
-                    var index = $scope.items.indexOf($scope.active);
-                    this.activate($scope.items[index === 0 ? $scope.items.length - 1 : index - 1]);
-                };
-
-                this.isActive = $scope.isActive = function (item) {
-                    return $scope.active === item;
-                };
-
-                $scope.selectActive = function () {
-                    $scope.selector($scope.active);
-                };
-
-                this.selector = $scope.selector = function (item) {
-                    $scope.hide = true;
-                    $scope.controller.replaceText($scope.triggerChar, item);
-                };
-
-                $scope.isVisible = function () {
-                    return !$scope.hide;
-                };
-
-                $scope.showMenu = function () {
-                    $scope.requestVisiblePendingSearch = true;
-                };
-
-                $scope.hideMenu = function () {
-                    $scope.hide = true;
-                };
-                // $scope.query = function () {
-                //     $scope.requestVisiblePendingSearch = true;
-                //     $scope.search({
-                //         term: $scope.atVar
-                //     });
-                // };
-            }],
-
-            link: function (scope, element, attrs, controller) {
-                controller.addRule(scope);
-                scope.controller = controller;
-
-                var $list = element;
-                element[0].parentNode.removeChild(element[0]);
-                document.body.appendChild(element[0]);
-
-                setupKeyCapture(scope, document.body);
-
-                scope.$watch('items', function (items) {
-                    if (items.length > 0) {
-                        scope.activate(items[0]);
-                        if (scope.hide && scope.requestVisiblePendingSearch) {
-                            scope.hide = false;
-                            scope.requestVisiblePendingSearch = false;
-                        }
-                    } else {
-                        scope.hide = true;
-                    }
-                });
-
-                scope.$watch('isVisible()', function (visible) {
-                    if (visible) {
-                        popUnderMention(controller.triggerCharSet, $list);
-                    } else {
-                        $list.css('display', 'none');
-                    }
-                });
-
-            }
-        };
-    })
-    .directive('mentioMenuItem', function () {
-        return {
-            restrict: 'A',
-            scope: {
-                mentioMenuItem: "="
-            },
-            require: '^mentioRule',
-            link: function (scope, element, attrs, controller) {
-
-                var item = scope.mentioMenuItem;
-
-                scope.$watch(function () {
-                    return controller.isActive(item);
-                }, function (active) {
-                    if (active) {
-                        element.addClass('active');
-                    } else {
-                        element.removeClass('active');
-                    }
-                });
-
-                element.bind('mouseenter', function (e) {
-                    scope.$apply(function () {
-                        controller.activate(item);
-                    });
-                });
-
-                element.bind('click', function (e) {
-                    scope.$apply(function () {
-                        controller.selector(item);
-                    });
-                    e.preventDefault();
-                });
-            }
+            popUnderMention: popUnderMention,
+            replaceMacroText: replaceMacroText,
+            replaceAtMentionText: replaceAtMentionText,
+            getMacroMatch: getMacroMatch,
+            getAtMentionInfo: getAtMentionInfo
         };
     });
-})();
