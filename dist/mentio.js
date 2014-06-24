@@ -24,16 +24,9 @@ angular.module('mentio', [])
                     var remoteScope = $scope.map[triggerChar];
                     remoteScope.showMenu();
 
-                    var searchFunc = remoteScope.search({
+                    remoteScope.search({
                         term: $scope.atVar
                     });
-
-                    // TODO: clean up promise code
-                    if (searchFunc && searchFunc.hasOwnProperty('then')) {
-                        searchFunc.then(function (items) {
-                            remoteScope.items = items;
-                        });
-                    }
 
                     remoteScope.atVar = $scope.atVar;
                 };
