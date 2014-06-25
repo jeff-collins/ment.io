@@ -7,7 +7,7 @@ angular.module('mentio', [])
             require: 'ngModel',
             scope: {
                 bind: '&',
-                atVar: '=ngModel',
+                mentionText: '=ngModel',
                 macros: '='
             },
             controller: function($scope, $timeout, $document) {
@@ -25,10 +25,10 @@ angular.module('mentio', [])
                     remoteScope.showMenu();
 
                     remoteScope.search({
-                        term: $scope.atVar
+                        term: $scope.mentionText
                     });
 
-                    remoteScope.atVar = $scope.atVar;
+                    remoteScope.mentionText = $scope.mentionText;
                 };
 
                 this.replaceText = $scope.replaceText = function (triggerChar, item) {
@@ -39,7 +39,7 @@ angular.module('mentio', [])
                     });
                     mentioUtil.replaceAtMentionText($scope.targetElement, $scope.targetElementPath,
                         $scope.targetElementSelectedOffset, $scope.triggerCharSet, text);
-                    $scope.atVar = '';
+                    $scope.mentionText = '';
                 };
 
                 $scope.hideAll = function () {
@@ -117,11 +117,11 @@ angular.module('mentio', [])
                             scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
 
                             /* store model */
-                            scope.atVar =  mentionInfo.mentionText;
+                            scope.mentionText =  mentionInfo.mentionText;
                             /* perform query */
                             scope.query(mentionInfo.mentionTriggerChar, mentionInfo.mentionText);
                         } else {
-                            scope.atVar = '';
+                            scope.mentionText = '';
                             scope.hideAll();
 
                             var macroMatchInfo = mentioUtil.getMacroMatch(scope.macros);
