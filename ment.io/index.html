@@ -67,7 +67,7 @@
                     </mentio-menu>
 
                     <div class="form-group">
-                        <h3>Text Area:</h3>
+                        <h3>Text Input:</h3>
                         <input type="text" class="form-control" ng-model="theText" ng-trim="false" size="100"/>
                         <span class="caption small">Mentioned: {{triggerText3}}</span>
                     </div>
@@ -90,12 +90,12 @@
                     <h1 class="heading">Ment.io</h1>
                     <h6 class="text-muted">(Angular @mentions with macros)</h6>
                 </header>
-                <h3 class="heading">Overview</h3>
+                <h3 class="section-heading">Overview</h3>
                 The <code>mentio-menu</code> tag  attaches to a single text element on a page through
                 an ngModel name reference.  The <code>mentio-menu</code> effectively watches the <code>$viewValue</code> of the targeted element and 
                 responds to changes in the text by presenting typeahead menus for different characters and macro expansion for specified sequences
                 of characters.
-                <h3 class="heading">Element Directives</h3>
+                <h3 class="section-heading">Element Directives</h3>
                 <header class="documentation-element">
                     <code>
                     mentio-menu
@@ -109,7 +109,7 @@
                 <p>In addition, a translation table to use for macros can be assigned through the <code>macros</code> attribute which will
                 expand typed sequences of characters into predefined strings of HTML or text. 
                 </p>
-                <h4 class="heading">Attributes</h4>
+                <h4 class="section-heading">Attributes</h4>
  
                 <header class="text-primary documentation-attr">bind</header>
                 <strong>Required.</strong> Specifies the name of an ngModel on another text element to attach to.  
@@ -144,7 +144,7 @@
                                 ' height="20" width="20"&gt;'
                     };</pre>
 
-                <h4 class="heading">Provided Scope Properties</h4>
+                <h4 class="section-heading">Provided Scope Properties</h4>
 
                 <header class="text-primary documentation-attr">items</header>
                 <code>items</code> is passed from the <code>mentio-menu</code> attribute of the same name and made 
@@ -163,7 +163,7 @@
                 should respond to.  Each rule must specify the trigger character, a data collection, the template to use to render the menu, a search 
                 function, and a select function.  Based on the specified attributes, the specified behavior will happen whenever text in the target
                 text element is changed.  </p>
-                <h4 class="heading">Attributes</h4>
+                <h4 class="section-heading">Attributes</h4>
  
                 <header class="text-primary documentation-attr">trigger-char</header>
                 <strong>Required.</strong> The character that should trigger the menu behavior.  In the example, @ and # are used.
@@ -213,7 +213,7 @@
                 corresponding to the select item in the menu is bound to the <code>item</code> parameter of the select function.  The
                 select function must return a string to use to replace the current trigger char and mention text.  
 
-                <h3 class="heading">Attribute Directives</h3>
+                <h3 class="section-heading">Attribute Directives</h3>
                 <header class="documentation-element">
                     <code>
                     mentio-menu-item
@@ -226,7 +226,7 @@
                 clicks an element with the <code>mentio-menu-item</code> directive, the item corresponding to the currently
                 active <code>mentio-menu-item</code> will be selected by invoking the select function.
 
-                <h3 class="heading">Filters</h3>
+                <h3 class="section-heading">Filters</h3>
                 <header class="documentation-element">
                     <code>
                     mentioHighlight

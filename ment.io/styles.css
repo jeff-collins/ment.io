@@ -75,10 +75,14 @@
 }
 
 .documentation-element {
-    margin-top: 20px;
+    margin-top: 30px;
     margin-bottom: 10px;
     font-size: 20px;
     font-weight: bold;
+}
+
+.section-heading {
+    margin-top: 30px;
 }
 
 
