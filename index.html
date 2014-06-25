@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html ng-app="mentio-demo">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Ment.io Demo</title>
+    <link data-require="bootstrap-css@3.1.1" data-semver="3.1.1" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+    <script>document.write('<base href="' + document.location + '" />');</script>
+    <link rel="stylesheet" href="demo.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
+    <script src="dist/js/mentio.js"></script>
+    <script src="demo.js"></script>
+  </head>
+  <body>
+  <div ng-controller="mentio-demo-ctrl" class="content-area">
+
+     <header>
+      <h1 class="heading">Ment.io</h1>
+     </header>
+     <p class="subheading">(Angular @mentions with macros)</p>
+
+      <div>
+        <span class="title">Content Editable:</span>
+        <div class="editor" contenteditable ng-model="htmlContent">
+          Try me @
+          <br>
+          or add a macro like brb, omw, (smile)
+        </div>
+        <span class="caption">Mentioned: {{atVar}}</span>
+      </div>
+
+      <div>
+        <span class="title">Text Area:</span>
+        <textarea ng-model="theTextArea" ng-trim="false" class="editor"></textarea>
+        <span class="caption">Mentioned: {{atVar2}}</span>
+      </div>
+
+      <div>
+        <span class="title">Simple Input:</span>
+        <input type="text" ng-model="theText" ng-trim="false" size="100"/>
+        <span class="caption">Mentioned: {{atVar3}}</span>
+      </div>
+
+        <mentio-menu bind="htmlContent" ng-model="atVar" macros="macros" ng-cloak>
+          <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
+                search="searchPeople(term)" select="getPeopleText(item)"></mentio-rule>
+          <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
+                search="searchProducts(term)" select="getProductText(item)"></mentio-rule>
+        </mentio-menu>
+
+        <mentio-menu bind="theTextArea" ng-model="atVar2" macros="macros" ng-cloak>
+          <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
+                search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>
+          <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl" 
+                search="searchProducts(term)" select="getProductTextRaw(item)"></mentio-rule>
+        </mentio-menu>
+
+        <mentio-menu bind="theText" ng-model="atVar3" ng-cloak>
+          <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl" 
+                search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>
+          <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
+                search="searchProducts(term)" select="getProductTextRaw(item)"></mentio-rule>
+        </mentio-menu>
+
+        <script type="text/ng-template" id="/product-mentions.tpl">
+              <div class="product-search">
+                <div class="menu">
+                    <h3>Products</h3>
+                    <ul>
+                        <li mentio-menu-item="product" ng-repeat="product in items" class="results">
+                            <img ng-src="{{product._source.imageUrl}}"><p class="name">{{product._source.title}}</p><p 
+                                class="description">{{product._source.description.substring(0,30)}}</p>
+                        </li>
+                    </ul>
+                </div>
+              </div>
+       </script>
+
+        <script type="text/ng-template" id="/people-mentions.tpl">
+              <div class="people-search">
+                <div class="menu">
+                    <h3>People</h3>
+                    <ul>
+                        <li mentio-menu-item="person" ng-repeat="person in items" class="results">
+                            <img ng-src="{{person._source.imageUrl}}"><p class="name">{{person._source.name}}</p><p 
+                                class="bio">{{person._source.bio.substring(0,30)}}</p>
+                        </li>
+                    </ul>
+                </div>
+              </div>
+       </script>
+
+<a href="https://github.com/jeff-collins/ment.io"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+</div>
+</body>
+
+</html>
+

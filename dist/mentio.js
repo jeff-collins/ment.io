@@ -60,6 +60,17 @@ angular.module('mentio', [])
                     }
                 };
 
+                $scope.isActive = function () {
+                    for (var key in $scope.map) {
+                        if ($scope.map.hasOwnProperty(key)) {
+                            if (!$scope.map[key].hide) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
                 $scope.replaceMacro = function(macro) {
                     var timer = $timeout(function() {
                         mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
@@ -72,9 +83,11 @@ angular.module('mentio', [])
 
                 $document.on(
                     'click', function () {
-                        $scope.$apply(function () {
-                            $scope.selectActive();
-                        });
+                        if ($scope.isActive()) {
+                            $scope.$apply(function () {
+                                $scope.selectActive();
+                            });
+                        }
                     }
                 );
 
@@ -215,13 +228,7 @@ angular.module('mentio', [])
                 $scope.hideMenu = function () {
                     $scope.hide = true;
                 };
-                // $scope.query = function () {
-                //     $scope.requestVisiblePendingSearch = true;
-                //     $scope.search({
-                //         term: $scope.atVar
-                //     });
-                // };
-            }],
+           }],
 
             link: function (scope, element, attrs, controller) {
                 controller.addRule(scope);
@@ -300,9 +307,13 @@ angular.module('mentio', [])
             return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
         }
 
-        return function (matchItem, query) {
-            return query ? ('' + matchItem).replace(new RegExp(escapeRegexp(query), 'gi'), '<strong>$&</strong>') :
-                matchItem;
+        return function (matchItem, query, hightlightClass) {
+            if (query) {
+                var replaceText = hightlightClass ? '<span class="' + hightlightClass + '">$&</span>' : '<strong>$&</strong>';
+                return ('' + matchItem).replace(new RegExp(escapeRegexp(query), 'gi'), replaceText);
+            } else {
+                return matchItem;
+            }
         };
     });
 
