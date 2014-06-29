@@ -187,6 +187,15 @@
                 at a time. 
                 </p> 
 
+                <p>Definition of menu behavior for each desired trigger character can be specified 
+                with separate <code>mentio-menu</code> directives.
+                However the <code>mentio</code> directive does not require separate <code>mentio-menu</code> directives.  
+                If only one trigger character
+                is needed, the <code>mtio-trigger-char</code>, <code>mtio-items</code>, <code>mtio-template</code>, <code>mtio-search</code>,
+                and <code>mtio-select</code> attributes from the <code>mentio-menu</code> directive can be specified directly along side 
+                the <code>mentio</code> directive.
+                </p>
+
                 <p>To support macro expansion, a translation table to use for macros can be assigned through the <code>macros</code> 
                 attribute which will expand typed sequences of characters into predefined strings of HTML or text. 
                 </p>
@@ -237,6 +246,11 @@
                 the specified menu will display whenever text in the target
                 text element is changed.  </p>
                 <h4 class="section-heading">Attributes</h4>
+
+                If only one trigger character
+                is needed, the <code>mtio-trigger-char</code>, <code>mtio-items</code>, <code>mtio-template</code>, <code>mtio-search</code>,
+                and <code>mtio-select</code> attributes can be placed on the same element with the <code>mentio</code> directive.
+
  
                 <header class="text-primary documentation-attr">mtio-for</header>
                 <strong>Required.</strong> The string literal <code>id</code> of the element containing a 
