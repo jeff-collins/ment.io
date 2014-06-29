@@ -262,7 +262,7 @@
                         &lt;i mentio-menu-item="person" ng-repeat="person in <b>items</b>" class="list-group-item"&gt;
                             &lt;mg ng-src=" { {person._source.imageUrl} }" class="user-photo"&gt;
                             &lt;span class="text-primary" 
-                                ng-bind-html="person._source.name | mentioHighlight:mentionText:'menu-highlighted' | unsafe">&lt;/span&gt;
+                                ng-bind-html="person._source.name | mentioHighlight:triggerText:'menu-highlighted' | unsafe">&lt;/span&gt;
                             &lt;em class="text-muted" ng-bind="person._source.bio | words:5">&lt;/em&gt;
                         &lt;/li&gt;
                     &lt;/ul&gt;
@@ -321,7 +321,7 @@
                 be replaced with a <code>span</code> element with the class <code>menu-highlighted</code>:
 
                 <p></p>
-                <pre>person._source.name | mentioHighlight:mentionText:'menu-highlighted'</pre>
+                <pre>person._source.name | mentioHighlight:triggerText:'menu-highlighted'</pre>
                 The filter is useful within the <code>mentio-menu</code> template when iterating the items in the select menu for the user 
                 to pick.
                <p></p>
