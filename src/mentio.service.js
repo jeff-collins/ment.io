@@ -6,7 +6,7 @@ angular.module('mentio')
         // public
         function popUnderMention (triggerCharSet, selectionEl) {
             var coordinates;
-            var mentionInfo = getAtMentionInfo(triggerCharSet);
+            var mentionInfo = getTriggerInfo(triggerCharSet);
 
             if (mentionInfo !== undefined) {
 
@@ -158,14 +158,15 @@ angular.module('mentio')
         }
 
         // public
-        function replaceAtMentionText (targetElement, path, offset, triggerCharSet, text) {
+        function replaceTriggerText (targetElement, path, offset, triggerCharSet, text) {
             resetSelection(targetElement, path, offset);
 
-            var mentionInfo = getAtMentionInfo(triggerCharSet);
+            var mentionInfo = getTriggerInfo(triggerCharSet);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
                     var myField = document.activeElement;
+                    text = text + ' ';
                     //IE support
                     if (document.selection) {
                         myField.focus();
@@ -184,6 +185,7 @@ angular.module('mentio')
                         myField.selectionEnd = startPos + text.length;
                     }
                 } else {
+                    text = text + '\xA0';
                     pasteHtml(text, mentionInfo.mentionPosition,
                             mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
                 }
@@ -258,7 +260,7 @@ angular.module('mentio')
         }
 
         // public
-        function getAtMentionInfo (triggerCharSet) {
+        function getTriggerInfo (triggerCharSet) {
             var selected, path = [],
                 offset;
             if (selectedElementIsTextAreaOrInput()) {
@@ -296,14 +298,14 @@ angular.module('mentio')
                 });
                 if (mostRecentAtSymbol === 0 || /[\xA0\s]/g.test(
                     effectiveRange.substring(mostRecentAtSymbol - 1, mostRecentAtSymbol))) {
-                    var currentAtMentionSnippet = effectiveRange.substring(mostRecentAtSymbol + 1,
+                    var currentTriggerSnippet = effectiveRange.substring(mostRecentAtSymbol + 1,
                         effectiveRange.length);
 
                     triggerChar = effectiveRange.substring(mostRecentAtSymbol, mostRecentAtSymbol+1);
-                    if (!(/[\xA0\s]/g.test(currentAtMentionSnippet))) {
+                    if (!(/[\xA0\s]/g.test(currentTriggerSnippet))) {
                         return {
                             mentionPosition: mostRecentAtSymbol,
-                            mentionText: currentAtMentionSnippet,
+                            mentionText: currentTriggerSnippet,
                             mentionSelectedElement: selected,
                             mentionSelectedPath: path,
                             mentionSelectedOffset: offset,
@@ -510,8 +512,8 @@ angular.module('mentio')
         return {
             popUnderMention: popUnderMention,
             replaceMacroText: replaceMacroText,
-            replaceAtMentionText: replaceAtMentionText,
+            replaceTriggerText: replaceTriggerText,
             getMacroMatch: getMacroMatch,
-            getAtMentionInfo: getAtMentionInfo
+            getTriggerInfo: getTriggerInfo
         };
     });

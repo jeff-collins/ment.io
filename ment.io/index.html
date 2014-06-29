@@ -5,9 +5,9 @@
     <title>{{title}}</title>
     <link data-require="bootstrap-css@3.1.1" data-semver="3.1.1" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-route.min.js"></script>
-    <script src="../dist/mentio.js"></script>
+    <script src="/dist/mentio.js"></script>
     <script src="scripts.js"></script>
 </head>
 <body ng-controller="mentio-demo-ctrl">
@@ -38,7 +38,13 @@
 
                     <div class="form-group">
                         <h3>Content Editable:</h3>
-                        <div class="editor form-control" contenteditable ng-model="htmlContent">
+                        <div contenteditable mentio
+                            mtio-trigger-text="triggerText"
+                            mtio-macros="macros" 
+                            class="editor form-control" 
+                            id="htmlContent" 
+                            ng-model="htmlContent"
+                            >
                             Try me @
                             <br>
                             or add a macro like brb, omw, (smile)
@@ -46,38 +52,73 @@
                         <span class="caption small">Mentioned: {{triggerText}}</span>
                     </div>
 
-                    <mentio-menu bind="htmlContent" ng-model="triggerText" macros="macros" ng-cloak>
-                        <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
-                                     search="searchPeople(term)" select="getPeopleText(item)"></mentio-rule>
-                        <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
-                                     search="searchProducts(term)" select="getProductText(item)"></mentio-rule>
-                    </mentio-menu>
+                    <mentio-menu 
+                                mtio-for="'htmlContent'" 
+                                mtio-trigger-char="'@'" 
+                                mtio-items="people" 
+                                mtio-template="/people-mentions.tpl"
+                                mtio-search="searchPeople(term)" 
+                                mtio-select="getPeopleText(item)"></mentio-menu>
 
                     <div class="form-group">
                         <h3>Text Area:</h3>
-                        <textarea class="form-control" ng-model="theTextArea" ng-trim="false" class="editor" rows="6"></textarea>
+                        <textarea mentio
+
+                                mtio-macros="macros" 
+                                mtio-trigger-char="'@'" 
+                                mtio-items="people" 
+                                mtio-template="/people-mentions.tpl"
+                                mtio-search="searchPeople(term)" 
+                                mtio-select="getPeopleTextRaw(item)"
+                                mtio-trigger-text="triggerText2"
+
+                                class="form-control" 
+                                id="theTextArea" 
+                                ng-model="theTextArea" 
+                                ng-trim="false" 
+                                class="editor" 
+                                rows="6">
+                        </textarea>
                         <span class="caption small">Mentioned: {{triggerText2}}</span>
                     </div>
 
-                    <mentio-menu bind="theTextArea" ng-model="triggerText2" macros="macros" ng-cloak>
-                        <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
-                                     search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>
-                        <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
-                                     search="searchProducts(term)" select="getProductTextRaw(item)"></mentio-rule>
-                    </mentio-menu>
+                    <mentio-menu 
+
+                                mtio-for="'theTextArea'" 
+                                mtio-trigger-char="'#'" 
+                                mtio-items="products" 
+                                mtio-template="/product-mentions.tpl"
+                                mtio-search="searchProducts(term)" 
+                                mtio-select="getProductTextRaw(item)"></mentio-menu>
 
                     <div class="form-group">
                         <h3>Text Input:</h3>
-                        <input type="text" class="form-control" ng-model="theText" ng-trim="false" size="100"/>
+                        <input mentio 
+
+                                ng-model="theText" 
+                                id="theText" 
+                                type="text" 
+                                class="form-control" 
+                                ng-trim="false" 
+                                size="100"/>
                         <span class="caption small">Mentioned: {{triggerText3}}</span>
                     </div>
 
-                    <mentio-menu bind="theText" ng-model="triggerText3" ng-cloak>
-                        <mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl"
-                                     search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>
-                        <mentio-rule trigger-char="#" items="products" template="/product-mentions.tpl"
-                                     search="searchProducts(term)" select="getProductTextRaw(item)"></mentio-rule>
-                    </mentio-menu>
+                    <mentio-menu 
+                                mtio-for="'theText'" 
+                                mtio-trigger-char="'#'" 
+                                mtio-items="products" 
+                                mtio-template="/product-mentions.tpl"
+                                mtio-search="searchProducts(term)" 
+                                mtio-select="getProductTextRaw(item)"></mentio-menu>
+                    <mentio-menu 
+                                mtio-for="'theText'" 
+                                mtio-trigger-char="'@'" 
+                                mtio-items="people" 
+                                mtio-template="/people-mentions.tpl"
+                                mtio-search="searchPeople(term)" 
+                                mtio-select="getPeopleTextRaw(item)"></mentio-menu>
+
                 </div>
             </div>
         </div>
