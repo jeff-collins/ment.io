@@ -188,13 +188,13 @@ angular.module('mentio', [])
                 scope.map = {};
 
                 attrs.$set('autocomplete','off');
-                if (attrs.mtioTemplate) {
+                if (attrs.mtioTriggerChar) {
                     var html = '<mentio-menu ' +
                         ' mtio-for="\'' + attrs.id + '\'"' +
                         ' mtio-search="bridgeSearch(term)"' +
                         ' mtio-select="bridgeSelect(item)"' +
                         ' mtio-items="items"' +
-                        ' mtio-template="' + attrs.mtioTemplate + '"' +
+                        ' mtio-template-url="' + attrs.mtioTemplateUrl + '"' +
                         ' mtio-trigger-char="' + attrs.mtioTriggerChar + '"' +
                         '/>';
                     var linkFn = $compile(html);
@@ -256,7 +256,7 @@ angular.module('mentio', [])
                 forElem: '=mtioFor'
             },
             templateUrl: function(tElement, tAttrs) {
-                return tAttrs.mtioTemplate;
+                return tAttrs.mtioTemplateUrl !== 'undefined' ? tAttrs.mtioTemplateUrl : 'menio-menu.tpl.html';
             },
             controller: function ($scope) {
                 $scope.visible = false;

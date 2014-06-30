@@ -67,6 +67,17 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             });
         };
 
+        $scope.searchSimplePeople = function(term) {
+            return $http.get('simplepeopledata.json').then(function (response) {
+                $scope.simplePeople = [];
+                angular.forEach(response.data, function(item) {
+                    if (item.label.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
+                        $scope.simplePeople.push(item);
+                    }
+                });
+            });
+        };
+
         $scope.getProductText = function(item) {
             return '[~<strong>' + item._sku + '</strong>]';
         };
@@ -82,7 +93,13 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $scope.getPeopleTextRaw = function(item) {
             return '@' + item._source.name;
         };
+
+        $scope.getSimplePeopleTextRaw = function(item) {
+            return '@' + item.label;
+        };
+
         $scope.theTextArea = 'Type an @ or # and some text';
+        $scope.theTextArea2 = 'Type an @';
     })
 
     .directive('contenteditable', ['$sce', function($sce) {
