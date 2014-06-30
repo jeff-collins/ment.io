@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mentio', [])
-    .directive('mentio', function (mentioUtil, $compile, $document) {
+    .directive('mentio', function (mentioUtil, $compile) {
         return {
             restrict: 'A',
             scope: {
@@ -60,7 +60,7 @@ angular.module('mentio', [])
                     $scope.$on('$destroy', function() {
                         $timeout.cancel(timer);
                     });
-                 };
+                };
 
                 $scope.hideAll = function () {
                     for (var key in $scope.map) {
@@ -104,7 +104,7 @@ angular.module('mentio', [])
 
                 $scope.isContentEditable = function() {
                     return ($scope.targetElement.nodeName !== 'INPUT' && $scope.targetElement.nodeName !== 'TEXTAREA');
-                }
+                };
 
                 $scope.replaceMacro = function(macro) {
                     var timer = $timeout(function() {
@@ -134,7 +134,7 @@ angular.module('mentio', [])
                 );
 
                 $document.on(
-                    'click', function (event) {
+                    'click', function () {
                         if ($scope.isActive()) {
                             $scope.$apply(function () {
                                 $scope.selectActive();
@@ -155,10 +155,10 @@ angular.module('mentio', [])
 
                             if (event.which === 27) {
                                 event.preventDefault();
-                                 activeMenuScope.$apply(function () {
+                                activeMenuScope.$apply(function () {
                                     activeMenuScope.hideMenu();
                                 });
-                           }
+                            }
 
                             if (event.which === 40) {
                                 event.preventDefault();
@@ -189,14 +189,14 @@ angular.module('mentio', [])
 
                 attrs.$set('autocomplete','off');
                 if (attrs.mtioTemplate) {
-                    var html = '<mentio-menu ' 
-                        + ' mtio-for="\'' + attrs.id + '\'"'
-                        + ' mtio-search="bridgeSearch(term)"'
-                        + ' mtio-select="bridgeSelect(item)"'
-                        + ' mtio-items="items"'
-                        + ' mtio-template="' + attrs.mtioTemplate + '"'
-                        + ' mtio-trigger-char="' + attrs.mtioTriggerChar + '"'
-                        + '/>';
+                    var html = '<mentio-menu ' +
+                        ' mtio-for="\'' + attrs.id + '\'"' +
+                        ' mtio-search="bridgeSearch(term)"' +
+                        ' mtio-select="bridgeSelect(item)"' +
+                        ' mtio-items="items"' +
+                        ' mtio-template="' + attrs.mtioTemplate + '"' +
+                        ' mtio-trigger-char="' + attrs.mtioTriggerChar + '"' +
+                        '/>';
                     var linkFn = $compile(html);
                     var el = linkFn(scope);
 
@@ -258,7 +258,7 @@ angular.module('mentio', [])
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mtioTemplate;
             },
-            controller: function ($scope, $attrs) {
+            controller: function ($scope) {
                 $scope.visible = false;
 
                 // callable both with controller (menuItem) and without controller (local)
@@ -272,7 +272,7 @@ angular.module('mentio', [])
                 };
 
                 // callable both with controller (menuItem) and without controller (local)
-                 this.selectItem = $scope.selectItem = function (item) {
+                this.selectItem = $scope.selectItem = function (item) {
                     $scope.visible = false;
                     $scope.parentMentio.replaceText($scope.triggerChar, item);
                 };
@@ -310,7 +310,7 @@ angular.module('mentio', [])
                 };
             },
 
-            link: function (scope, element, attrs, controller) {
+            link: function (scope, element) {
                 element[0].parentNode.removeChild(element[0]);
                 document.body.appendChild(element[0]);
 
@@ -322,17 +322,17 @@ angular.module('mentio', [])
                     if (mentioAttr !== undefined) {
                         // send own scope to mentio directive so that the menu
                         // becomes attached
-                        $rootScope.$broadcast("menuCreated", 
+                        $rootScope.$broadcast('menuCreated',
                             {
                                 targetElement : scope.forElem,
                                 scope : scope
                             });
                         scope.targetElement = ngElem;
                     } else {
-                        $log.error("Error, no mentio directive on target element " + scope.forElem);
+                        $log.error('Error, no mentio directive on target element ' + scope.forElem);
                     }
                 } else {
-                    $log.error("Error, no such element: " + scope.forElem);
+                    $log.error('Error, no such element: ' + scope.forElem);
                 }
 
                 scope.$watch('items', function (items) {
@@ -403,7 +403,9 @@ angular.module('mentio', [])
 
         return function (matchItem, query, hightlightClass) {
             if (query) {
-                var replaceText = hightlightClass ? '<span class="' + hightlightClass + '">$&</span>' : '<strong>$&</strong>';
+                var replaceText = hightlightClass
+                                 ? '<span class="' + hightlightClass + '">$&</span>'
+                                 : '<strong>$&</strong>';
                 return ('' + matchItem).replace(new RegExp(escapeRegexp(query), 'gi'), replaceText);
             } else {
                 return matchItem;
