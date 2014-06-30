@@ -13,6 +13,7 @@ angular.module('mentio', [])
                 ngModel: '='
             },
             controller: function($scope, $timeout, $document, $attrs) {
+ 
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.map[triggerChar];
                     remoteScope.showMenu();
@@ -53,13 +54,13 @@ angular.module('mentio', [])
                     $scope.setTriggerText('');
                     if ($scope.isContentEditable()) {
                         $scope.contentEditableMenuPasted = true;
+                        var timer = $timeout(function() {
+                            $scope.contentEditableMenuPasted = false;
+                        }, 100);
+                        $scope.$on('$destroy', function() {
+                            $timeout.cancel(timer);
+                        });
                     }
-                    var timer = $timeout(function() {
-                        $scope.contentEditableMenuPasted = false;
-                    }, 100);
-                    $scope.$on('$destroy', function() {
-                        $timeout.cancel(timer);
-                    });
                  };
 
                 $scope.hideAll = function () {
@@ -186,16 +187,16 @@ angular.module('mentio', [])
             },
             link: function (scope, element, attrs) {
                 scope.map = {};
-
                 attrs.$set('autocomplete','off');
+                scope.parentScope = scope;
                 if (attrs.mtioTemplate) {
                     var html = '<mentio-menu ' 
-                        + ' mtio-for="\'' + attrs.id + '\'"'
                         + ' mtio-search="bridgeSearch(term)"'
                         + ' mtio-select="bridgeSelect(item)"'
                         + ' mtio-items="items"'
                         + ' mtio-template="' + attrs.mtioTemplate + '"'
                         + ' mtio-trigger-char="' + attrs.mtioTriggerChar + '"'
+                        + ' mtio-parent-scope="parentScope"'
                         + '/>';
                     var linkFn = $compile(html);
                     var el = linkFn(scope);
@@ -210,6 +211,7 @@ angular.module('mentio', [])
                 scope.$watch(
                     'ngModel',
                     function () {
+                        console.log(scope.$eval('ngModel'));
                         if (scope.contentEditableMenuPasted) {
                             // don't respond to changes from insertion of the menu content
                             scope.contentEditableMenuPasted = false;
@@ -217,6 +219,7 @@ angular.module('mentio', [])
                         }
 
                         var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet);
+
                         if (mentionInfo !== undefined) {
                             /** save selection info about the target control for later re-selection */
                             scope.targetElement = mentionInfo.mentionSelectedElement;
@@ -253,7 +256,8 @@ angular.module('mentio', [])
                 select: '&mtioSelect',
                 items: '=mtioItems',
                 triggerChar: '=mtioTriggerChar',
-                forElem: '=mtioFor'
+                forElem: '=mtioFor',
+                parentScope: '=mtioParentScope'
             },
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mtioTemplate;
@@ -314,25 +318,29 @@ angular.module('mentio', [])
                 element[0].parentNode.removeChild(element[0]);
                 document.body.appendChild(element[0]);
 
-                var targetElement = document.querySelector('#' + scope.forElem);
-
-                if (targetElement) {
-                    var ngElem = angular.element(targetElement);
-                    var mentioAttr = ngElem.attr('mentio');
-                    if (mentioAttr !== undefined) {
-                        // send own scope to mentio directive so that the menu
-                        // becomes attached
-                        $rootScope.$broadcast("menuCreated", 
-                            {
-                                targetElement : scope.forElem,
-                                scope : scope
-                            });
-                        scope.targetElement = ngElem;
-                    } else {
-                        $log.error("Error, no mentio directive on target element " + scope.forElem);
-                    }
+                if (scope.parentScope) {
+                    scope.parentScope.addMenu(scope);
                 } else {
-                    $log.error("Error, no such element: " + scope.forElem);
+                    var targetElement = document.querySelector('#' + scope.forElem);
+
+                    if (targetElement) {
+                        var ngElem = angular.element(targetElement);
+                        var mentioAttr = ngElem.attr('mentio');
+                        if (mentioAttr !== undefined) {
+                            // send own scope to mentio directive so that the menu
+                            // becomes attached
+                            $rootScope.$broadcast("menuCreated", 
+                                {
+                                    targetElement : scope.forElem,
+                                    scope : scope
+                                });
+                            scope.targetElement = ngElem;
+                        } else {
+                            $log.error("Error, no mentio directive on target element " + scope.forElem);
+                        }
+                    } else {
+                        $log.error("Error, no such element: " + scope.forElem);
+                    }
                 }
 
                 scope.$watch('items', function (items) {
@@ -807,12 +815,6 @@ angular.module('mentio')
         }
 
         function getTextAreaOrInputUnderlinePosition (element, position) {
-            /* jshint browser: true */
-
-            // The properties that we copy into a mirrored div.
-            // Note that some browsers, such as Firefox,
-            // do not concatenate properties, i.e. padding-top, bottom etc. -> padding,
-            // so we have to do every single property specifically.
             var properties = [
                 'direction', // RTL support
                 'boxSizing',
@@ -831,7 +833,6 @@ angular.module('mentio')
                 'paddingBottom',
                 'paddingLeft',
 
-                // https://developer.mozilla.org/en-US/docs/Web/CSS/font
                 'fontStyle',
                 'fontVariant',
                 'fontWeight',
@@ -844,7 +845,7 @@ angular.module('mentio')
                 'textAlign',
                 'textTransform',
                 'textIndent',
-                'textDecoration', // might not make a difference, but better be safe
+                'textDecoration',
 
                 'letterSpacing',
                 'wordSpacing'
@@ -889,20 +890,12 @@ angular.module('mentio')
             }
 
             div.textContent = element.value.substring(0, position);
-            // the second special handling for input type="text" vs textarea: spaces need to be
-            // replaced with non-breaking spaces - http://stackoverflow.com/a/13402035/1269037
+
             if (element.nodeName === 'INPUT') {
                 div.textContent = div.textContent.replace(/\s/g, '\u00a0');
             }
 
             var span = document.createElement('span');
-            // Wrapping must be replicated *exactly*, including when a long word gets
-            // onto the next line, with whitespace at the end of the line before (#7).
-            // The  *only* reliable way to do that is to copy the *entire* rest of the
-            // textarea's content into the <span> created at the caret position.
-            // for inputs, just '.' would be enough, but why bother?
-
-            // || because a completely empty faux span doesn't render at all
             span.textContent = element.value.substring(position) || '.';
             div.appendChild(span);
 
@@ -927,6 +920,7 @@ angular.module('mentio')
             replaceMacroText: replaceMacroText,
             replaceTriggerText: replaceTriggerText,
             getMacroMatch: getMacroMatch,
-            getTriggerInfo: getTriggerInfo
+            getTriggerInfo: getTriggerInfo,
+            selectElement: selectElement
         };
     });

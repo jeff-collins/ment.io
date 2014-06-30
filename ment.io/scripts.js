@@ -29,7 +29,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         });
     })
 
-    .controller('mentio-demo-ctrl', function ($scope, $http, $q) {
+    .controller('mentio-demo-ctrl', function ($scope, $http, $q, $sce, $timeout, mentioUtil) {
 
         $scope.macros = {
             'brb': 'Be right back',
@@ -82,6 +82,18 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             return '@' + item._source.name;
         };
         $scope.theTextArea = 'Type an @ or # and some text';
+
+        // finally enter content that will raise a menu after everything is set up
+        $timeout(function() {
+            var html = "Try me @ or add a macro like brb, omw, (smile)";
+            var htmlContent = document.querySelector('#htmlContent');
+            var ngHtmlContent = angular.element(htmlContent);
+            ngHtmlContent.html(html);
+            ngHtmlContent.scope().htmlContent = html;
+            // select right after the @
+            mentioUtil.selectElement(htmlContent, [0], 8);
+            ngHtmlContent.scope().$apply();
+        }, 100);
     })
 
     .directive('contenteditable', ['$sce', function($sce) {
@@ -103,7 +115,9 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
 
                 // Specify how UI should be updated
                 ngModel.$render = function() {
-                    element.html($sce.getTrustedHtml(ngModel.$viewValue || ''));
+                    if (ngModel.$viewValue !== element.html()) {
+                        element.html($sce.getTrustedHtml(ngModel.$viewValue || ''));
+                    }
                 };
 
                 // Listen for change events to enable binding
@@ -111,8 +125,6 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
                     scope.$apply(read);
                 });
                 read(); // initialize
-
-                // Write data to the model
             }
         };
     }])

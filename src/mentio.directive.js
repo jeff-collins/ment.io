@@ -13,6 +13,7 @@ angular.module('mentio', [])
                 ngModel: '='
             },
             controller: function($scope, $timeout, $document, $attrs) {
+ 
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.map[triggerChar];
                     remoteScope.showMenu();
@@ -53,13 +54,13 @@ angular.module('mentio', [])
                     $scope.setTriggerText('');
                     if ($scope.isContentEditable()) {
                         $scope.contentEditableMenuPasted = true;
+                        var timer = $timeout(function() {
+                            $scope.contentEditableMenuPasted = false;
+                        }, 100);
+                        $scope.$on('$destroy', function() {
+                            $timeout.cancel(timer);
+                        });
                     }
-                    var timer = $timeout(function() {
-                        $scope.contentEditableMenuPasted = false;
-                    }, 100);
-                    $scope.$on('$destroy', function() {
-                        $timeout.cancel(timer);
-                    });
                  };
 
                 $scope.hideAll = function () {
@@ -186,16 +187,16 @@ angular.module('mentio', [])
             },
             link: function (scope, element, attrs) {
                 scope.map = {};
-
                 attrs.$set('autocomplete','off');
+                scope.parentScope = scope;
                 if (attrs.mtioTemplate) {
                     var html = '<mentio-menu ' 
-                        + ' mtio-for="\'' + attrs.id + '\'"'
                         + ' mtio-search="bridgeSearch(term)"'
                         + ' mtio-select="bridgeSelect(item)"'
                         + ' mtio-items="items"'
                         + ' mtio-template="' + attrs.mtioTemplate + '"'
                         + ' mtio-trigger-char="' + attrs.mtioTriggerChar + '"'
+                        + ' mtio-parent-scope="parentScope"'
                         + '/>';
                     var linkFn = $compile(html);
                     var el = linkFn(scope);
@@ -210,6 +211,7 @@ angular.module('mentio', [])
                 scope.$watch(
                     'ngModel',
                     function () {
+                        console.log(scope.$eval('ngModel'));
                         if (scope.contentEditableMenuPasted) {
                             // don't respond to changes from insertion of the menu content
                             scope.contentEditableMenuPasted = false;
@@ -217,6 +219,7 @@ angular.module('mentio', [])
                         }
 
                         var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet);
+
                         if (mentionInfo !== undefined) {
                             /** save selection info about the target control for later re-selection */
                             scope.targetElement = mentionInfo.mentionSelectedElement;
@@ -253,7 +256,8 @@ angular.module('mentio', [])
                 select: '&mtioSelect',
                 items: '=mtioItems',
                 triggerChar: '=mtioTriggerChar',
-                forElem: '=mtioFor'
+                forElem: '=mtioFor',
+                parentScope: '=mtioParentScope'
             },
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mtioTemplate;
@@ -314,25 +318,29 @@ angular.module('mentio', [])
                 element[0].parentNode.removeChild(element[0]);
                 document.body.appendChild(element[0]);
 
-                var targetElement = document.querySelector('#' + scope.forElem);
-
-                if (targetElement) {
-                    var ngElem = angular.element(targetElement);
-                    var mentioAttr = ngElem.attr('mentio');
-                    if (mentioAttr !== undefined) {
-                        // send own scope to mentio directive so that the menu
-                        // becomes attached
-                        $rootScope.$broadcast("menuCreated", 
-                            {
-                                targetElement : scope.forElem,
-                                scope : scope
-                            });
-                        scope.targetElement = ngElem;
-                    } else {
-                        $log.error("Error, no mentio directive on target element " + scope.forElem);
-                    }
+                if (scope.parentScope) {
+                    scope.parentScope.addMenu(scope);
                 } else {
-                    $log.error("Error, no such element: " + scope.forElem);
+                    var targetElement = document.querySelector('#' + scope.forElem);
+
+                    if (targetElement) {
+                        var ngElem = angular.element(targetElement);
+                        var mentioAttr = ngElem.attr('mentio');
+                        if (mentioAttr !== undefined) {
+                            // send own scope to mentio directive so that the menu
+                            // becomes attached
+                            $rootScope.$broadcast("menuCreated", 
+                                {
+                                    targetElement : scope.forElem,
+                                    scope : scope
+                                });
+                            scope.targetElement = ngElem;
+                        } else {
+                            $log.error("Error, no mentio directive on target element " + scope.forElem);
+                        }
+                    } else {
+                        $log.error("Error, no such element: " + scope.forElem);
+                    }
                 }
 
                 scope.$watch('items', function (items) {
