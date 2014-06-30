@@ -256,7 +256,7 @@ angular.module('mentio', [])
                 forElem: '=mtioFor'
             },
             templateUrl: function(tElement, tAttrs) {
-                return tAttrs.mtioTemplateUrl !== 'undefined' ? tAttrs.mtioTemplateUrl : 'menio-menu.tpl.html';
+                return tAttrs.mtioTemplateUrl !== 'undefined' ? tAttrs.mtioTemplateUrl : 'mentio-menu.tpl.html';
             },
             controller: function ($scope) {
                 $scope.visible = false;
