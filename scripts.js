@@ -25,6 +25,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $rootScope.$on('$routeChangeSuccess', function (event, current) {
             if (current.$$route) {
                 $rootScope.title = current.$$route.title;
+                $rootScope.tab = current.$$route.tab;
             }
         });
     })
@@ -66,6 +67,17 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             });
         };
 
+        $scope.searchSimplePeople = function(term) {
+            return $http.get('simplepeopledata.json').then(function (response) {
+                $scope.simplePeople = [];
+                angular.forEach(response.data, function(item) {
+                    if (item.label.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
+                        $scope.simplePeople.push(item);
+                    }
+                });
+            });
+        };
+
         $scope.getProductText = function(item) {
             return '[~<strong>' + item._sku + '</strong>]';
         };
@@ -81,7 +93,13 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $scope.getPeopleTextRaw = function(item) {
             return '@' + item._source.name;
         };
-        $scope.theTextArea = 'Type an @ or # and some text';
+
+        $scope.getSimplePeopleTextRaw = function(item) {
+            return '@' + item.label;
+        };
+
+        $scope.theTextArea = 'Type an # and some text';
+        $scope.theTextArea2 = 'Type an @';
 
         // finally enter content that will raise a menu after everything is set up
         $timeout(function() {
