@@ -211,7 +211,6 @@ angular.module('mentio', [])
                 scope.$watch(
                     'ngModel',
                     function () {
-                        console.log(scope.$eval('ngModel'));
                         if (scope.contentEditableMenuPasted) {
                             // don't respond to changes from insertion of the menu content
                             scope.contentEditableMenuPasted = false;
