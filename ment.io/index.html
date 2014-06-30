@@ -40,81 +40,95 @@
                         <h3>Content Editable:</h3>
                         <div contenteditable mentio
                             mtio-trigger-text="triggerText"
-                            mtio-macros="macros" 
-                            class="editor form-control" 
-                            id="htmlContent" 
+                            mtio-macros="macros"
+                            class="editor form-control"
+                            id="htmlContent"
                             ng-model="htmlContent"
                             >
                         </div>
                         <span class="caption small">Mentioned: {{triggerText}}</span>
                     </div>
 
-                    <mentio-menu 
-                                mtio-for="'htmlContent'" 
-                                mtio-trigger-char="'@'" 
-                                mtio-items="people" 
-                                mtio-template="/people-mentions.tpl"
-                                mtio-search="searchPeople(term)" 
+                    <mentio-menu
+                                mtio-for="'htmlContent'"
+                                mtio-trigger-char="'@'"
+                                mtio-items="people"
+                                mtio-template-url="/people-mentions.tpl"
+                                mtio-search="searchPeople(term)"
                                 mtio-select="getPeopleText(item)"></mentio-menu>
 
                     <div class="form-group">
                         <h3>Text Area:</h3>
                         <textarea mentio
 
-                                mtio-macros="macros" 
-                                mtio-trigger-char="'@'" 
-                                mtio-items="people" 
-                                mtio-template="/people-mentions.tpl"
-                                mtio-search="searchPeople(term)" 
+                                mtio-macros="macros"
+                                mtio-trigger-char="'@'"
+                                mtio-items="people"
+                                mtio-template-url="/people-mentions.tpl"
+                                mtio-search="searchPeople(term)"
                                 mtio-select="getPeopleTextRaw(item)"
                                 mtio-trigger-text="triggerText2"
 
-                                class="form-control" 
-                                id="theTextArea" 
-                                ng-model="theTextArea" 
-                                ng-trim="false" 
-                                class="editor" 
+                                class="form-control"
+                                id="theTextArea"
+                                ng-model="theTextArea"
+                                ng-trim="false"
+                                class="editor"
                                 rows="6">
                         </textarea>
                         <span class="caption small">Mentioned: {{triggerText2}}</span>
                     </div>
 
-                    <mentio-menu 
+                    <mentio-menu
 
-                                mtio-for="'theTextArea'" 
-                                mtio-trigger-char="'#'" 
-                                mtio-items="products" 
-                                mtio-template="/product-mentions.tpl"
-                                mtio-search="searchProducts(term)" 
+                                mtio-for="'theTextArea'"
+                                mtio-trigger-char="'#'"
+                                mtio-items="products"
+                                mtio-template-url="/product-mentions.tpl"
+                                mtio-search="searchProducts(term)"
                                 mtio-select="getProductTextRaw(item)"></mentio-menu>
 
                     <div class="form-group">
                         <h3>Text Input:</h3>
-                        <input mentio 
+                        <input mentio
 
-                                ng-model="theText" 
-                                id="theText" 
-                                type="text" 
-                                class="form-control" 
-                                ng-trim="false" 
+                                ng-model="theText"
+                                id="theText"
+                                type="text"
+                                class="form-control"
+                                ng-trim="false"
                                 size="100"/>
                     </div>
 
-                    <mentio-menu 
-                                mtio-for="'theText'" 
-                                mtio-trigger-char="'#'" 
-                                mtio-items="products" 
-                                mtio-template="/product-mentions.tpl"
-                                mtio-search="searchProducts(term)" 
+                    <mentio-menu
+                                mtio-for="'theText'"
+                                mtio-trigger-char="'#'"
+                                mtio-items="products"
+                                mtio-template-url="/product-mentions.tpl"
+                                mtio-search="searchProducts(term)"
                                 mtio-select="getProductTextRaw(item)"></mentio-menu>
-                    <mentio-menu 
-                                mtio-for="'theText'" 
-                                mtio-trigger-char="'@'" 
-                                mtio-items="people" 
-                                mtio-template="/people-mentions.tpl"
-                                mtio-search="searchPeople(term)" 
+                    <mentio-menu
+                                mtio-for="'theText'"
+                                mtio-trigger-char="'@'"
+                                mtio-items="people"
+                                mtio-template-url="/people-mentions.tpl"
+                                mtio-search="searchPeople(term)"
                                 mtio-select="getPeopleTextRaw(item)"></mentio-menu>
 
+
+                    <div class="form-group">
+                        <h3>Bare Bones - Text Area:</h3>
+                        <textarea mentio
+                                  mtio-trigger-char="'@'"
+                                  mtio-items="simplePeople"
+                                  mtio-search="searchSimplePeople(term)"
+                                  mtio-select="getSimplePeopleTextRaw(item)"
+
+                                  class="form-control"
+                                  ng-model="theTextArea2"
+                                  rows="6">
+                        </textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,9 +168,9 @@
                     <h6 class="text-muted">(Angular @mentions with macros)</h6>
                 </header>
                 <h3 class="section-heading">Overview</h3>
-                The <code>mentio</code> directive is applied to any element that accepts text input and exposes an <code>ngModel</code>.  
-                The <code>mentio</code> directive watches the <code>ngModel</code> of the element it is applied to and 
-                responds to changes in the text by presenting typeahead menus for different trigger characters and macro 
+                The <code>mentio</code> directive is applied to any element that accepts text input and exposes an <code>ngModel</code>.
+                The <code>mentio</code> directive watches the <code>ngModel</code> of the element it is applied to and
+                responds to changes in the text by presenting typeahead menus for different trigger characters and macro
                 expansion for specified sequences of characters.
                 <h3 class="section-heading">Directives</h3>
                 <header class="documentation-element">
@@ -165,10 +179,10 @@
                     </code>
                 </header>
 
-                <p>The <code>mentio</code> directive is used as an attribute and requires a specification of which characters to 
-                trigger on for typeahead selection, how to present the menu of choices, and behaviors to populate and ultimately select 
-                an item from the menu based on user interaction.  The specification of options can either be done inline, within 
-                the same element for one triggering character, or using a series of configurations if there are a multiple applicable 
+                <p>The <code>mentio</code> directive is used as an attribute and requires a specification of which characters to
+                trigger on for typeahead selection, how to present the menu of choices, and behaviors to populate and ultimately select
+                an item from the menu based on user interaction.  The specification of options can either be done inline, within
+                the same element for one triggering character, or using a series of configurations if there are a multiple applicable
                 triggering characters.</p>
 
                 <p>
@@ -178,37 +192,37 @@
                     <li>A space precedes the trigger character</li>
                     <li>The text following the trigger character contains no spaces up to the current caret location</li>
                 </ul>
-                When a match is found, the current text after the trigger character is assigned to the binding specified in the 
+                When a match is found, the current text after the trigger character is assigned to the binding specified in the
                 <code>mtio-trigger-text</code> attribute if present.
                 It is only possible for one trigger character to cause a menu to show at a time.  Also, only one menu will display on a given page
-                at a time. 
-                </p> 
+                at a time.
+                </p>
 
-                <p>Definition of menu behavior for each desired trigger character can be specified 
+                <p>Definition of menu behavior for each desired trigger character can be specified
                 with separate <code>mentio-menu</code> directives.
-                However the <code>mentio</code> directive does not require separate <code>mentio-menu</code> directives.  
+                However the <code>mentio</code> directive does not require separate <code>mentio-menu</code> directives.
                 If only one trigger character
-                is needed, the <code>mtio-trigger-char</code>, <code>mtio-items</code>, <code>mtio-template</code>, <code>mtio-search</code>,
-                and <code>mtio-select</code> attributes from the <code>mentio-menu</code> directive can be specified directly along side 
+                is needed, the <code>mtio-trigger-char</code>, <code>mtio-items</code>, <code>mtio-template-url</code>, <code>mtio-search</code>,
+                and <code>mtio-select</code> attributes from the <code>mentio-menu</code> directive can be specified directly along side
                 the <code>mentio</code> directive.
                 </p>
 
-                <p>To support macro expansion, a translation table to use for macros can be assigned through the <code>macros</code> 
-                attribute which will expand typed sequences of characters into predefined strings of HTML or text. 
+                <p>To support macro expansion, a translation table to use for macros can be assigned through the <code>macros</code>
+                attribute which will expand typed sequences of characters into predefined strings of HTML or text.
                 </p>
 
                 <h4 class="section-heading">Attributes</h4>
- 
+
                 <header class="text-primary documentation-attr">ng-model</header>
                 <strong>Required.</strong> An <code>ngModel</code> is required on the element for mentio to be able to operate.
 
                 <header class="text-primary documentation-attr">mtio-trigger-text</header>
-                <strong>Optional.</strong> If specified, binds a scope property that will be assigned 
-                the current value of the trigger text when the <code>mentio</code> menu is active.  
+                <strong>Optional.</strong> If specified, binds a scope property that will be assigned
+                the current value of the trigger text when the <code>mentio</code> menu is active.
 
                 <header class="text-primary documentation-attr">mtio-macros</header>
-                <strong>Optional.</strong> Specifies a JSON map of macro translations.  The key should be a simple sequence of characters, not including spaces.  The key 
-                will be matched case-insensitive.  When a match is detected, the value in the macro table will be expanded in place of the 
+                <strong>Optional.</strong> Specifies a JSON map of macro translations.  The key should be a simple sequence of characters, not including spaces.  The key
+                will be matched case-insensitive.  When a match is detected, the value in the macro table will be expanded in place of the
                 macro the user typed.
                 <p></p>
                 An example from the sample demo in <code>scripts.js</code>:
@@ -232,75 +246,75 @@
                     mentio-menu
                     </code>
                 </header>
-                <p>The <code>mentio-menu</code> element defines a menu for each a trigger 
+                <p>The <code>mentio-menu</code> element defines a menu for each a trigger
                 character that the <code>mentio</code> directive
                 should respond to.  The <code>mentio-menu</code> identifies which <code>mentio</code> directive it is targeting
-                by referring to the element <code>id</code> of the element containing the <code>mentio</code> directive. 
+                by referring to the element <code>id</code> of the element containing the <code>mentio</code> directive.
                 </p>
-                <p>Each menu must specify the trigger character, a data collection, 
-                the template to use to render the menu, a search 
-                function, and a select function.  Based on the specified attributes, 
+                <p>Each menu must specify the trigger character, a data collection,
+                the template to use to render the menu, a search
+                function, and a select function.  Based on the specified attributes,
                 the specified menu will display whenever text in the target
                 text element is changed.  </p>
                 <h4 class="section-heading">Attributes</h4>
 
                 If only one trigger character
-                is needed, the <code>mtio-trigger-char</code>, <code>mtio-items</code>, <code>mtio-template</code>, <code>mtio-search</code>,
+                is needed, the <code>mtio-trigger-char</code>, <code>mtio-items</code>, <code>mtio-template-url</code>, <code>mtio-search</code>,
                 and <code>mtio-select</code> attributes can be placed on the same element with the <code>mentio</code> directive.
 
- 
+
                 <header class="text-primary documentation-attr">mtio-for</header>
-                <strong>Required.</strong> The string literal <code>id</code> of the element containing a 
+                <strong>Required.</strong> The string literal <code>id</code> of the element containing a
                 <code>mentio</code> directive that this <code>mentio-menu</code> should attach to.
 
                 <header class="text-primary documentation-attr">mtio-trigger-char</header>
                 <strong>Required.</strong> The character that should trigger the menu behavior.  In the example, '@' and '#'s are used.
 
                 <header class="text-primary documentation-attr">mtio-items</header>
-                <strong>Required.</strong> The data list to bind the menu to.  This must be a reference to a value in current scope.  
+                <strong>Required.</strong> The data list to bind the menu to.  This must be a reference to a value in current scope.
                 Since a <code>mentio-menu</code> has
                 isolate scope, the list referenced by the <code>items</code> attribute will
                 be passed down through the child scope contexts to the template used in the <code>mention-rule</code>, which then allows it to
-                be refrenced in an angular expression that drives an <code>ng-repeat</code>.  Note the reference to <code>items</code> in 
+                be refrenced in an angular expression that drives an <code>ng-repeat</code>.  Note the reference to <code>items</code> in
                 the example below.
                 <p></p>
                 <pre>
-                &lt;mentio-menu mtio-for="'theText'" mtio-trigger-char="@" mtio-items="people" mtio-template="<b>/people-mentions.tpl</b>"
+                &lt;mentio-menu mtio-for="'theText'" mtio-trigger-char="@" mtio-items="people" mtio-template-url="<b>/people-mentions.tpl</b>"
                              mtio-search="searchPeople(term)" mtio-select="getPeopleTextRaw(item)"&gt&lt;/mentio-menu&gt
 
                 &lt;script type="text/ng-template" id="<b>/people-mentions.tpl</b>"&gt;
                     &lt;ul class="list-group user-search"&gt;
                         &lt;i mentio-menu-item="person" ng-repeat="person in <b>items</b>" class="list-group-item"&gt;
                             &lt;mg ng-src=" { {person._source.imageUrl} }" class="user-photo"&gt;
-                            &lt;span class="text-primary" 
+                            &lt;span class="text-primary"
                                 ng-bind-html="person._source.name | mentioHighlight:triggerText:'menu-highlighted' | unsafe">&lt;/span&gt;
                             &lt;em class="text-muted" ng-bind="person._source.bio | words:5">&lt;/em&gt;
                         &lt;/li&gt;
                     &lt;/ul&gt;
                 &lt;/script&gt;</pre>
 
-                <header class="text-primary documentation-attr">mtio-template</header>
+                <header class="text-primary documentation-attr">mtio-template-url</header>
                 <strong>Required.</strong>
-                Specifies the id of a template to use to render the select menu.  The template should iterate the <code>items</code> list to
+                Specifies the template url to use to render the select menu.  The template should iterate the <code>items</code> list to
                 present a menu of choices.  The <code>items</code> scope property from the <code>mentio-menu</code> is available to iterate
-                within an <code>ng-repeat</code>. The <code>triggerText</code> scope property 
+                within an <code>ng-repeat</code>. The <code>triggerText</code> scope property
                 from the <code>mentio-menu</code> can be accessed in order
                 to highlight text in the menu.
 
                 <header class="text-primary documentation-attr">mtio-search</header>
                 <strong>Required.</strong>
                 Specifies a function call to invoke when the trigger char has been entered into the target text element.  The currently active
-                trigger text after the trigger char is bound as the <code>term</code> argument in the expression.  
+                trigger text after the trigger char is bound as the <code>term</code> argument in the expression.
                 <p></p>
-                The implementation of the search function should populate the data collection referenced by the <code>mtio-items</code> 
-                attribute with data.  The scope property referenced by <code>items</code> can be a promise.  No return is expected from 
+                The implementation of the search function should populate the data collection referenced by the <code>mtio-items</code>
+                attribute with data.  The scope property referenced by <code>items</code> can be a promise.  No return is expected from
                 the search fucntion.
 
                 <header class="text-primary documentation-attr">mtio-select</header>
                 <strong>Required.</strong>
-                Specifies a function call to invoke when the user has picked an item in the menu.  The item in <code>mtio-items</code> 
+                Specifies a function call to invoke when the user has picked an item in the menu.  The item in <code>mtio-items</code>
                 corresponding to the selected item in the menu is bound to the <code>item</code> parameter of the select function.  The
-                select function must return a string to use to replace the current trigger char and mention text.  
+                select function must return a string to use to replace the current trigger char and mention text.
 
                 <h4 class="section-heading">Provided Scope Properties</h4>
 
@@ -313,7 +327,7 @@
                     mentio-menu-item
                     </code>
                 </header>
-                A <code>mtio-menu-item</code> must be contained within a <code>mentio-menu</code> template. 
+                A <code>mtio-menu-item</code> must be contained within a <code>mentio-menu</code> template.
                 When applied to an element in this context, the <code>mentio-menu-item</code> directive will add or remove the
                 class <code>active</code> to highlight an item in the menu when it is considered selected by the <code>mentio-menu</code>,
                 including during mouse-enter events.  If the user
@@ -333,7 +347,7 @@
 
                 <p></p>
                 <pre>person._source.name | mentioHighlight:triggerText:'menu-highlighted'</pre>
-                The filter is useful within the <code>mentio-menu</code> template when iterating the items in the select menu for the user 
+                The filter is useful within the <code>mentio-menu</code> template when iterating the items in the select menu for the user
                 to pick.
                <p></p>
            </div>

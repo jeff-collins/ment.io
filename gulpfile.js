@@ -6,6 +6,7 @@ var fs = require('fs');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 //var wrap = require('gulp-wrap');
+var templateCache = require('gulp-angular-templatecache');
 
 var port = gutil.env.port || 3000;
 var covport = gutil.env.covport || 3001;
@@ -42,11 +43,12 @@ gulp.task('site', ['dist'], function () {
     });
 });
 
-gulp.task('dist', function () {
+gulp.task('dist', ['tpl'], function () {
     return gulp.src([
 //        'bower_components/textarea-caret-position/index.js',
         'src/mentio.directive.js',
-        'src/mentio.service.js'
+        'src/mentio.service.js',
+        'dist/templates.js'
     ])
     .pipe(concat('mentio.js'))
 //    // hack to make componentjs libs to work
@@ -56,6 +58,14 @@ gulp.task('dist', function () {
     .pipe(uglify())
     .pipe(concat('mentio.min.js'))
     .pipe(gulp.dest('dist'));
+});
+
+gulp.task('tpl', function () {
+    return gulp.src('src/**/*.tpl.html')
+        .pipe(templateCache({
+            module: 'mentio'
+        }))
+        .pipe(gulp.dest('dist'));
 });
 
 
