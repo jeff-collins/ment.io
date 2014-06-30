@@ -25,6 +25,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $rootScope.$on('$routeChangeSuccess', function (event, current) {
             if (current.$$route) {
                 $rootScope.title = current.$$route.title;
+                $rootScope.tab = current.$$route.tab;
             }
         });
     })
