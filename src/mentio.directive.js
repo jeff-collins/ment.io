@@ -5,11 +5,11 @@ angular.module('mentio', [])
         return {
             restrict: 'A',
             scope: {
-                macros: '=mtioMacros',
-                search: '&mtioSearch',
-                select: '&mtioSelect',
-                items: '=mtioItems',
-                triggerText: '=mtioTriggerText',
+                macros: '=mentioMacros',
+                search: '&mentioSearch',
+                select: '&mentioSelect',
+                items: '=mentioItems',
+                typedTerm: '=mentioTypedTerm',
                 ngModel: '='
             },
             controller: function($scope, $timeout, $document, $attrs) {
@@ -22,7 +22,7 @@ angular.module('mentio', [])
                         term: triggerText
                     });
 
-                    remoteScope.triggerText = triggerText;
+                    remoteScope.typedTerm = triggerText;
                 };
 
                 $scope.defaultSearch = function(locals) {
@@ -36,7 +36,7 @@ angular.module('mentio', [])
                 };
 
                 $scope.bridgeSearch = function(termString) {
-                    var searchFn = $attrs.mtioSearch ? $scope.search : $scope.defaultSearch;
+                    var searchFn = $attrs.mentioSearch ? $scope.search : $scope.defaultSearch;
                     searchFn({
                         term: termString
                     });
@@ -47,7 +47,7 @@ angular.module('mentio', [])
                 };
 
                 $scope.bridgeSelect = function(itemVar) {
-                    var selectFn = $attrs.mtioSelect ? $scope.select : $scope.defaultSelect;
+                    var selectFn = $attrs.mentioSelect ? $scope.select : $scope.defaultSelect;
                     return selectFn({
                         item: itemVar
                     });
@@ -55,7 +55,7 @@ angular.module('mentio', [])
 
                 $scope.setTriggerText = function(text) {
                     if ($scope.syncTriggerText) {
-                        $scope.triggerText = text;
+                        $scope.typedTerm = text;
                     }
                 };
 
@@ -208,20 +208,20 @@ angular.module('mentio', [])
                 scope.map = {};
                 attrs.$set('autocomplete','off');
 
-                if (attrs.mtioItems) {
+                if (attrs.mentioItems) {
                     scope.localItems = [];
                     scope.parentScope = scope;
-                    var itemsRef = attrs.mtioSearch ? ' mtio-items="items"' : ' mtio-items="localItems"';
+                    var itemsRef = attrs.mentioSearch ? ' mentio-items="items"' : ' mentio-items="localItems"';
 
-                    scope.defaultTriggerChar = attrs.mtioTriggerChar ? scope.$eval(attrs.mtioTriggerChar) : '@';
+                    scope.defaultTriggerChar = attrs.mentioTriggerChar ? scope.$eval(attrs.mentioTriggerChar) : '@';
 
                     var html = '<mentio-menu ' 
-                        + ' mtio-search="bridgeSearch(term)"'
-                        + ' mtio-select="bridgeSelect(item)"'
+                        + ' mentio-search="bridgeSearch(term)"'
+                        + ' mentio-select="bridgeSelect(item)"'
                         + itemsRef
-                        + ' mtio-template-url="' + attrs.mtioTemplateUrl + '"'
-                        + ' mtio-trigger-char="\'' + scope.defaultTriggerChar + '\'"'
-                        + ' mtio-parent-scope="parentScope"'
+                        + ' mentio-template-url="' + attrs.mentioTemplateUrl + '"'
+                        + ' mentio-trigger-char="\'' + scope.defaultTriggerChar + '\'"'
+                        + ' mentio-parent-scope="parentScope"'
                         + '/>';
                     var linkFn = $compile(html);
                     var el = linkFn(scope);
@@ -229,7 +229,7 @@ angular.module('mentio', [])
                     element.parent().append(el);
                 }
 
-                if (attrs.mtioTriggerText) {
+                if (attrs.mentioTypedTerm) {
                     scope.syncTriggerText = true;
                 }
 
@@ -276,15 +276,15 @@ angular.module('mentio', [])
         return {
             restrict: 'E',
             scope: {
-                search: '&mtioSearch',
-                select: '&mtioSelect',
-                items: '=mtioItems',
-                triggerChar: '=mtioTriggerChar',
-                forElem: '=mtioFor',
-                parentScope: '=mtioParentScope'
+                search: '&mentioSearch',
+                select: '&mentioSelect',
+                items: '=mentioItems',
+                triggerChar: '=mentioTriggerChar',
+                forElem: '=mentioFor',
+                parentScope: '=mentioParentScope'
             },
             templateUrl: function(tElement, tAttrs) {
-                return tAttrs.mtioTemplateUrl !== 'undefined' ? tAttrs.mtioTemplateUrl : 'mentio-menu.tpl.html';
+                return tAttrs.mentioTemplateUrl !== 'undefined' ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
             },
             controller: function ($scope) {
                 $scope.visible = false;
