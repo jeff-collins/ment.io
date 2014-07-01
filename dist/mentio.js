@@ -215,7 +215,7 @@ angular.module('mentio', [])
 
                     scope.defaultTriggerChar = attrs.mentioTriggerChar ? scope.$eval(attrs.mentioTriggerChar) : '@';
 
-                    var html = '<mentio-menu ' 
+                    var html = '<mentio-menu' 
                         + ' mentio-search="bridgeSearch(term)"'
                         + ' mentio-select="bridgeSelect(item)"'
                         + itemsRef
@@ -448,7 +448,7 @@ angular.module('mentio', [])
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', function () {
+    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
         function popUnderMention (triggerCharSet, selectionEl) {
@@ -472,10 +472,44 @@ angular.module('mentio')
                     zIndex: 100,
                     display: 'block'
                 });
+
+                $timeout(function(){
+                    scrollIntoView(selectionEl);
+                },0)
             } else {
                 selectionEl.css({
                     display: 'none'
                 });
+            }
+        }
+
+        function scrollIntoView(elem)
+        {
+            // cheap hack in px - need to check styles relative to the element
+            var reasonableBuffer = 20;
+            var maxScrollDisplacement = 100;
+            var clientRect;
+            var e = elem[0];
+            while (clientRect === undefined || clientRect.height === 0) {
+                clientRect = e.getBoundingClientRect();
+                if (clientRect.height === 0) {
+                    e = e.childNodes[0];
+                }
+            }
+            var elemTop = clientRect.top;
+            var elemBottom = elemTop + clientRect.height;
+            if(elemTop < 0) {
+                $window.scrollTo(0, $window.pageYOffset + clientRect.top - reasonableBuffer);
+            } else if (elemBottom > $window.innerHeight) {
+                var maxY = $window.pageYOffset + clientRect.top - reasonableBuffer;
+                if (maxY - $window.pageYOffset > maxScrollDisplacement) {
+                    maxY = $window.pageYOffset + maxScrollDisplacement;
+                }
+                var targetY = $window.pageYOffset - ($window.innerHeight - elemBottom);
+                if (targetY > maxY) {
+                    targetY = maxY;
+                }
+                $window.scrollTo(0, targetY);
             }
         }
 

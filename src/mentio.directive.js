@@ -215,7 +215,7 @@ angular.module('mentio', [])
 
                     scope.defaultTriggerChar = attrs.mentioTriggerChar ? scope.$eval(attrs.mentioTriggerChar) : '@';
 
-                    var html = '<mentio-menu ' 
+                    var html = '<mentio-menu' 
                         + ' mentio-search="bridgeSearch(term)"'
                         + ' mentio-select="bridgeSelect(item)"'
                         + itemsRef

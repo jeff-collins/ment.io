@@ -117,9 +117,9 @@
 
 
                     <div class="form-group">
-                        <h3>Bare Bones - Text Area:</h3>
-                        <textarea mentio mentio-items="simplePeople" class="form-control" ng-model="theTextArea2"
-                                  rows="6">
+                        <h3>Minimal Example:</h3>
+                        <input type="text" mentio mentio-typed-text="typedTerm" mentio-items="simplePeople | filter:label:typedTerm" class="form-control" ng-model="theTextArea2"
+                                  size="100"/>
                         </textarea>
                     </div>
                 </div>
@@ -307,7 +307,15 @@
                 the search fucntion.
                 <p></p>
                 If no search function is specified, the list of objects in <code>mentio-items</code> will 
-                be scanned and the <code>label</code> property will be matched against the typed term.
+                be scanned and the <code>label</code> property will be matched against the typed term.  Alternatively, the expression
+                for <code>mentio-items</code> can just be specified using a filter, as in this example:
+                <p></p>
+
+                <pre>
+                    &lt;input type="text" mentio mentio-typed-text="typedTerm" 
+                        mentio-items=<strong>"simplePeople | filter:label:typedTerm"</strong> class="form-control" 
+                        ng-model="theTextArea2" size="100"/&gt;               
+                </pre>
 
                 <header class="text-primary documentation-attr">mentio-select</header>
                 <strong>Optional.</strong>
