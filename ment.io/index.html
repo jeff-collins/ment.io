@@ -161,10 +161,10 @@
                     <h6 class="text-muted">(Angular @mentions with macros)</h6>
                 </header>
                 <h3 class="section-heading">Overview</h3>
-                The <code>mentio</code> directive is applied to any element that accepts text input and exposes an <code>ngModel</code>.
-                The <code>mentio</code> directive watches the <code>ngModel</code> of the element it is applied to and
-                responds to changes in the text by presenting typeahead menus for different trigger characters and macro
-                expansion for specified sequences of characters.
+                The <code>mentio</code> directive is applied to any element that accepts selectable text input and exposes 
+                an <code>ngModel</code>.
+                The <code>mentio</code> directive watches the <code>ngModel</code> of the element for changes.  If the user enters
+                a sequence of non-wihtespace characters starting with a <em>trigger character</em>, a typeahead menu appears.
                 <h3 class="section-heading">Directives</h3>
                 <header class="documentation-element">
                     <code>
@@ -172,20 +172,18 @@
                     </code>
                 </header>
 
-                <p>The <code>mentio</code> directive is used as an attribute and requires a specification of which characters to
-                trigger on for typeahead selection, how to present the menu of choices, and behaviors to populate and ultimately select
-                an item from the menu based on user interaction.  The specification of options can either be done inline, within
+                For the mentio directive, specification of options can either be done inline, within
                 the same element for one triggering character, or using a series of configurations if there are a multiple applicable
                 triggering characters.</p>
 
                 <p>
-                The following rules are applied when matching a well-formed typeahead phrase that should trigger a menu to display:
+                When detecting user input that should show a typeahead menu, the following rules apply:
                 <ul>
-                    <li>A registered trigger character is present in the text preceding the current caret location</li>
+                    <li>A specified <em>trigger character</em> is present in the text preceding the current caret location (e.g. @)</li>
                     <li>A space precedes the trigger character</li>
                     <li>The text following the trigger character contains no spaces up to the current caret location</li>
                 </ul>
-                When a match is found, the current text after the trigger character is assigned to the binding specified in the
+                When a match is found, the current text after the trigger character is assigned to the scope property specified in the
                 <code>mentio-typed-term</code> attribute if present.
                 It is only possible for one trigger character to cause a menu to show at a time.  Also, only one menu will display on a given page
                 at a time.
