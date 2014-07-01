@@ -94,12 +94,9 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             return '@' + item._source.name;
         };
 
-        $scope.getSimplePeopleTextRaw = function(item) {
-            return '@' + item.label;
-        };
-
         $scope.theTextArea = 'Type an # and some text';
         $scope.theTextArea2 = 'Type an @';
+        $scope.searchSimplePeople('');
 
         // finally enter content that will raise a menu after everything is set up
         $timeout(function() {

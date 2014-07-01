@@ -25,14 +25,30 @@ angular.module('mentio', [])
                     remoteScope.triggerText = triggerText;
                 };
 
+                $scope.defaultSearch = function(locals) {
+                    var results = [];
+                    angular.forEach($scope.items, function(item) {
+                        if (item.label.toUpperCase().indexOf(locals.term.toUpperCase()) >= 0) {
+                            results.push(item);
+                        }
+                    });
+                    $scope.localItems = results;
+                };
+
                 $scope.bridgeSearch = function(termString) {
-                    $scope.search({
+                    var searchFn = $attrs.mtioSearch ? $scope.search : $scope.defaultSearch;
+                    searchFn({
                         term: termString
                     });
                 };
 
+                $scope.defaultSelect = function(locals) {
+                    return $scope.defaultTriggerChar + locals.item.label;
+                };
+
                 $scope.bridgeSelect = function(itemVar) {
-                    return $scope.select({
+                    var selectFn = $attrs.mtioSelect ? $scope.select : $scope.defaultSelect;
+                    return selectFn({
                         item: itemVar
                     });
                 };
@@ -118,6 +134,9 @@ angular.module('mentio', [])
                 };
 
                 $scope.addMenu = function(menuScope) {
+                    if (menuScope.parentScope && $scope.map.hasOwnProperty(menuScope.triggerChar)) {
+                        return;
+                    }
                     $scope.map[menuScope.triggerChar] = menuScope;
                     if ($scope.triggerCharSet === undefined) {
                         $scope.triggerCharSet = [];
@@ -188,14 +207,20 @@ angular.module('mentio', [])
             link: function (scope, element, attrs) {
                 scope.map = {};
                 attrs.$set('autocomplete','off');
-                scope.parentScope = scope;
-                if (attrs.mtioTriggerChar) {
+
+                if (attrs.mtioItems) {
+                    scope.localItems = [];
+                    scope.parentScope = scope;
+                    var itemsRef = attrs.mtioSearch ? ' mtio-items="items"' : ' mtio-items="localItems"';
+
+                    scope.defaultTriggerChar = attrs.mtioTriggerChar ? scope.$eval(attrs.mtioTriggerChar) : '@';
+
                     var html = '<mentio-menu ' 
                         + ' mtio-search="bridgeSearch(term)"'
                         + ' mtio-select="bridgeSelect(item)"'
-                        + ' mtio-items="items"'
+                        + itemsRef
                         + ' mtio-template-url="' + attrs.mtioTemplateUrl + '"'
-                        + ' mtio-trigger-char="' + attrs.mtioTriggerChar + '"'
+                        + ' mtio-trigger-char="\'' + scope.defaultTriggerChar + '\'"'
                         + ' mtio-parent-scope="parentScope"'
                         + '/>';
                     var linkFn = $compile(html);
