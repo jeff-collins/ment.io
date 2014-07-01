@@ -272,7 +272,7 @@ angular.module('mentio', [])
         };
     })
 
-    .directive('mentioMenu', function (mentioUtil, $rootScope, $log) {
+    .directive('mentioMenu', function (mentioUtil, $rootScope, $log, $window) {
         return {
             restrict: 'E',
             scope: {
@@ -362,6 +362,16 @@ angular.module('mentio', [])
                         $log.error('Error, no such element: ' + scope.forElem);
                     }
                 }
+
+                angular.element($window).bind(
+                    'resize', function () {
+                        if (scope.isVisible()) {
+                            var triggerCharSet = [];
+                            triggerCharSet.push(scope.triggerChar);
+                            mentioUtil.popUnderMention(triggerCharSet, element);
+                        }
+                    }
+                );
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
