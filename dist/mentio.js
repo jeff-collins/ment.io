@@ -301,7 +301,7 @@ angular.module('mentio', [])
 
                 // callable both with controller (menuItem) and without controller (local)
                 this.selectItem = $scope.selectItem = function (item) {
-                    $scope.visible = false;
+                    $scope.hideMenu();
                     $scope.parentMentio.replaceText($scope.triggerChar, item);
                 };
 
@@ -327,10 +327,6 @@ angular.module('mentio', [])
                     if (!$scope.visible) {
                         $scope.requestVisiblePendingSearch = true;
                     }
-                };
-
-                $scope.hideMenu = function () {
-                    $scope.visible = false;
                 };
 
                 $scope.setParent = function (scope) {
@@ -375,19 +371,23 @@ angular.module('mentio', [])
                             scope.requestVisiblePendingSearch = false;
                         }
                     } else {
-                        scope.visible = false;
+                        scope.hideMenu();
                     }
                 });
 
                 scope.$watch('isVisible()', function (visible) {
+                    // wait for the watch notification to show the menu
                     if (visible) {
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
                         mentioUtil.popUnderMention(triggerCharSet, element);
-                    } else {
-                        element.css('display', 'none');
                     }
                 });
+
+                scope.hideMenu = function () {
+                    scope.visible = false;
+                    element.css('display', 'none');
+                };
 
             }
         };

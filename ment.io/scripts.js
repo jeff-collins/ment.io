@@ -30,7 +30,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         });
     })
 
-    .controller('mentio-demo-ctrl', function ($scope, $http, $q, $sce, $timeout, mentioUtil) {
+    .controller('mentio-demo-ctrl', function ($scope, $rootScope, $http, $q, $sce, $timeout, mentioUtil) {
 
         $scope.macros = {
             'brb': 'Be right back',
@@ -94,21 +94,30 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             return '@' + item._source.name;
         };
 
+        $scope.resetDemo = function() {
+            // finally enter content that will raise a menu after everything is set up
+            $timeout(function() {
+                var html = "Try me @ or add a macro like brb, omw, (smile)";
+                var htmlContent = document.querySelector('#htmlContent');
+                if (htmlContent) {
+                    var ngHtmlContent = angular.element(htmlContent);
+                    ngHtmlContent.html(html);
+                    ngHtmlContent.scope().htmlContent = html;
+                    // select right after the @
+                    mentioUtil.selectElement(htmlContent, [0], 8);
+                    ngHtmlContent.scope().$apply();
+                }
+            }, 0);
+        };
+
+        $rootScope.$on('$routeChangeSuccess', function (event, current) {
+            $scope.resetDemo();
+        });
+ 
         $scope.theTextArea = 'Type an # and some text';
         $scope.theTextArea2 = 'Type an @';
         $scope.searchSimplePeople('');
-
-        // finally enter content that will raise a menu after everything is set up
-        $timeout(function() {
-            var html = "Try me @ or add a macro like brb, omw, (smile)";
-            var htmlContent = document.querySelector('#htmlContent');
-            var ngHtmlContent = angular.element(htmlContent);
-            ngHtmlContent.html(html);
-            ngHtmlContent.scope().htmlContent = html;
-            // select right after the @
-            mentioUtil.selectElement(htmlContent, [0], 8);
-            ngHtmlContent.scope().$apply();
-        }, 100);
+        $scope.resetDemo();
     })
 
     .directive('contenteditable', ['$sce', function($sce) {
