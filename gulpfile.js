@@ -7,6 +7,8 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 //var wrap = require('gulp-wrap');
 var templateCache = require('gulp-angular-templatecache');
+var gjshint = require('gulp-jshint');
+var stylish = require('jshint-stylish');
 
 var port = gutil.env.port || 3000;
 var covport = gutil.env.covport || 3001;
@@ -50,6 +52,8 @@ gulp.task('dist', ['tpl'], function () {
         'src/mentio.service.js',
         'dist/templates.js'
     ])
+    .pipe(gjshint())
+    .pipe(gjshint.reporter(stylish))
     .pipe(concat('mentio.js'))
 //    // hack to make componentjs libs to work
 //    .pipe(wrap('(function () {\n\n\'use strict\';\n\nvar Package = \'\';' +
@@ -58,6 +62,12 @@ gulp.task('dist', ['tpl'], function () {
     .pipe(uglify())
     .pipe(concat('mentio.min.js'))
     .pipe(gulp.dest('dist'));
+});
+
+gulp.task('jshint', function () {
+    return gulp.src('src/**/*.js')
+        .pipe(gjshint())
+        .pipe(gjshint.reporter(stylish));
 });
 
 gulp.task('tpl', function () {
