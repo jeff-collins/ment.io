@@ -152,11 +152,6 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             }
         };
     }])
-    .filter('unsafe', function($sce) {
-        return function (val) {
-            return $sce.trustAsHtml(val);
-        };
-    })
     .filter('words', function () {
         return function (input, words) {
             if (isNaN(words)) {

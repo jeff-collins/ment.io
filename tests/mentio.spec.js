@@ -1,16 +1,16 @@
 'use strict';
 
 describe('mentio-menu', function () {
-    var $compile, $rootScope, $templateCache, ruleScope, menuScope, searchSpy, mockItems;
+    var searchSpy, mentioScope, $scope, $document;
 
-    beforeEach(module('mentio'));
+    beforeEach(module('mentio', function($provide) {
+        $provide.value('$log', console);
+    }));
 
-    beforeEach(inject(function (_$compile_, _$rootScope_, _$templateCache_) {
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-        $templateCache = _$templateCache_;
+    beforeEach(inject(function ($compile, $rootScope, $templateCache, _$document_) {
+        $document = _$document_;
 
-        $templateCache.put('/people-mentions.tpl',
+        $templateCache.put('/people-mentions.tpl', 
                 '<div>' +
                 '<li mentio-menu-item="person" ng-repeat="person in items">' +
                 '   <img ng-src="{{person._source.imageUrl}}"><p class="name">{{person._source.name}}</p>' +
@@ -19,66 +19,47 @@ describe('mentio-menu', function () {
                 '</ul>' +
                 '</div>');
 
-        var $scope = $rootScope.$new();
-        var mentionableTextArea = angular.element('<div><textarea ng-model="textArea" ng-trim="false"></textarea>' +
-            '<span>Mentioned: {{atVar}}</span></div>');
+        $scope = $rootScope.$new();
 
+        var mentionableTextArea = angular.element('<div><textarea mentio ' +
+            'ng-model="textArea" id="textArea" ng-trim="false"></textarea>' +
+            '<span>Mentioned: {{typedTerm}}</span></div>');
         $compile(mentionableTextArea)($scope);
+        $document[0].body.appendChild(mentionableTextArea[0]);
 
-        var mentionMenu = angular.element('<mentio-menu bind="textArea" ng-model="atVar2" ng-cloak>' +
-            '<mentio-rule trigger-char="@" items="people" template="/people-mentions.tpl" ' +
-            'search="searchPeople(term)" select="getPeopleTextRaw(item)"></mentio-rule>' +
-            '</mentio-menu>');
-
+        var mentionMenu = angular.element('<mentio-menu mentio-trigger-char="\'@\'" ' +
+            'mentio-for="\'textArea\'" mentio-items="mockItems"></mentio-menu>');
         $compile(mentionMenu)($scope);
+        $document[0].body.appendChild(mentionMenu[0]);
+
         $scope.$apply();
 
         // This is ugly, uses undocumented method to access the child scopes
         // but there is no real way access the menu scope and rule scope
         for(var cs = $scope.$$childHead; cs; cs = cs.$$nextSibling) {
-            if(cs.hide) {
-                ruleScope = cs;
-            }
-            if(cs.query) {
-                menuScope = cs;
+            if(cs.triggerCharMap) {
+                mentioScope = cs;
             }
         }
 
-        mockItems = [ { id: 1 }, { id: 2 } ];
-
-        ruleScope.search = function (object) {
-            if (object.term === 'foo') {
-                ruleScope.items = mockItems;
-            } else {
-                ruleScope.items = [];
-            }
-        };
-
-        searchSpy = spyOn(ruleScope, 'search');
+        searchSpy = spyOn(mentioScope.triggerCharMap['@'], 'search');
         searchSpy.andCallThrough();
     }));
 
     it('should show mentio for valid search term', function () {
-        expect(ruleScope.hide).toBeTruthy();
+        expect(mentioScope.isActive()).toBeFalsy();
 
-        menuScope.atVar = 'foo';
-        menuScope.query('@');
-        menuScope.$apply();
+        $scope.mockItems = [
+            {label: 'test1'}, 
+            {label: 'test2'}
+        ];
 
-        expect(searchSpy).toHaveBeenCalledWith({ term : 'foo' });
-        expect(ruleScope.items).toEqual(mockItems);
-        expect(ruleScope.hide).toBeFalsy();
+        mentioScope.query('@', 'test');
+        mentioScope.$apply();
+
+        expect(searchSpy).toHaveBeenCalledWith({ term : 'test' });
+        expect(mentioScope.isActive()).toBeTruthy();
+        expect(mentioScope.triggerCharMap['@'].isVisible()).toBeTruthy();
     });
 
-    it('should hide mentio for invalid search term', function () {
-        expect(ruleScope.hide).toBeTruthy();
-
-        menuScope.atVar = 'fox';
-        menuScope.query('@');
-        menuScope.$apply();
-
-        expect(searchSpy).toHaveBeenCalledWith({ term : 'fox' });
-        expect(ruleScope.items).toEqual([]);
-        expect(ruleScope.hide).toBeTruthy();
-    });
 });

@@ -28,7 +28,7 @@ angular.module('mentio')
 
                 $timeout(function(){
                     scrollIntoView(selectionEl);
-                },0)
+                },0);
             } else {
                 selectionEl.css({
                     display: 'none'

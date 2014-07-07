@@ -50,7 +50,7 @@ gulp.task('dist', ['tpl'], function () {
 //        'bower_components/textarea-caret-position/index.js',
         'src/mentio.directive.js',
         'src/mentio.service.js',
-        'dist/templates.js'
+        'src/templates.js'
     ])
     .pipe(gjshint())
     .pipe(gjshint.reporter(stylish))
@@ -75,7 +75,7 @@ gulp.task('tpl', function () {
         .pipe(templateCache({
             module: 'mentio'
         }))
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('src'));
 });
 
 

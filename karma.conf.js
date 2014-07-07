@@ -22,6 +22,8 @@ module.exports = function(config) {
         // use dots reporter, as travis terminal does not support escaping sequences
         // possible values: 'dots', 'progress'
         // CLI --reporters progress
+
+        // remove 'coverage' for inline debugging of directive source
         reporters: ['junit','progress','coverage','threshold'],
 
         junitReporter: {
@@ -76,7 +78,7 @@ module.exports = function(config) {
 
         // Auto run tests on start (when browsers are captured) and exit
         // CLI --single-run --no-single-run
-        singleRun: true,
+        singleRun: false,
 
         // report which specs are slower than 500ms
         // CLI --report-slower-than 500
