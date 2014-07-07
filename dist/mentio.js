@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mentio', [])
-    .directive('mentio', function (mentioUtil, $compile) {
+    .directive('mentio', function (mentioUtil, $compile, $log, $document) {
         return {
             restrict: 'A',
             scope: {
@@ -12,10 +12,10 @@ angular.module('mentio', [])
                 typedTerm: '=mentioTypedTerm',
                 ngModel: '='
             },
-            controller: function($scope, $timeout, $document, $attrs) {
+            controller: function($scope, $timeout, $attrs) {
  
                 $scope.query = function (triggerChar, triggerText) {
-                    var remoteScope = $scope.map[triggerChar];
+                    var remoteScope = $scope.triggerCharMap[triggerChar];
                     remoteScope.showMenu();
 
                     remoteScope.search({
@@ -61,7 +61,7 @@ angular.module('mentio', [])
 
                 $scope.replaceText = function (triggerChar, item) {
                     // need to set up call to this
-                    var remoteScope = $scope.map[triggerChar];
+                    var remoteScope = $scope.triggerCharMap[triggerChar];
                     var text = remoteScope.select({
                         item: item
                     });
@@ -80,18 +80,18 @@ angular.module('mentio', [])
                 };
 
                 $scope.hideAll = function () {
-                    for (var key in $scope.map) {
-                        if ($scope.map.hasOwnProperty(key)) {
-                            $scope.map[key].hideMenu();
+                    for (var key in $scope.triggerCharMap) {
+                        if ($scope.triggerCharMap.hasOwnProperty(key)) {
+                            $scope.triggerCharMap[key].hideMenu();
                         }
                     }
                 };
 
                 $scope.getActiveMenuScope = function () {
-                    for (var key in $scope.map) {
-                        if ($scope.map.hasOwnProperty(key)) {
-                            if ($scope.map[key].visible) {
-                                return $scope.map[key];
+                    for (var key in $scope.triggerCharMap) {
+                        if ($scope.triggerCharMap.hasOwnProperty(key)) {
+                            if ($scope.triggerCharMap[key].visible) {
+                                return $scope.triggerCharMap[key];
                             }
                         }
                     }
@@ -99,19 +99,19 @@ angular.module('mentio', [])
                 };
 
                 $scope.selectActive = function () {
-                    for (var key in $scope.map) {
-                        if ($scope.map.hasOwnProperty(key)) {
-                            if ($scope.map[key].visible) {
-                                $scope.map[key].selectActive();
+                    for (var key in $scope.triggerCharMap) {
+                        if ($scope.triggerCharMap.hasOwnProperty(key)) {
+                            if ($scope.triggerCharMap[key].visible) {
+                                $scope.triggerCharMap[key].selectActive();
                             }
                         }
                     }
                 };
 
                 $scope.isActive = function () {
-                    for (var key in $scope.map) {
-                        if ($scope.map.hasOwnProperty(key)) {
-                            if ($scope.map[key].visible) {
+                    for (var key in $scope.triggerCharMap) {
+                        if ($scope.triggerCharMap.hasOwnProperty(key)) {
+                            if ($scope.triggerCharMap[key].visible) {
                                 return true;
                             }
                         }
@@ -134,10 +134,10 @@ angular.module('mentio', [])
                 };
 
                 $scope.addMenu = function(menuScope) {
-                    if (menuScope.parentScope && $scope.map.hasOwnProperty(menuScope.triggerChar)) {
+                    if (menuScope.parentScope && $scope.triggerCharMap.hasOwnProperty(menuScope.triggerChar)) {
                         return;
                     }
-                    $scope.map[menuScope.triggerChar] = menuScope;
+                    $scope.triggerCharMap[menuScope.triggerChar] = menuScope;
                     if ($scope.triggerCharSet === undefined) {
                         $scope.triggerCharSet = [];
                     }
@@ -205,7 +205,7 @@ angular.module('mentio', [])
                 );
             },
             link: function (scope, element, attrs) {
-                scope.map = {};
+                scope.triggerCharMap = {};
                 attrs.$set('autocomplete','off');
 
                 if (attrs.mentioItems) {
@@ -215,14 +215,17 @@ angular.module('mentio', [])
 
                     scope.defaultTriggerChar = attrs.mentioTriggerChar ? scope.$eval(attrs.mentioTriggerChar) : '@';
 
-                    var html = '<mentio-menu' 
-                        + ' mentio-search="bridgeSearch(term)"'
-                        + ' mentio-select="bridgeSelect(item)"'
-                        + itemsRef
-                        + ' mentio-template-url="' + attrs.mentioTemplateUrl + '"'
-                        + ' mentio-trigger-char="\'' + scope.defaultTriggerChar + '\'"'
-                        + ' mentio-parent-scope="parentScope"'
-                        + '/>';
+                    var html = '<mentio-menu' +
+                        ' mentio-search="bridgeSearch(term)"' +
+                        ' mentio-select="bridgeSelect(item)"' +
+                        itemsRef;
+
+                    if (attrs.mentioTemplateUrl) {
+                        html = html + ' mentio-template-url="' + attrs.mentioTemplateUrl + '"';
+                    }
+                    html = html + ' mentio-trigger-char="\'' + scope.defaultTriggerChar + '\'"' +
+                        ' mentio-parent-scope="parentScope"' +
+                        '/>';
                     var linkFn = $compile(html);
                     var el = linkFn(scope);
 
@@ -272,7 +275,7 @@ angular.module('mentio', [])
         };
     })
 
-    .directive('mentioMenu', function (mentioUtil, $rootScope, $log, $window) {
+    .directive('mentioMenu', function (mentioUtil, $rootScope, $log, $window, $document) {
         return {
             restrict: 'E',
             scope: {
@@ -284,7 +287,7 @@ angular.module('mentio', [])
                 parentScope: '=mentioParentScope'
             },
             templateUrl: function(tElement, tAttrs) {
-                return tAttrs.mentioTemplateUrl !== 'undefined' ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
+                return tAttrs.mentioTemplateUrl !== undefined ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
             },
             controller: function ($scope) {
                 $scope.visible = false;
@@ -336,12 +339,20 @@ angular.module('mentio', [])
 
             link: function (scope, element) {
                 element[0].parentNode.removeChild(element[0]);
-                document.body.appendChild(element[0]);
+                $document[0].body.appendChild(element[0]);
 
                 if (scope.parentScope) {
                     scope.parentScope.addMenu(scope);
                 } else {
-                    var targetElement = document.querySelector('#' + scope.forElem);
+                    if (!scope.forElem) {
+                        $log.error('mentio-menu requires a target element in tbe mentio-for attribute');
+                        return;
+                    }
+                    if (!scope.triggerChar) {
+                        $log.error('mentio-menu requires a trigger char');
+                        return;
+                    }
+                    var targetElement = $document[0].querySelector('#' + scope.forElem);
 
                     if (targetElement) {
                         var ngElem = angular.element(targetElement);
@@ -437,7 +448,11 @@ angular.module('mentio', [])
             }
         };
     })
-
+    .filter('unsafe', function($sce) {
+        return function (val) {
+            return $sce.trustAsHtml(val);
+        };
+    })
     .filter('mentioHighlight', function() {
         function escapeRegexp (queryToEscape) {
             return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -445,9 +460,9 @@ angular.module('mentio', [])
 
         return function (matchItem, query, hightlightClass) {
             if (query) {
-                var replaceText = hightlightClass
-                                 ? '<span class="' + hightlightClass + '">$&</span>'
-                                 : '<strong>$&</strong>';
+                var replaceText = hightlightClass ?
+                                 '<span class="' + hightlightClass + '">$&</span>' :
+                                 '<strong>$&</strong>';
                 return ('' + matchItem).replace(new RegExp(escapeRegexp(query), 'gi'), replaceText);
             } else {
                 return matchItem;
@@ -485,7 +500,7 @@ angular.module('mentio')
 
                 $timeout(function(){
                     scrollIntoView(selectionEl);
-                },0)
+                },0);
             } else {
                 selectionEl.css({
                     display: 'none'
