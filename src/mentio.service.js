@@ -47,6 +47,9 @@ angular.module('mentio')
                 clientRect = e.getBoundingClientRect();
                 if (clientRect.height === 0) {
                     e = e.childNodes[0];
+                    if (!e.getBoundingClientRect) {
+                        return;
+                    }
                 }
             }
             var elemTop = clientRect.top;
@@ -165,11 +168,11 @@ angular.module('mentio')
             var macroMatchInfo = getMacroMatch(macros);
 
             if (macroMatchInfo !== undefined) {
+                var element = document.activeElement;
                 if (selectedElementIsTextAreaOrInput()) {
-                    var myField = document.activeElement;
                     //IE support
                     if (document.selection) {
-                        myField.focus();
+                        element.focus();
                         var sel = document.selection.createRange();
                         sel.selectStartOffset(macroMatchInfo.macroPosition);
                         sel.selectEndOffset(macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
@@ -179,10 +182,10 @@ angular.module('mentio')
                     else {
                         var startPos = macroMatchInfo.macroPosition;
                         var endPos = macroMatchInfo.macroPosition + macroMatchInfo.macroText.length;
-                        myField.value = myField.value.substring(0, startPos) + text +
-                            myField.value.substring(endPos, myField.value.length);
-                        myField.selectionStart = startPos + text.length;
-                        myField.selectionEnd = startPos + text.length;
+                        element.value = element.value.substring(0, startPos) + text +
+                            element.value.substring(endPos, element.value.length);
+                        element.selectionStart = startPos + text.length;
+                        element.selectionEnd = startPos + text.length;
                     }
                 } else {
                     pasteHtml(text, macroMatchInfo.macroPosition,
@@ -219,6 +222,7 @@ angular.module('mentio')
                         myField.selectionEnd = startPos + text.length;
                     }
                 } else {
+                    // add a space to the end of the pasted text
                     text = text + '\xA0';
                     pasteHtml(text, mentionInfo.mentionPosition,
                             mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
@@ -246,24 +250,13 @@ angular.module('mentio')
                 selected = document.activeElement;
             } else {
                 // content editable
-                var sel = window.getSelection();
-                selected = sel.anchorNode;
-                if (selected != null) {
-                    var i;
-                    var ce = selected.contentEditable;
-                    while (selected !== null && ce !== 'true') {
-                        i = getNodePositionInParent(selected);
-                        path.push(i);
-                        selected = selected.parentNode;
-                        if (selected !== null) {
-                            ce = selected.contentEditable;
-                        }
-                    }
-                    path.reverse();
-                    // getRangeAt may not exist, need alternative
-                    offset = sel.getRangeAt(0).startOffset;
+                var selectionInfo = getContentEditableSelectedPath();
+                if (selectionInfo) {
+                    selected = selectionInfo.selected;
+                    path = selectionInfo.path;
+                    offset = selectionInfo.offset;
                 }
-            }
+             }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
 
@@ -293,30 +286,46 @@ angular.module('mentio')
             }
         }
 
+        function getContentEditableSelectedPath() {
+            // content editable
+            var sel = window.getSelection();
+            var selected = sel.anchorNode;
+            var path = [];
+            var offset;
+            if (selected != null) {
+                var i;
+                var ce = selected.contentEditable;
+                while (selected !== null && ce !== 'true') {
+                    i = getNodePositionInParent(selected);
+                    path.push(i);
+                    selected = selected.parentNode;
+                    if (selected !== null) {
+                        ce = selected.contentEditable;
+                    }
+                }
+                path.reverse();
+                // getRangeAt may not exist, need alternative
+                offset = sel.getRangeAt(0).startOffset;
+                return {
+                    selected: selected,
+                    path: path,
+                    offset: offset
+                };
+            }
+        }
+
         // public
         function getTriggerInfo (triggerCharSet) {
-            var selected, path = [],
-                offset;
+            var selected, path, offset;
             if (selectedElementIsTextAreaOrInput()) {
                 selected = document.activeElement;
             } else {
                 // content editable
-                var sel = window.getSelection();
-                selected = sel.anchorNode;
-                if (selected != null) {
-                    var i;
-                    var ce = selected.contentEditable;
-                    while (selected !== null && ce !== 'true') {
-                        i = getNodePositionInParent(selected);
-                        path.push(i);
-                        selected = selected.parentNode;
-                        if (selected !== null) {
-                            ce = selected.contentEditable;
-                        }
-                    }
-                    path.reverse();
-                    // getRangeAt may not exist, need alternative
-                    offset = sel.getRangeAt(0).startOffset;
+                var selectionInfo = getContentEditableSelectedPath();
+                if (selectionInfo) {
+                    selected = selectionInfo.selected;
+                    path = selectionInfo.path;
+                    offset = selectionInfo.offset;
                 }
             }
             var effectiveRange = getTextPrecedingCurrentSelection();
@@ -367,7 +376,7 @@ angular.module('mentio')
                 }
 
             } else {
-                var selectedElem = window.getSelection().anchorNode; // taSelection.getSelectionElement();
+                var selectedElem = window.getSelection().anchorNode; 
                 if (selectedElem != null) {
                     var workingNodeContent = selectedElem.textContent;
                     var selectStartOffset = window.getSelection().getRangeAt(0).startOffset;
@@ -429,23 +438,20 @@ angular.module('mentio')
 
         function getTextAreaOrInputUnderlinePosition (element, position) {
             var properties = [
-                'direction', // RTL support
+                'direction', 
                 'boxSizing',
-                'width', //on Chrome and IE, exclude the scrollbar, so the mirror div wraps exactly as the textarea does
+                'width', 
                 'height',
                 'overflowX',
-                'overflowY', // copy the scrollbar for IE
-
+                'overflowY', 
                 'borderTopWidth',
                 'borderRightWidth',
                 'borderBottomWidth',
                 'borderLeftWidth',
-
                 'paddingTop',
                 'paddingRight',
                 'paddingBottom',
                 'paddingLeft',
-
                 'fontStyle',
                 'fontVariant',
                 'fontWeight',
@@ -454,37 +460,31 @@ angular.module('mentio')
                 'fontSizeAdjust',
                 'lineHeight',
                 'fontFamily',
-
                 'textAlign',
                 'textTransform',
                 'textIndent',
                 'textDecoration',
-
                 'letterSpacing',
                 'wordSpacing'
             ];
 
             var isFirefox = (window.mozInnerScreenX !== null);
 
-
-            // mirrored div
             var div = document.createElement('div');
             div.id = 'input-textarea-caret-position-mirror-div';
             document.body.appendChild(div);
 
             var style = div.style;
-            // currentStyle for IE < 9
             var computed = window.getComputedStyle ? getComputedStyle(element) : element.currentStyle;
 
-            // default textarea styles
             style.whiteSpace = 'pre-wrap';
             if (element.nodeName !== 'INPUT') {
-                style.wordWrap = 'break-word'; // only for textarea-s
+                style.wordWrap = 'break-word'; 
             }
 
             // position off-screen
-            style.position = 'absolute'; // required to return coordinates properly
-            style.visibility = 'hidden'; // not 'display: none' because we want rendering
+            style.position = 'absolute'; 
+            style.visibility = 'hidden'; 
 
             // transfer the element's properties to the div
             properties.forEach(function (prop) {
@@ -492,14 +492,11 @@ angular.module('mentio')
             });
 
             if (isFirefox) {
-                // Firefox adds 2 pixels to the padding - https://bugzilla.mozilla.org/show_bug.cgi?id=753662
                 style.width = (parseInt(computed.width) - 2) + 'px';
-                // Firefox lies about the overflow property for textareas:
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=984275
                 if (element.scrollHeight > parseInt(computed.height))
                     style.overflowY = 'scroll';
             } else {
-                style.overflow = 'hidden'; // for Chrome to not render a scrollbar; IE keeps overflowY = 'scroll'
+                style.overflow = 'hidden'; 
             }
 
             div.textContent = element.value.substring(0, position);
@@ -529,11 +526,25 @@ angular.module('mentio')
         }
 
         return {
+            // public
             popUnderMention: popUnderMention,
             replaceMacroText: replaceMacroText,
             replaceTriggerText: replaceTriggerText,
             getMacroMatch: getMacroMatch,
             getTriggerInfo: getTriggerInfo,
-            selectElement: selectElement
+            selectElement: selectElement,
+
+
+
+
+            // private: for unit testing only
+            getTextAreaOrInputUnderlinePosition: getTextAreaOrInputUnderlinePosition,
+            getTextPrecedingCurrentSelection: getTextPrecedingCurrentSelection,
+            getContentEditableSelectedPath: getContentEditableSelectedPath,
+            getNodePositionInParent: getNodePositionInParent,
+            getContentEditableCaretPosition: getContentEditableCaretPosition,
+            pasteHtml: pasteHtml,
+            resetSelection: resetSelection,
+            scrollIntoView: scrollIntoView
         };
     });

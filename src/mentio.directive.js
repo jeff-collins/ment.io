@@ -60,7 +60,6 @@ angular.module('mentio', [])
                 };
 
                 $scope.replaceText = function (triggerChar, item) {
-                    // need to set up call to this
                     var remoteScope = $scope.triggerCharMap[triggerChar];
                     var text = remoteScope.select({
                         item: item
@@ -340,6 +339,7 @@ angular.module('mentio', [])
             link: function (scope, element) {
                 element[0].parentNode.removeChild(element[0]);
                 $document[0].body.appendChild(element[0]);
+                scope.menuElement = element; // for testing
 
                 if (scope.parentScope) {
                     scope.parentScope.addMenu(scope);
