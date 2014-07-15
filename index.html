@@ -132,11 +132,11 @@
             <li mentio-menu-item="product" ng-repeat="product in items" class="list-group-item clearfix">
                 <div class="row">
                     <div class="col-xs-2 text-center">
-                        <img ng-src="{{product._source.imageUrl}}" class="product-photo">
+                        <img ng-src="{{product.imageUrl}}" class="product-photo">
                     </div>
                     <div class="col-xs-10">
-                        <h4 class="list-group-item-heading">{{product._source.title | words:5}}</h4>
-                        <p class="list-group-item-text">{{product._source.description | words:7}}</p>
+                        <h4 class="list-group-item-heading">{{product.title | words:5}}</h4>
+                        <p class="list-group-item-text">{{product.description | words:7}}</p>
                     </div>
                 </div>
             </li>
@@ -146,9 +146,9 @@
     <script type="text/ng-template" id="/people-mentions.tpl">
         <ul class="list-group user-search">
             <li mentio-menu-item="person" ng-repeat="person in items" class="list-group-item">
-                <img ng-src="{{person._source.imageUrl}}" class="user-photo">
-                <span class="text-primary" ng-bind-html="person._source.name | mentioHighlight:typedTerm:'menu-highlighted' | unsafe"></span>
-                <em class="text-muted" ng-bind="person._source.bio | words:5"></em>
+                <img ng-src="{{person.imageUrl}}" class="user-photo">
+                <span class="text-primary" ng-bind-html="person.name | mentioHighlight:typedTerm:'menu-highlighted' | unsafe"></span>
+                <em class="text-muted" ng-bind="person.bio | words:5"></em>
             </li>
         </ul>
     </script>
@@ -274,10 +274,10 @@
                 &lt;script type="text/ng-template" id="<b>/people-mentions.tpl</b>"&gt;
                     &lt;ul class="list-group user-search"&gt;
                         &lt;i mentio-menu-item="person" ng-repeat="person in <b>items</b>" class="list-group-item"&gt;
-                            &lt;mg ng-src=" { {person._source.imageUrl} }" class="user-photo"&gt;
+                            &lt;mg ng-src=" { {person.imageUrl} }" class="user-photo"&gt;
                             &lt;span class="text-primary"
-                                ng-bind-html="person._source.name | mentioHighlight:typedTerm:'menu-highlighted' | unsafe">&lt;/span&gt;
-                            &lt;em class="text-muted" ng-bind="person._source.bio | words:5">&lt;/em&gt;
+                                ng-bind-html="person.name | mentioHighlight:typedTerm:'menu-highlighted' | unsafe">&lt;/span&gt;
+                            &lt;em class="text-muted" ng-bind="person.bio | words:5">&lt;/em&gt;
                         &lt;/li&gt;
                     &lt;/ul&gt;
                 &lt;/script&gt;</pre>
@@ -353,7 +353,7 @@
                 be replaced with a <code>span</code> element with the class <code>menu-highlighted</code>:
 
                 <p></p>
-                <pre>person._source.name | mentioHighlight:typedTerm:'menu-highlighted'</pre>
+                <pre>person.name | mentioHighlight:typedTerm:'menu-highlighted'</pre>
                 The filter is useful within the <code>mentio-menu</code> template when iterating the items in the select menu for the user
                 to pick.
                <p></p>
