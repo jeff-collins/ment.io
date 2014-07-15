@@ -17,8 +17,8 @@ describe('mentio-menu', function () {
         $templateCache.put('/people-mentions.tpl', 
                 '<div>' +
                 '<li mentio-menu-item="person" ng-repeat="person in items">' +
-                '   <img ng-src="{{person._source.imageUrl}}"><p class="name">{{person._source.name}}</p>' +
-                '   <p>{{person._source.bio.substring(0,30)}}</p>' +
+                '   <img ng-src="{{person.imageUrl}}"><p class="name">{{person.name}}</p>' +
+                '   <p>{{person.bio.substring(0,30)}}</p>' +
                 '</li>' +
                 '</ul>' +
                 '</div>');

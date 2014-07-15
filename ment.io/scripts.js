@@ -44,7 +44,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
 
             return $http.get('productdata.json').then(function (response) {
                 angular.forEach(response.data, function(item) {
-                    if (item._source.title.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
+                    if (item.title.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
                         prodList.push(item);
                     }
                 });
@@ -58,7 +58,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             var peopleList = [];
             return $http.get('peopledata.json').then(function (response) {
                 angular.forEach(response.data, function(item) {
-                    if (item._source.name.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
+                    if (item.name.toUpperCase().indexOf(term.toUpperCase()) >= 0) {
                         peopleList.push(item);
                     }
                 });
@@ -79,19 +79,19 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         };
 
         $scope.getProductText = function(item) {
-            return '[~<strong>' + item._sku + '</strong>]';
+            return '[~<strong>' + item.sku + '</strong>]';
         };
 
         $scope.getProductTextRaw = function(item) {
-            return '#' + item._sku;
+            return '#' + item.sku;
         };
 
         $scope.getPeopleText = function(item) {
-            return '[~<i>' + item._source.name + '</i>]';
+            return '[~<i>' + item.name + '</i>]';
         };
 
         $scope.getPeopleTextRaw = function(item) {
-            return '@' + item._source.name;
+            return '@' + item.name;
         };
 
         $scope.resetDemo = function() {

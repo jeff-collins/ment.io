@@ -1,215 +1,56 @@
 [
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"tdcyhNxYRQqqgnm1fpP7Eg",
-        "_sku": "XBR55X900A",
-        "_score":null,
-        "_source":{
-            "product_id":"1",
-            "name":"55 in. Class (54.6in. diag) XBR 4K Ultra HD TV | XBR55X900A",
-            "desc":"Model Features: 4K Ultra HD, 4K X-Reality PRO Picture Engine, 65W front-facing speaker system, TRILUMINOS display, Dynamic Edge LED backlight, Motionflow XR 960, wireless smartphone mirroring technology, plus 4 pairs of 3D glasses, HDMI&reg; 2.0 support for next 4K video formats (Free upgrade)",
-            "customer_id":"sony",
-            "title":"55 in. Class (54.6in. diag) XBR 4K Ultra HD TV | XBR55X900A",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/71cqu%2BgwJyL._SL1500_.jpg",
-            "description":"Model Features: 4K Ultra HD, 4K X-Reality PRO Picture Engine, 65W front-facing speaker system, TRILUMINOS display, Dynamic Edge LED backlight, Motionflow XR 960, wireless smartphone mirroring technology, plus 4 pairs of 3D glasses, HDMI 2.0 support for next 4K video formats (Free upgrade)",
-            "productUrl":"http://google.com",
-            "categories":[
-                "speakers"
-            ],
-            "id":"tdcyhNxYRQqqgnm1fpP7Eg"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "XBR55X900A",
+        "title":"55 in. Class (54.6in. diag) XBR 4K Ultra HD TV | XBR55X900A",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/71cqu%2BgwJyL._SL1500_.jpg",
+        "description":"Model Features: 4K Ultra HD, 4K X-Reality PRO Picture Engine, 65W front-facing speaker system, TRILUMINOS display, Dynamic Edge LED backlight, Motionflow XR 960, wireless smartphone mirroring technology, plus 4 pairs of 3D glasses, HDMI 2.0 support for next 4K video formats (Free upgrade)"
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"hJuBuI0hSUqvtCwmmTFzUA",
-        "_sku": "ACER11CHROME",
-        "_score":null,
-        "_source":{
-            "title":"Acer - 11.6\" Touch-Screen Chromebook - Intel Celeron - 2GB Memory - 32GB Solid State Drive - Moonstone White",
-            "description":"To best view our site - and for a better experience overall on the Web - please update your browser using the links below. It's free and it takes just a minute.Download the latest version of Chrome, FireFox or Internet Explorer.",
-            "imageUrl":"http://pisces.bbystatic.com/image2/BestBuy_US/images/products/4591/4591017_sa.jpg;canvasHeight=210;canvasWidth=210",
-            "productUrl":"http://www.bestbuy.com/site/acer-11-6-touch-screen-chromebook-intel-celeron…solid-state-drive-moonstone-white/4591017.p?id=1219098810504&skuId=4591017",
-            "categories":[
-                "hrtest1",
-                "hrtest2"
-            ],
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "L32B1120",
+        "title":"Haier 32-Inch 720p 60Hz LCD TV - Black (L32B1120)",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/41CQD4PazFL.jpg",
+        "description":"Haier L32B1120 32-Inch 720p LCD TV The Haier L32B1120 32\" LCD HDTV is a 720p high definition sleek TV with everything you need. It has 2 HDMI inputs for various high definition devices and a contrast ratio of 3,000 to 1 for razor sharp clarity."
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"JUh4fLO4TJK-aUcCMa5iQA",
-        "_sku": "L32B1120",
-        "_score":null,
-        "_source":{
-            "title":"Haier 32-Inch 720p 60Hz LCD TV - Black (L32B1120)",
-            "description":"Haier L32B1120 32-Inch 720p LCD TV The Haier L32B1120 32\" LCD HDTV is a 720p high definition sleek TV with everything you need. It has 2 HDMI inputs for various high definition devices and a contrast ratio of 3,000 to 1 for razor sharp clarity.",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/41CQD4PazFL.jpg",
-            "productUrl":"http://www.amazon.com/Haier-L24B1180-23-6-Inch-1080p-Black/dp/B004OBYWNC/ref=pd_sim_sbs_e_3?ie=UTF8&refRID=1MBS04N3CP6RAPBEMT9Y",
-            "categories":[
-                "television"
-            ],
-            "customer_id":"sony",
-            "id":"JUh4fLO4TJK-aUcCMa5iQA"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "BATLOGOLIT",
+        "title":"Batman Logo Night Light",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/31zttVXWsLL.jpg",
+        "description":"Night light features the Batman bat-signal. Will bring a soothing glow to any child's room. Automatic light sensor turns light on and off. Bulb included. Dimensions: 4.5\"H x 3.5\"W x 1.5\"D"
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"zYCrSFL7RI2yHl6jkWnhoQ",
-        "_sku": "BATLOGOLIT",
-        "_score":null,
-        "_source":{
-            "title":"Batman Logo Night Light",
-            "description":"Night light features the Batman bat-signal. Will bring a soothing glow to any child's room. Automatic light sensor turns light on and off. Bulb included. Dimensions: 4.5\"H x 3.5\"W x 1.5\"D",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/31zttVXWsLL.jpg",
-            "productUrl":"http://www.amazon.com/gp/product/B00236DOV6/ref=s9_simh_gw_p14_d0_i3?pf_rd_…pf_rd_r=1CEKFQN8BEPCB4PDFGDZ&pf_rd_t=101&pf_rd_p=1688200382&pf_rd_i=507846",
-            "categories":[
-
-            ],
-            "sku":"Sku required",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "DAMPRIDQ9L",
+        "title":"DampRid FG91 Easy-Fill System Any Room Moisture Absorber",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/51lTO--dQ9L.jpg",
+        "description":"DampRid FG91 Easy-Fill System Any Room Moisture Absorber"
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"OhyOg0BySqmTf-WNbglpCQ",
-        "_sku": "DAMPRIDQ9L",
-        "_score":null,
-        "_source":{
-            "title":"DampRid FG91 Easy-Fill System Any Room Moisture Absorber",
-            "description":"DampRid FG91 Easy-Fill System Any Room Moisture Absorber",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/51lTO--dQ9L.jpg",
-            "productUrl":"http://www.amazon.com/gp/product/B002MPPYUM/ref=s9_simh_gw_p201_d0_i6?pf_rd…pf_rd_r=07CHCBRRW69B1PEQ7JWG&pf_rd_t=101&pf_rd_p=1688200382&pf_rd_i=507846",
-            "categories":[
-                "butt"
-            ],
-            "sku":"asdfasdf",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "ICUPDCCOMIC",
+        "title":"ICUP DC Comics Batman Ice Cube Tray",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/41jUeLPk23L.jpg",
+        "description":"Black Twelve Cavity Ice Tray That Creates Batman's Famous Bat Symbol. Become A Kitchen Superhero With Ice Cubes Sent From The Dark Knight."
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"b8fAwDzPQQSA5f-r4CSCcw",
-        "_sku": "ICUPDCCOMIC",
-        "_score":null,
-        "_source":{
-            "title":"ICUP DC Comics Batman Ice Cube Tray",
-            "description":"Black Twelve Cavity Ice Tray That Creates Batman's Famous Bat Symbol. Become A Kitchen Superhero With Ice Cubes Sent From The Dark Knight.",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/41jUeLPk23L.jpg",
-            "productUrl":"http://www.amazon.com/ICUP-Comics-Batman-Cube-Tray/dp/B005MUAPOO/ref=sr_1_5?s=home-garden&ie=UTF8&qid=1402445103&sr=1-5&keywords=comics",
-            "categories":[
-
-            ],
-            "sku":"sku-b du",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "GBCLIPBK01",
+        "title":"Geoffrey Beene Men's Money Clip, Silver/Black, No Size",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/31SWC8OlcBL.jpg",
+        "description":"Geoffrey Beene Men's Money Clip, Silver/Black, No Size"
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"ri2ZZOgvRPS9evAJeucluQ",
-        "_sku": "GBCLIPBK01",
-        "_score":null,
-        "_source":{
-            "title":"Geoffrey Beene Men's Money Clip, Silver/Black, No Size",
-            "description":"Geoffrey Beene Men's Money Clip, Silver/Black, No Size",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/31SWC8OlcBL.jpg",
-            "productUrl":"http://www.amazon.com/Geoffrey-Beene-Money-Silver-Black/dp/B00AWL46Y8/ref=sr_1_2?srs=9147097011&ie=UTF8&qid=1402521425&sr=8-2",
-            "categories":[
-
-            ],
-            "sku":"sku time",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "DIS_FRZ_FF",
+        "title":"Disney Store - Girls - Frozen Cold Feet - Flip Flop",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/51y5O7WsV1L.jpg",
+        "description":"Amazon.com: Disney Store - Girls - Frozen Cold Feet - Flip Flop: Shoes"
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"dha6n7RCSW-PFG1dq8avqg",
-        "_sku": "DIS_FRZ_FF",
-        "_score":null,
-        "_source":{
-            "title":"Disney Store - Girls - Frozen Cold Feet - Flip Flop",
-            "description":"Amazon.com: Disney Store - Girls - Frozen Cold Feet - Flip Flop: Shoes",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/51y5O7WsV1L.jpg",
-            "productUrl":"http://www.amazon.com/Disney-Store-Girls-Frozen-Cold/dp/B00HZ5LNDG/ref=pd_sim_etk_hg_bb__4?ie=UTF8&refRID=1XC0QYN9FBETNTXAV77P",
-            "categories":[
-
-            ],
-            "sku":"sku u",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "ANASTR3000",
+        "title":"Anker® Astro Mini 3000mAh Ultra-Compact Portable Charger Lipstick-Sized External Battery Power Bank Pack for iPhone 5S, 5C, 5, 4S, Galaxy S5, S4, S3, Note 3, Nexus 4, HTC One, One 2 (M8), Nokia Lumia 520, 1020, most other Smartphones (Apple Adapters- 30 pin and Lightning, NOT Included) - Silver",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/31cwVJtaHUL.jpg",
+        "description":"Anker® Astro Mini 3000mAh Ultra-Compact Portable Charger Lipstick-Sized External Battery Power Bank Pack for iPhone 5S, 5C, 5, 4S, Galaxy S5, S4, S3, Note 3, Nexus 4, HTC One, One 2 (M8), Nokia Lumia 520, 1020, most other Smartphones (Apple Adapters- 30 pin and Lightning, NOT Included) - Silver"
     },
     {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"sJCg44QpSOebW8rNO81EBw",
-        "_sku": "ANASTR3000",
-        "_score":null,
-        "_source":{
-            "title":"Anker® Astro Mini 3000mAh Ultra-Compact Portable Charger Lipstick-Sized External Battery Power Bank Pack for iPhone 5S, 5C, 5, 4S, Galaxy S5, S4, S3, Note 3, Nexus 4, HTC One, One 2 (M8), Nokia Lumia 520, 1020, most other Smartphones (Apple Adapters- 30 pin and Lightning, NOT Included) - Silver",
-            "description":"Anker® Astro Mini 3000mAh Ultra-Compact Portable Charger Lipstick-Sized External Battery Power Bank Pack for iPhone 5S, 5C, 5, 4S, Galaxy S5, S4, S3, Note 3, Nexus 4, HTC One, One 2 (M8), Nokia Lumia 520, 1020, most other Smartphones (Apple Adapters- 30 pin and Lightning, NOT Included) - Silver",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/31cwVJtaHUL.jpg",
-            "productUrl":"http://www.amazon.com/Ultra-Compact-Lipstick-Sized-Smartphones-Adapters-Lightning/dp/B005NF5NTK/ref=pd_bxgy_e_img_y",
-            "categories":[
-
-            ],
-            "sku":"Sku and categories shouldn't be cleared on url upload",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
-    },
-    {
-        "_index":"idx_product_catalog_sony_products_v1",
-        "_type":"product",
-        "_id":"_lseF4dGQ_qSMu-W6B6u8A",
-        "_sku": "JIVEBLTZ55",
-        "_score":null,
-        "_source":{
-            "title":"Amazon.com: CableJive iBoltz XS, short charge cable for iPhone 5 / 5S / 5C, iPad Air, iPod nano and all Apple Lightning devices. Charge and Sync cable. Extra Short (12cm) Lightning to USB Sync and Charge Cable.: MP3 Players & Accessories",
-            "description":"More is less in this case. Only 5 inches (just 12cm) of cable means that this cable can be everywhere you want it to be without hassle or cable tangle. Made for iPhone certification means that this cable is constructed under strict guidelines and will be durable, ready for your active lifestyle.",
-            "imageUrl":"http://ecx.images-amazon.com/images/I/31j-7yVAxdL.jpg",
-            "productUrl":"http://www.amazon.com/CableJive-iBoltz-charge-Lightning-devices/dp/B00FARSS8O/ref=pd_sim_cps_4?ie=UTF8&refRID=047QQY05B55D2E8NGA7M",
-            "categories":[
-
-            ],
-            "sku":"needs a loading icon",
-            "customer_id":"sony"
-        },
-        "sort":[
-            null
-        ]
+        "sku": "JIVEBLTZ55",
+        "title":"Amazon.com: CableJive iBoltz XS, short charge cable for iPhone 5 / 5S / 5C, iPad Air, iPod nano and all Apple Lightning devices. Charge and Sync cable. Extra Short (12cm) Lightning to USB Sync and Charge Cable.: MP3 Players & Accessories",
+        "imageUrl":"http://ecx.images-amazon.com/images/I/31j-7yVAxdL.jpg",
+        "description":"More is less in this case. Only 5 inches (just 12cm) of cable means that this cable can be everywhere you want it to be without hassle or cable tangle. Made for iPhone certification means that this cable is constructed under strict guidelines and will be durable, ready for your active lifestyle."
     }
 ]

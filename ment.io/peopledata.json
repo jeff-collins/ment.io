@@ -1,37 +1,22 @@
 [
    {
-      "_type":"person",
-      "_id":"tdcyhNxYRQqqgnm1fpP7Eg",
-      "_score":null,
-      "_source":{
-         "id":"1",
-         "name":"Jeff Collins",
-         "bio":"I think therefore I am",
-         "imageUrl":"https://avatars0.githubusercontent.com/u/3493285?s=460"
-      }
+      "name":"Iqbal",
+      "bio":"I think therefore I am",
+      "imageUrl":"https://avatars0.githubusercontent.com/u/3493285?s=460"
    },
    {
-      "_type":"person",
-      "_id":"hJuBuI0hSUqvtCwmmTFzUA",
-      "_score":null,
-      "_source":{
-         "id":"2",
-         "name":"Adam Ayres",
-         "description":"Dog lover",
-         "bio":"Bark, bark, bark,",
-         "imageUrl":"https://avatars0.githubusercontent.com/u/207585?s=460"
-      }
+      "name":"Frank",
+      "bio":"Long walks in the park",
+      "imageUrl":"https://avatars0.githubusercontent.com/u/207585?s=460"
    },
    {
-      "_type":"person",
-      "_id":"hJuBuI0hSUqvtCwmmTFzUA",
-      "_score":null,
-      "_source":{
-         "id":"2",
-         "name":"Godzilla",
-         "description":"?$?$",
-         "bio":"Roar!",
-         "imageUrl":"http://www.badassoftheweek.com/godzilla.jpg"
-      }
+      "name":"Suzie",
+      "bio":"Icecream eater",
+      "imageUrl":"http://educationalsoftware.wikispaces.com/file/view/manga_suzie.jpg/38030142/178x177/manga_suzie.jpg"
+   },
+   {
+      "name":"Godzilla",
+      "bio":"Roar!",
+      "imageUrl":"http://www.badassoftheweek.com/godzilla.jpg"
    }
 ]
