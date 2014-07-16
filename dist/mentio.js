@@ -163,7 +163,7 @@ angular.module('mentio', [])
                 );
 
                 $document.on(
-                    'keydown keypress paste', function () {
+                    'keydown keypress paste', function (event) {
                         var activeMenuScope = $scope.getActiveMenuScope();
                         if (activeMenuScope) {
                             if (event.which === 9) {

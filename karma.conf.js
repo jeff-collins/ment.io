@@ -70,7 +70,7 @@ module.exports = function(config) {
         // - PhantomJS
         // - IE (only Windows)
         // CLI --browsers Chrome,Firefox,Safari
-        browsers: ['PhantomJS'],
+        browsers: ['PhantomJS', 'Chrome', 'Firefox'],
 
         // If browser does not capture in given timeout [ms], kill it
         // CLI --capture-timeout 5000
@@ -82,17 +82,8 @@ module.exports = function(config) {
 
         // report which specs are slower than 500ms
         // CLI --report-slower-than 500
-        reportSlowerThan: 500,
+        reportSlowerThan: 500
 
-        plugins: [
-            'karma-jasmine',
-            'karma-coverage',
-            'karma-phantomjs-launcher',
-            'karma-chrome-launcher',
-            'karma-junit-reporter',
-            'karma-threshold-reporter',
-            'karma-chrome-launcher'
-        ]
     });
 };
 

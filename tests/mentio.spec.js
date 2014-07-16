@@ -266,12 +266,14 @@ describe('mentio-menu', function () {
     });
 
     it('should get caret location', function () {
-        var elem = angular.element('<div contenteditable>123</div>');
+        var elem = angular.element('<div contenteditable>1234</div>');
         $compile(elem)($scope);
         $document[0].body.appendChild(elem[0]);
 
         $scope.$apply();
         elem[0].focus();
+
+        mentioUtilService.selectElement(elem[0], [0], 0);
 
         var coordinates = mentioUtilService.getContentEditableCaretPosition(2);
 
@@ -294,8 +296,6 @@ describe('mentio-menu', function () {
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
         expect(selectionInfo.selected).toEqual(elem[0]);
-        expect(selectionInfo.path).toEqual([1]);
-        expect(selectionInfo.offset).toEqual(2);
         expect(elem[0].innerHTML).toEqual('1hi23');
     });
 
