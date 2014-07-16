@@ -108,6 +108,13 @@ gulp.task('test', ['dist'], function () {
     });
 });
 
+gulp.task('coveralls', function () {
+    var coveralls = require('gulp-coveralls');
+
+    gulp.src('./coverage/**/lcov.info')
+      .pipe(coveralls());
+});
+
 gulp.task('coverage', function () {
     var express = require('express');
     var app = express();

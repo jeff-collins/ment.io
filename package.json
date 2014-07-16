@@ -2,9 +2,10 @@
   "name": "ment.io",
   "version": "0.0.0",
   "description": "Mentions for Angular",
-  "main": "demo.js",
+  "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "coveralls": "gulp coveralls"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
     "gulp": "^3.6.2",
     "gulp-angular-templatecache": "^1.2.1",
     "gulp-concat": "^2.2.0",
+    "gulp-coveralls": "^0.1.2",
     "gulp-jshint": "^1.6.3",
     "gulp-karma": "0.0.4",
     "gulp-livereload": "^1.5.0",

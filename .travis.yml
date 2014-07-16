@@ -6,3 +6,5 @@ before_script:
   - bower install
 script:
   - gulp test 
+after_script:
+  - npm run coveralls
