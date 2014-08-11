@@ -1,22 +1,18 @@
 {
   "name": "ment.io",
-  "version": "0.0.0",
+  "version": "0.9.5",
   "homepage": "https://github.com/jeff-collins/ment.io",
   "authors": [
     "jeff-collins <i.am.jeff.collins@gmail.com>",
     "adamayres <magicaj@gmail.com>"
   ],
   "description": "Mentions for Angular",
-  "moduleType": [
-    "node"
-  ],
   "keywords": [
     "angular",
     "mentions",
     "ment.io"
   ],
   "license": "MIT",
-  "private": true,
   "ignore": [
     "**/.*",
     "node_modules",
@@ -26,7 +22,6 @@
   ],
   "devDependencies": {
     "angular": "~1.2.18",
-    "angular-mocks": "~1.2.18",
-    "textarea-caret-position": "~2.1.0"
+    "angular-mocks": "~1.2.18"
   }
 }
