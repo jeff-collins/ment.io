@@ -67,6 +67,7 @@ angular.module('mentio', [])
                     mentioUtil.replaceTriggerText($scope.targetElement, $scope.targetElementPath,
                         $scope.targetElementSelectedOffset, $scope.triggerCharSet, text);
                     $scope.setTriggerText('');
+                    angular.element($scope.targetElement).triggerHandler('change');
                     if ($scope.isContentEditable()) {
                         $scope.contentEditableMenuPasted = true;
                         var timer = $timeout(function() {
