@@ -127,6 +127,7 @@ angular.module('mentio', [])
                     var timer = $timeout(function() {
                         mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
                             $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
+                        angular.element($scope.targetElement).triggerHandler('change');
                     }, 300);
                     $scope.$on('$destroy', function() {
                         $timeout.cancel(timer);
