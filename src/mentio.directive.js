@@ -169,9 +169,7 @@ angular.module('mentio', [])
                         var activeMenuScope = $scope.getActiveMenuScope();
                         if (activeMenuScope) {
                             if (event.which === 9) {
-                                activeMenuScope.$apply(function() {
-                                    activeMenuScope.selectActive();
-                                });
+                                activeMenuScope.selectActive();
                             }
 
                             if (event.which === 27) {
@@ -197,9 +195,7 @@ angular.module('mentio', [])
 
                             if (event.which === 13 || event.which === 32) {
                                 event.preventDefault();
-                                activeMenuScope.$apply(function () {
-                                    activeMenuScope.selectActive();
-                                });
+                                activeMenuScope.selectActive();
                             }
                         }
                     }
@@ -443,9 +439,7 @@ angular.module('mentio', [])
 
                 element.bind('click', function (e) {
                     e.preventDefault();
-                    scope.$apply(function () {
-                        controller.selectItem(scope.item);
-                    });
+                    controller.selectItem(scope.item);
                 });
             }
         };

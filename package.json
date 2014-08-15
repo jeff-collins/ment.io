@@ -1,6 +1,6 @@
 {
   "name": "ment.io",
-  "version": "0.0.0",
+  "version": "0.9.6",
   "description": "Mentions for Angular",
   "main": "index.html",
   "scripts": {
