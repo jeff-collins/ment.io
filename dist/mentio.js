@@ -575,7 +575,7 @@ angular.module('mentio')
                 range.setStart(elem, offset);
                 range.setEnd(elem, offset);
                 range.collapse(true);
-                sel.removeAllRanges();
+                try{sel.removeAllRanges();}catch(error){}
                 sel.addRange(range);
                 targetElement.focus();
             }
