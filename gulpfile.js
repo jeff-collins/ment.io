@@ -14,6 +14,7 @@ var port = gutil.env.port || 3000;
 var covport = gutil.env.covport || 3001;
 var lrport = gutil.env.lrport || 35729;
 var openBrowser = gutil.env.browser;
+var bump = require('gulp-bump');
 
 /*
  * Default task is to start the site
@@ -78,6 +79,13 @@ gulp.task('tpl', function () {
         .pipe(gulp.dest('src'));
 });
 
+// Basic usage:
+// Will patch the version
+gulp.task('bump', function(){
+  gulp.src('./package.json')
+  .pipe(bump())
+  .pipe(gulp.dest('./'));
+});
 
 function testTask (params) {
     var karma = require('gulp-karma');
