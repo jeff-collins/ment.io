@@ -27,6 +27,7 @@
     "express": "^4.1.2",
     "gulp": "^3.6.2",
     "gulp-angular-templatecache": "^1.2.1",
+    "gulp-bump": "^0.1.11",
     "gulp-concat": "^2.2.0",
     "gulp-coveralls": "^0.1.2",
     "gulp-jshint": "^1.6.3",
