@@ -1,4 +1,11 @@
-<ul class="dropdown-menu" style="display:block">
+<style>
+.scrollable-menu {
+    height: auto;
+    max-height: 300px;
+    overflow-y: scroll;
+}
+</style>
+<ul class="dropdown-menu scrollable-menu" style="display:block">
     <li mentio-menu-item="item" ng-repeat="item in items track by $index">
         <a class="text-primary" ng-bind-html="item.label | mentioHighlight:triggerText:'menu-highlighted' | unsafe"></a>
     </li>

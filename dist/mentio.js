@@ -124,13 +124,19 @@ angular.module('mentio', [])
                 };
 
                 $scope.replaceMacro = function(macro) {
-                    var timer = $timeout(function() {
+                    if ($scope.replacingMacro) {
+                        $timeout.cancel($scope.timer);
+                    } else {
+                        $scope.replacingMacro = true;
+                    }
+                    $scope.timer = $timeout(function() {
                         mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
                             $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
                         angular.element($scope.targetElement).triggerHandler('change');
+                        $scope.replacingMacro = false;
                     }, 300);
                     $scope.$on('$destroy', function() {
-                        $timeout.cancel(timer);
+                        $timeout.cancel($scope.timer);
                     });
                 };
 
@@ -1017,4 +1023,4 @@ angular.module('mentio')
         };
     });
 
-angular.module("mentio").run(["$templateCache", function($templateCache) {$templateCache.put("mentio-menu.tpl.html","<ul class=\"dropdown-menu\" style=\"display:block\">\n    <li mentio-menu-item=\"item\" ng-repeat=\"item in items track by $index\">\n        <a class=\"text-primary\" ng-bind-html=\"item.label | mentioHighlight:triggerText:\'menu-highlighted\' | unsafe\"></a>\n    </li>\n</ul>");}]);
+angular.module("mentio").run(["$templateCache", function($templateCache) {$templateCache.put("mentio-menu.tpl.html","<style>\n.scrollable-menu {\n    height: auto;\n    max-height: 300px;\n    overflow-y: scroll;\n}\n</style>\n<ul class=\"dropdown-menu scrollable-menu\" style=\"display:block\">\n    <li mentio-menu-item=\"item\" ng-repeat=\"item in items track by $index\">\n        <a class=\"text-primary\" ng-bind-html=\"item.label | mentioHighlight:triggerText:\'menu-highlighted\' | unsafe\"></a>\n    </li>\n</ul>");}]);

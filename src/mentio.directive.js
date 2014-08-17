@@ -124,13 +124,19 @@ angular.module('mentio', [])
                 };
 
                 $scope.replaceMacro = function(macro) {
-                    var timer = $timeout(function() {
+                    if ($scope.replacingMacro) {
+                        $timeout.cancel($scope.timer);
+                    } else {
+                        $scope.replacingMacro = true;
+                    }
+                    $scope.timer = $timeout(function() {
                         mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
                             $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
                         angular.element($scope.targetElement).triggerHandler('change');
+                        $scope.replacingMacro = false;
                     }, 300);
                     $scope.$on('$destroy', function() {
-                        $timeout.cancel(timer);
+                        $timeout.cancel($scope.timer);
                     });
                 };
 
