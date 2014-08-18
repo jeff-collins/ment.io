@@ -73,7 +73,8 @@ angular.module('mentio')
             var element = document.activeElement;
             if (element !== null) {
                 var nodeName = element.nodeName;
-                return nodeName === 'INPUT' || nodeName === 'TEXTAREA';
+                var type = element.getAttribute('type');
+                return (nodeName === 'INPUT' && type === 'text') || nodeName === 'TEXTAREA';
             }
             return false;
         }
