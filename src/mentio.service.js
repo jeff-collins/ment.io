@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
+    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout, $log) {
 
         // public
         function popUnderMention (triggerCharSet, selectionEl) {
@@ -168,6 +168,11 @@ angular.module('mentio')
 
             var macroMatchInfo = getMacroMatch(macros);
 
+            if (macroMatchInfo.macroHasTrailingSpace) {
+                macroMatchInfo.macroText = macroMatchInfo.macroText + '\xA0';
+                text = text + '\xA0';
+            }
+
             if (macroMatchInfo !== undefined) {
                 var element = document.activeElement;
                 if (selectedElementIsTextAreaOrInput()) {
@@ -257,11 +262,21 @@ angular.module('mentio')
                     path = selectionInfo.path;
                     offset = selectionInfo.offset;
                 }
-             }
+            }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
 
                 var matchInfo;
+
+                var hasTrailingSpace = false;
+
+                if (effectiveRange.length > 0 && 
+                    (effectiveRange.charAt(effectiveRange.length - 1) === '\xA0' ||
+                        effectiveRange.charAt(effectiveRange.length - 1) === ' ')) {
+                    hasTrailingSpace = true;
+                    // strip space
+                    effectiveRange = effectiveRange.substring(0, effectiveRange.length-1);
+                }
 
                 angular.forEach(macros, function (macro, c) {
                     var idx = effectiveRange.toUpperCase().lastIndexOf(c.toUpperCase());
@@ -276,7 +291,8 @@ angular.module('mentio')
                                 macroText: c,
                                 macroSelectedElement: selected,
                                 macroSelectedPath: path,
-                                macroSelectedOffset: offset
+                                macroSelectedOffset: offset,
+                                macroHasTrailingSpace: hasTrailingSpace
                             };
                         }
                     }
