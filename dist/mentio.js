@@ -482,7 +482,7 @@ angular.module('mentio', [])
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout, $log) {
+    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
         function popUnderMention (triggerCharSet, selectionEl) {
