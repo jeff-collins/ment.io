@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mentio', [])
-    .directive('mentio', function (mentioUtil, $compile, $log, $document) {
+    .directive('mentio', function (mentioUtil, $compile, $log, $document, $timeout) {
         return {
             restrict: 'A',
             scope: {
@@ -123,21 +123,22 @@ angular.module('mentio', [])
                     return ($scope.targetElement.nodeName !== 'INPUT' && $scope.targetElement.nodeName !== 'TEXTAREA');
                 };
 
-                $scope.replaceMacro = function(macro) {
-                    if ($scope.replacingMacro) {
-                        $timeout.cancel($scope.timer);
-                    } else {
+                $scope.replaceMacro = function(macro, hasTrailingSpace) {
+                    if (!hasTrailingSpace) {
                         $scope.replacingMacro = true;
-                    }
-                    $scope.timer = $timeout(function() {
+                        $scope.timer = $timeout(function() {
+                            mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
+                                $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
+                            angular.element($scope.targetElement).triggerHandler('change');
+                            $scope.replacingMacro = false;
+                        }, 300);
+                        $scope.$on('$destroy', function() {
+                            $timeout.cancel($scope.timer);
+                        });
+                    } else {
                         mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
                             $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
-                        angular.element($scope.targetElement).triggerHandler('change');
-                        $scope.replacingMacro = false;
-                    }, 300);
-                    $scope.$on('$destroy', function() {
-                        $timeout.cancel($scope.timer);
-                    });
+                    }
                 };
 
                 $scope.addMenu = function(menuScope) {
@@ -248,6 +249,11 @@ angular.module('mentio', [])
                             return;
                         }
 
+                        if (scope.replacingMacro) {
+                            $timeout.cancel(scope.timer);
+                            scope.replacingMacro = false;
+                        }
+
                         var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet);
 
                         if (mentionInfo !== undefined) {
@@ -265,11 +271,12 @@ angular.module('mentio', [])
                             scope.hideAll();
 
                             var macroMatchInfo = mentioUtil.getMacroMatch(scope.macros);
+
                             if (macroMatchInfo !== undefined) {
                                 scope.targetElement = macroMatchInfo.macroSelectedElement;
                                 scope.targetElementPath = macroMatchInfo.macroSelectedPath;
                                 scope.targetElementSelectedOffset = macroMatchInfo.macroSelectedOffset;
-                                scope.replaceMacro(macroMatchInfo.macroText);
+                                scope.replaceMacro(macroMatchInfo.macroText, macroMatchInfo.macroHasTrailingSpace);
                             }
                         }
                     }
@@ -642,6 +649,11 @@ angular.module('mentio')
 
             var macroMatchInfo = getMacroMatch(macros);
 
+            if (macroMatchInfo.macroHasTrailingSpace) {
+                macroMatchInfo.macroText = macroMatchInfo.macroText + '\xA0';
+                text = text + '\xA0';
+            }
+
             if (macroMatchInfo !== undefined) {
                 var element = document.activeElement;
                 if (selectedElementIsTextAreaOrInput()) {
@@ -731,11 +743,21 @@ angular.module('mentio')
                     path = selectionInfo.path;
                     offset = selectionInfo.offset;
                 }
-             }
+            }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
 
                 var matchInfo;
+
+                var hasTrailingSpace = false;
+
+                if (effectiveRange.length > 0 && 
+                    (effectiveRange.charAt(effectiveRange.length - 1) === '\xA0' ||
+                        effectiveRange.charAt(effectiveRange.length - 1) === ' ')) {
+                    hasTrailingSpace = true;
+                    // strip space
+                    effectiveRange = effectiveRange.substring(0, effectiveRange.length-1);
+                }
 
                 angular.forEach(macros, function (macro, c) {
                     var idx = effectiveRange.toUpperCase().lastIndexOf(c.toUpperCase());
@@ -750,7 +772,8 @@ angular.module('mentio')
                                 macroText: c,
                                 macroSelectedElement: selected,
                                 macroSelectedPath: path,
-                                macroSelectedOffset: offset
+                                macroSelectedOffset: offset,
+                                macroHasTrailingSpace: hasTrailingSpace
                             };
                         }
                     }
