@@ -10,10 +10,11 @@ angular.module('mentio', [])
                 select: '&mentioSelect',
                 items: '=mentioItems',
                 typedTerm: '=mentioTypedTerm',
+                requireLeadingSpace: '=mentioRequireLeadingSpace',
                 ngModel: '='
             },
             controller: function($scope, $timeout, $attrs) {
- 
+
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.triggerCharMap[triggerChar];
                     remoteScope.showMenu();
@@ -65,7 +66,7 @@ angular.module('mentio', [])
                         item: item
                     });
                     mentioUtil.replaceTriggerText($scope.targetElement, $scope.targetElementPath,
-                        $scope.targetElementSelectedOffset, $scope.triggerCharSet, text);
+                        $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace);
                     $scope.setTriggerText('');
                     angular.element($scope.targetElement).triggerHandler('change');
                     if ($scope.isContentEditable()) {
@@ -176,6 +177,7 @@ angular.module('mentio', [])
                         var activeMenuScope = $scope.getActiveMenuScope();
                         if (activeMenuScope) {
                             if (event.which === 9) {
+                                event.preventDefault();
                                 activeMenuScope.selectActive();
                             }
 
@@ -254,7 +256,7 @@ angular.module('mentio', [])
                             scope.replacingMacro = false;
                         }
 
-                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet);
+                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet, scope.requireLeadingSpace);
 
                         if (mentionInfo !== undefined) {
                             /** save selection info about the target control for later re-selection */
@@ -371,7 +373,7 @@ angular.module('mentio', [])
                         if (mentioAttr !== undefined) {
                             // send own scope to mentio directive so that the menu
                             // becomes attached
-                            $rootScope.$broadcast('menuCreated', 
+                            $rootScope.$broadcast('menuCreated',
                                 {
                                     targetElement : scope.forElem,
                                     scope : scope
@@ -390,7 +392,7 @@ angular.module('mentio', [])
                         if (scope.isVisible()) {
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
-                            mentioUtil.popUnderMention(triggerCharSet, element);
+                            mentioUtil.popUnderMention(triggerCharSet, element, scope.requireLeadingSpace);
                         }
                     }
                 );
@@ -412,7 +414,7 @@ angular.module('mentio', [])
                     if (visible) {
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
-                        mentioUtil.popUnderMention(triggerCharSet, element);
+                        mentioUtil.popUnderMention(triggerCharSet, element, scope.requireLeadingSpace);
                     }
                 });
 
@@ -485,9 +487,9 @@ angular.module('mentio')
     .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (triggerCharSet, selectionEl) {
+        function popUnderMention (triggerCharSet, selectionEl, requireLeadingSpace) {
             var coordinates;
-            var mentionInfo = getTriggerInfo(triggerCharSet);
+            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace);
 
             if (mentionInfo !== undefined) {
 
@@ -682,10 +684,10 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (targetElement, path, offset, triggerCharSet, text) {
+        function replaceTriggerText (targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
             resetSelection(targetElement, path, offset);
 
-            var mentionInfo = getTriggerInfo(triggerCharSet);
+            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
@@ -813,7 +815,7 @@ angular.module('mentio')
         }
 
         // public
-        function getTriggerInfo (triggerCharSet) {
+        function getTriggerInfo (triggerCharSet, requireLeadingSpace) {
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput()) {
                 selected = document.activeElement;
@@ -828,24 +830,35 @@ angular.module('mentio')
             }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
-                var mostRecentAtSymbol = -1;
+                var mostRecentTriggerCharPos = -1;
                 var triggerChar;
                 triggerCharSet.forEach(function(c) {
                     var idx = effectiveRange.lastIndexOf(c);
-                    if (idx > mostRecentAtSymbol) {
-                        mostRecentAtSymbol = idx;
+                    if (idx > mostRecentTriggerCharPos) {
+                        mostRecentTriggerCharPos = idx;
                         triggerChar = c;
                     }
                 });
-                if (mostRecentAtSymbol === 0 || /[\xA0\s]/g.test(
-                    effectiveRange.substring(mostRecentAtSymbol - 1, mostRecentAtSymbol))) {
-                    var currentTriggerSnippet = effectiveRange.substring(mostRecentAtSymbol + 1,
+                if (mostRecentTriggerCharPos >= 0 && 
+                        (
+                            mostRecentTriggerCharPos === 0 || 
+                            !requireLeadingSpace ||
+                            /[\xA0\s]/g.test
+                            (
+                                effectiveRange.substring(
+                                    mostRecentTriggerCharPos - 1, 
+                                    mostRecentTriggerCharPos)
+                            )
+                        )
+                    ) 
+                {
+                    var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
                         effectiveRange.length);
 
-                    triggerChar = effectiveRange.substring(mostRecentAtSymbol, mostRecentAtSymbol+1);
+                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+1);
                     if (!(/[\xA0\s]/g.test(currentTriggerSnippet))) {
                         return {
-                            mentionPosition: mostRecentAtSymbol,
+                            mentionPosition: mostRecentTriggerCharPos,
                             mentionText: currentTriggerSnippet,
                             mentionSelectedElement: selected,
                             mentionSelectedPath: path,
@@ -1047,4 +1060,4 @@ angular.module('mentio')
         };
     });
 
-angular.module("mentio").run(["$templateCache", function($templateCache) {$templateCache.put("mentio-menu.tpl.html","<style>\n.scrollable-menu {\n    height: auto;\n    max-height: 300px;\n    overflow: auto;\n}\n</style>\n<ul class=\"dropdown-menu scrollable-menu\" style=\"display:block\">\n    <li mentio-menu-item=\"item\" ng-repeat=\"item in items track by $index\">\n        <a class=\"text-primary\" ng-bind-html=\"item.label | mentioHighlight:triggerText:\'menu-highlighted\' | unsafe\"></a>\n    </li>\n</ul>");}]);
+angular.module("mentio").run(["$templateCache", function($templateCache) {$templateCache.put("mentio-menu.tpl.html","<style>\n.scrollable-menu {\n    height: auto;\n    max-height: 300px;\n    overflow: auto;\n}\n\n.menu-highlighted {\n    font-weight: bold;\n}\n</style>\n<ul class=\"dropdown-menu scrollable-menu\" style=\"display:block\">\n    <li mentio-menu-item=\"item\" ng-repeat=\"item in items track by $index\">\n        <a class=\"text-primary\" ng-bind-html=\"item.label | mentioHighlight:typedTerm:\'menu-highlighted\' | unsafe\"></a>\n    </li>\n</ul>");}]);
