@@ -4,9 +4,9 @@ angular.module('mentio')
     .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (triggerCharSet, selectionEl) {
+        function popUnderMention (triggerCharSet, selectionEl, requireLeadingSpace) {
             var coordinates;
-            var mentionInfo = getTriggerInfo(triggerCharSet);
+            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace);
 
             if (mentionInfo !== undefined) {
 
@@ -201,10 +201,10 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (targetElement, path, offset, triggerCharSet, text) {
+        function replaceTriggerText (targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
             resetSelection(targetElement, path, offset);
 
-            var mentionInfo = getTriggerInfo(triggerCharSet);
+            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
@@ -332,7 +332,7 @@ angular.module('mentio')
         }
 
         // public
-        function getTriggerInfo (triggerCharSet) {
+        function getTriggerInfo (triggerCharSet, requireLeadingSpace) {
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput()) {
                 selected = document.activeElement;
@@ -347,24 +347,35 @@ angular.module('mentio')
             }
             var effectiveRange = getTextPrecedingCurrentSelection();
             if (effectiveRange !== undefined && effectiveRange !== null) {
-                var mostRecentAtSymbol = -1;
+                var mostRecentTriggerCharPos = -1;
                 var triggerChar;
                 triggerCharSet.forEach(function(c) {
                     var idx = effectiveRange.lastIndexOf(c);
-                    if (idx > mostRecentAtSymbol) {
-                        mostRecentAtSymbol = idx;
+                    if (idx > mostRecentTriggerCharPos) {
+                        mostRecentTriggerCharPos = idx;
                         triggerChar = c;
                     }
                 });
-                if (mostRecentAtSymbol === 0 || /[\xA0\s]/g.test(
-                    effectiveRange.substring(mostRecentAtSymbol - 1, mostRecentAtSymbol))) {
-                    var currentTriggerSnippet = effectiveRange.substring(mostRecentAtSymbol + 1,
+                if (mostRecentTriggerCharPos >= 0 && 
+                        (
+                            mostRecentTriggerCharPos === 0 || 
+                            !requireLeadingSpace ||
+                            /[\xA0\s]/g.test
+                            (
+                                effectiveRange.substring(
+                                    mostRecentTriggerCharPos - 1, 
+                                    mostRecentTriggerCharPos)
+                            )
+                        )
+                    ) 
+                {
+                    var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
                         effectiveRange.length);
 
-                    triggerChar = effectiveRange.substring(mostRecentAtSymbol, mostRecentAtSymbol+1);
+                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+1);
                     if (!(/[\xA0\s]/g.test(currentTriggerSnippet))) {
                         return {
-                            mentionPosition: mostRecentAtSymbol,
+                            mentionPosition: mostRecentTriggerCharPos,
                             mentionText: currentTriggerSnippet,
                             mentionSelectedElement: selected,
                             mentionSelectedPath: path,

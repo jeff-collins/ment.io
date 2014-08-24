@@ -10,6 +10,7 @@ angular.module('mentio', [])
                 select: '&mentioSelect',
                 items: '=mentioItems',
                 typedTerm: '=mentioTypedTerm',
+                requireLeadingSpace: '=mentioRequireLeadingSpace',
                 ngModel: '='
             },
             controller: function($scope, $timeout, $attrs) {
@@ -65,7 +66,7 @@ angular.module('mentio', [])
                         item: item
                     });
                     mentioUtil.replaceTriggerText($scope.targetElement, $scope.targetElementPath,
-                        $scope.targetElementSelectedOffset, $scope.triggerCharSet, text);
+                        $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace);
                     $scope.setTriggerText('');
                     angular.element($scope.targetElement).triggerHandler('change');
                     if ($scope.isContentEditable()) {
@@ -254,7 +255,7 @@ angular.module('mentio', [])
                             scope.replacingMacro = false;
                         }
 
-                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet);
+                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet, scope.requireLeadingSpace);
 
                         if (mentionInfo !== undefined) {
                             /** save selection info about the target control for later re-selection */
@@ -390,7 +391,7 @@ angular.module('mentio', [])
                         if (scope.isVisible()) {
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
-                            mentioUtil.popUnderMention(triggerCharSet, element);
+                            mentioUtil.popUnderMention(triggerCharSet, element, scope.requireLeadingSpace);
                         }
                     }
                 );
@@ -412,7 +413,7 @@ angular.module('mentio', [])
                     if (visible) {
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
-                        mentioUtil.popUnderMention(triggerCharSet, element);
+                        mentioUtil.popUnderMention(triggerCharSet, element, scope.requireLeadingSpace);
                     }
                 });
 
