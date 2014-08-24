@@ -14,7 +14,7 @@ angular.module('mentio', [])
                 ngModel: '='
             },
             controller: function($scope, $timeout, $attrs) {
- 
+
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.triggerCharMap[triggerChar];
                     remoteScope.showMenu();
@@ -177,6 +177,7 @@ angular.module('mentio', [])
                         var activeMenuScope = $scope.getActiveMenuScope();
                         if (activeMenuScope) {
                             if (event.which === 9) {
+                                event.preventDefault();
                                 activeMenuScope.selectActive();
                             }
 
@@ -372,7 +373,7 @@ angular.module('mentio', [])
                         if (mentioAttr !== undefined) {
                             // send own scope to mentio directive so that the menu
                             // becomes attached
-                            $rootScope.$broadcast('menuCreated', 
+                            $rootScope.$broadcast('menuCreated',
                                 {
                                     targetElement : scope.forElem,
                                     scope : scope
