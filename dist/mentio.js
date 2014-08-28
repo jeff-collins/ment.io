@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mentio', [])
-    .directive('mentio', function (mentioUtil, $compile, $log, $document, $timeout) {
+    .directive('mentio', ["mentioUtil", "$compile", "$log", "$document", "$timeout", function (mentioUtil, $compile, $log, $document, $timeout) {
         return {
             restrict: 'A',
             scope: {
@@ -13,7 +13,7 @@ angular.module('mentio', [])
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
                 ngModel: '='
             },
-            controller: function($scope, $timeout, $attrs) {
+            controller: ["$scope", "$timeout", "$attrs", function($scope, $timeout, $attrs) {
 
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.triggerCharMap[triggerChar];
@@ -209,7 +209,7 @@ angular.module('mentio', [])
                         }
                     }
                 );
-            },
+            }],
             link: function (scope, element, attrs) {
                 scope.triggerCharMap = {};
                 attrs.$set('autocomplete','off');
@@ -285,9 +285,9 @@ angular.module('mentio', [])
                 );
             }
         };
-    })
+    }])
 
-    .directive('mentioMenu', function (mentioUtil, $rootScope, $log, $window, $document) {
+    .directive('mentioMenu', ["mentioUtil", "$rootScope", "$log", "$window", "$document", function (mentioUtil, $rootScope, $log, $window, $document) {
         return {
             restrict: 'E',
             scope: {
@@ -301,7 +301,7 @@ angular.module('mentio', [])
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mentioTemplateUrl !== undefined ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
             },
-            controller: function ($scope) {
+            controller: ["$scope", function ($scope) {
                 $scope.visible = false;
 
                 // callable both with controller (menuItem) and without controller (local)
@@ -347,7 +347,7 @@ angular.module('mentio', [])
                 $scope.setParent = function (scope) {
                     $scope.parentMentio = scope;
                 };
-            },
+            }],
 
             link: function (scope, element) {
                 element[0].parentNode.removeChild(element[0]);
@@ -425,7 +425,7 @@ angular.module('mentio', [])
 
             }
         };
-    })
+    }])
 
     .directive('mentioMenuItem', function () {
         return {
@@ -459,11 +459,11 @@ angular.module('mentio', [])
             }
         };
     })
-    .filter('unsafe', function($sce) {
+    .filter('unsafe', ["$sce", function($sce) {
         return function (val) {
             return $sce.trustAsHtml(val);
         };
-    })
+    }])
     .filter('mentioHighlight', function() {
         function escapeRegexp (queryToEscape) {
             return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -484,7 +484,7 @@ angular.module('mentio', [])
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
+    .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", function ($window, $location, $anchorScroll, $timeout) {
 
         // public
         function popUnderMention (triggerCharSet, selectionEl, requireLeadingSpace) {
@@ -1058,6 +1058,6 @@ angular.module('mentio')
             resetSelection: resetSelection,
             scrollIntoView: scrollIntoView
         };
-    });
+    }]);
 
 angular.module("mentio").run(["$templateCache", function($templateCache) {$templateCache.put("mentio-menu.tpl.html","<style>\n.scrollable-menu {\n    height: auto;\n    max-height: 300px;\n    overflow: auto;\n}\n\n.menu-highlighted {\n    font-weight: bold;\n}\n</style>\n<ul class=\"dropdown-menu scrollable-menu\" style=\"display:block\">\n    <li mentio-menu-item=\"item\" ng-repeat=\"item in items track by $index\">\n        <a class=\"text-primary\" ng-bind-html=\"item.label | mentioHighlight:typedTerm:\'menu-highlighted\' | unsafe\"></a>\n    </li>\n</ul>");}]);

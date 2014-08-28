@@ -8,6 +8,7 @@ var uglify = require('gulp-uglify');
 //var wrap = require('gulp-wrap');
 var templateCache = require('gulp-angular-templatecache');
 var gjshint = require('gulp-jshint');
+var ngAnnotate = require('gulp-ng-annotate');
 var stylish = require('jshint-stylish');
 
 var port = gutil.env.port || 3000;
@@ -55,6 +56,7 @@ gulp.task('dist', ['tpl'], function () {
     ])
     .pipe(gjshint())
     .pipe(gjshint.reporter(stylish))
+    .pipe(ngAnnotate())
     .pipe(concat('mentio.js'))
 //    // hack to make componentjs libs to work
 //    .pipe(wrap('(function () {\n\n\'use strict\';\n\nvar Package = \'\';' +
