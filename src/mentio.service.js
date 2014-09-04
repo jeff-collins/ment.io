@@ -47,7 +47,7 @@ angular.module('mentio')
                 clientRect = e.getBoundingClientRect();
                 if (clientRect.height === 0) {
                     e = e.childNodes[0];
-                    if (!e.getBoundingClientRect) {
+                    if (e === undefined || !e.getBoundingClientRect) {
                         return;
                     }
                 }
