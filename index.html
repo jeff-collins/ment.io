@@ -248,6 +248,14 @@
                 This can be referenced from within the
                 <code>mentio-menu</code> template to highlight text when presenting menu items.
 
+                <p></p>
+ 
+                <strong>Special note for contenteditable:</strong> To see the ment.io directive operate in a contenteditable, 
+                you must have set up the contenteditable to update the <code>ngModel</code> as per the AngularJS examples here:
+                <a href="https://docs.angularjs.org/api/ng/type/ngModel.NgModelController">
+                https://docs.angularjs.org/api/ng/type/ngModel.NgModelController</a>.  The approach of creating a custom
+                <code>contenteditable</code> directive is demonstrated in the ment.io demo code.
+
                 <header class="documentation-element">
                     <code>
                     mentio-menu

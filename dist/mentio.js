@@ -245,6 +245,12 @@ angular.module('mentio', [])
                 scope.$watch(
                     'ngModel',
                     function () {
+                        if (scope.triggerCharSet === undefined) {
+                            $log.error('Error, no mentio-items attribute was provided, ' +
+                                'and no separate mentio-menus were specified.  Nothing to do.');
+                            return;
+                        }
+
                         if (scope.contentEditableMenuPasted) {
                             // don't respond to changes from insertion of the menu content
                             scope.contentEditableMenuPasted = false;
@@ -530,7 +536,7 @@ angular.module('mentio')
                 clientRect = e.getBoundingClientRect();
                 if (clientRect.height === 0) {
                     e = e.childNodes[0];
-                    if (!e.getBoundingClientRect) {
+                    if (e === undefined || !e.getBoundingClientRect) {
                         return;
                     }
                 }
