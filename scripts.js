@@ -39,6 +39,9 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
                 ' height="20" width="20">'
         };
 
+        // shows the use of dynamic values in mentio-id and mentio-for to link elements
+        $scope.myIndexValue = "5";
+
         $scope.searchProducts = function(term) {
             var prodList = [];
 

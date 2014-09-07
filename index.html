@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-route.min.js"></script>
-    <script src="dist/mentio.min.js"></script>
+    <script src="dist/mentio.js"></script>
     <script src="scripts.js"></script>
 </head>
 <body ng-controller="mentio-demo-ctrl">
@@ -44,6 +44,7 @@
                             mentio-macros="macros"
                             mentio-require-leading-space="true"
                             class="editor form-control"
+                            mentio-id="'htmlContent'"
                             id="htmlContent"
                             ng-model="htmlContent"
                             >
@@ -72,11 +73,10 @@
                                 mentio-select="getPeopleTextRaw(item)"
                                 mentio-typed-term="typedTerm2"
 
-                                class="form-control"
-                                id="theTextArea"
+                                class="editor form-control"
+                                mentio-id="'theTextArea'"
                                 ng-model="theTextArea"
                                 ng-trim="false"
-                                class="editor"
                                 rows="6">
                         </textarea>
                         <span class="caption small">Mentioned: {{typedTerm2}}</span>
@@ -93,10 +93,11 @@
 
                     <div class="form-group">
                         <h3>Text Input:</h3>
+                        <!--Note the use of an angular expression for the ID.  This can be done within ng-repeat using $index-->
                         <input mentio
 
                                 ng-model="theText"
-                                id="theText"
+                                mentio-id="'theText' + myIndexValue"
                                 type="text"
                                 class="form-control"
                                 ng-trim="false"
@@ -104,14 +105,14 @@
                     </div>
 
                     <mentio-menu
-                                mentio-for="'theText'"
+                                mentio-for="'theText' + myIndexValue"
                                 mentio-trigger-char="'#'"
                                 mentio-items="products"
                                 mentio-template-url="/product-mentions.tpl"
                                 mentio-search="searchProducts(term)"
                                 mentio-select="getProductTextRaw(item)"></mentio-menu>
                     <mentio-menu
-                                mentio-for="'theText'"
+                                mentio-for="'theText' + myIndexValue"
                                 mentio-trigger-char="'@'"
                                 mentio-items="people"
                                 mentio-template-url="/people-mentions.tpl"
@@ -121,6 +122,7 @@
 
                     <div class="form-group">
                         <h3>Minimal:</h3>
+                        <!--Note no need for external mentio-menu elements because there is only one trigger character needed-->
                         <input type="text" mentio mentio-typed-text="typedTerm" mentio-items="simplePeople | filter:label:typedTerm" class="form-control" ng-model="theTextArea2"
                                   size="100"/>
                         </textarea>
@@ -223,6 +225,13 @@
                 <header class="text-primary documentation-attr">ng-model</header>
                 <strong>Required.</strong> An <code>ngModel</code> is required on the element for mentio to be able to operate.
 
+                <header class="text-primary documentation-attr">mentio-id</header>
+                <strong>Optional.</strong> An angular expression representing the ID of the <code>mentio</code> element.  This value
+                is matched by the <code>mentio-for</code> attribute on any separate <code>mentio-menu</code> elements.  
+                If no <code>mentio-id</code> is specified, the <code>id</code>
+                html attribute will be used to match <code>mentio-for</code>.  The <code>mentio-id</code> is unnecessary if there
+                is only one trigger character and all attributes are specified on the <code>mentio</code> directive.
+
                 <header class="text-primary documentation-attr">mentio-typed-term</header>
                 <strong>Optional.</strong> If specified, binds a scope property that will be assigned
                 the current value of the typed term when the <code>mentio</code> menu is active.
@@ -263,6 +272,11 @@
                 <a href="https://docs.angularjs.org/api/ng/type/ngModel.NgModelController">
                 https://docs.angularjs.org/api/ng/type/ngModel.NgModelController</a>.  The approach of creating a custom
                 <code>contenteditable</code> directive is demonstrated in the ment.io demo code.
+
+                <header class="text-primary documentation-attr">mentio-trigger-char, mentio-items, mentio-template-url, mentio-search,
+                mentio-select </header>
+                <strong>Optional.</strong> If only one trigger char is needed, these attribtues can be used on the <code>mentio</code>
+                directive.  See the description of these attributes in <code>mentio-menu</code> below for details. 
 
                 <header class="documentation-element">
                     <code>
@@ -323,7 +337,8 @@
                 present a menu of choices.  The <code>items</code> scope property from the <code>mentio-menu</code> is available to iterate
                 within an <code>ng-repeat</code>. The <code>typedTerm</code> scope property
                 from the <code>mentio-menu</code> can be accessed in order
-                to highlight text in the menu.  The default template presents a simple menu.
+                to highlight text in the menu.  The default template presents a simple menu, and assumes that each object has a property
+                called <code>label</code>.
 
                 <header class="text-primary documentation-attr">mentio-search</header>
                 <strong>Optional.</strong>
