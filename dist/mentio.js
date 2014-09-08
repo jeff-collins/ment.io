@@ -942,15 +942,13 @@ angular.module('mentio')
                 range.insertNode(markerEl);
             }
 
-            var obj = markerEl;
             var coordinates = {
                 left: 0,
                 top: markerEl.offsetHeight
             };
-            do {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-            } while (obj = obj.offsetParent);
+            var boundingClientRect = markerEl.getBoundingClientRect();
+            coordinates.left += boundingClientRect.left + window.scrollX;
+            coordinates.top += boundingClientRect.top + window.scrollY;
 
             markerEl.parentNode.removeChild(markerEl);
             return coordinates;
@@ -1034,11 +1032,9 @@ angular.module('mentio')
                 left: span.offsetLeft + parseInt(computed.borderLeftWidth)
             };
 
-            var obj = element;
-            do {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-            } while (obj = obj.offsetParent);
+            var boundingClientRect = element.getBoundingClientRect();
+            coordinates.left += boundingClientRect.left + window.scrollX;
+            coordinates.top += boundingClientRect.top + window.scrollY;
 
             document.body.removeChild(div);
 
