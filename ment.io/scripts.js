@@ -18,6 +18,11 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
                 templateUrl: 'examples.html',
                 tab: 'examples',
                 title: 'Ment.io examples'
+            })
+            .when('/inside-scrollable-element', {
+                templateUrl: 'inside-scrollable-element.html',
+                tab: 'inside-scrollable-element',
+                title: 'Ment.io inside scrollable element'
             });
     })
 
@@ -40,7 +45,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         };
 
         // shows the use of dynamic values in mentio-id and mentio-for to link elements
-        $scope.myIndexValue = "5";
+        $scope.myIndexValue = '5';
 
         $scope.searchProducts = function(term) {
             var prodList = [];
@@ -100,7 +105,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         $scope.resetDemo = function() {
             // finally enter content that will raise a menu after everything is set up
             $timeout(function() {
-                var html = "Try me @ or add a macro like brb, omw, (smile)";
+                var html = 'Try me @ or add a macro like brb, omw, (smile)';
                 var htmlContent = document.querySelector('#htmlContent');
                 if (htmlContent) {
                     var ngHtmlContent = angular.element(htmlContent);
@@ -113,7 +118,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
             }, 0);
         };
 
-        $rootScope.$on('$routeChangeSuccess', function (event, current) {
+        $rootScope.$on('$routeChangeSuccess', function () {
             $scope.resetDemo();
         });
  

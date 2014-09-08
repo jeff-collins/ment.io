@@ -91,3 +91,7 @@
     overflow-y: auto;
 }
 
+#scrollable-element {
+	height: 300px;
+	overflow: scroll;
+}
