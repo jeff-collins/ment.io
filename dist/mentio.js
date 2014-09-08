@@ -948,8 +948,8 @@ angular.module('mentio')
                 top: markerEl.offsetHeight
             };
             do {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
+                coordinates.left += obj.offsetLeft - obj.scrollLeft;
+                coordinates.top += obj.offsetTop - obj.scrollTop;
             } while (obj = obj.offsetParent);
 
             markerEl.parentNode.removeChild(markerEl);
