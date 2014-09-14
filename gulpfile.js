@@ -84,7 +84,7 @@ gulp.task('tpl', function () {
 // Basic usage:
 // Will patch the version
 gulp.task('bump', function(){
-  gulp.src('./package.json')
+  gulp.src(['./package.json', './bower.json'])
   .pipe(bump())
   .pipe(gulp.dest('./'));
 });
