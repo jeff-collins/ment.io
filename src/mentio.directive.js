@@ -21,10 +21,10 @@ angular.module('mentio', [])
                     remoteScope.showMenu();
 
                     remoteScope.search({
-                        term: triggerText
+                        term: triggerText.trim()
                     });
 
-                    remoteScope.typedTerm = triggerText;
+                    remoteScope.typedTerm = triggerText.trim();
                 };
 
                 $scope.defaultSearch = function(locals) {
@@ -57,7 +57,7 @@ angular.module('mentio', [])
 
                 $scope.setTriggerText = function(text) {
                     if ($scope.syncTriggerText) {
-                        $scope.typedTerm = text;
+                        $scope.typedTerm = text.trim();
                     }
                 };
 
@@ -216,7 +216,7 @@ angular.module('mentio', [])
                                 });
                             }
 
-                            if (event.which === 13 || event.which === 32) {
+                            if (event.which === 13) {
                                 event.preventDefault();
                                 activeMenuScope.selectActive();
                             }
@@ -277,16 +277,42 @@ angular.module('mentio', [])
                             scope.replacingMacro = false;
                         }
 
-                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet, scope.requireLeadingSpace);
+                        var isActive = scope.isActive();
+                        var isContentEditable = scope.isContentEditable();
 
-                        if (mentionInfo !== undefined) {
+                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet, 
+                            scope.requireLeadingSpace, isActive);
+
+                        if (mentionInfo !== undefined && 
+                                (
+                                    !isActive || 
+                                    (isActive && 
+                                        (
+                                            /* content editable selection changes to local nodes which 
+                                            modifies the start position of the selection over time, 
+                                            just consider triggerchar changes which
+                                            will have the odd effect that deleting a trigger char pops 
+                                            the menu for a previous
+                                            trigger char sequence if one exists in a content editable */
+                                            (isContentEditable && mentionInfo.mentionTriggerChar === 
+                                                scope.currentMentionTriggerChar) ||
+                                            (!isContentEditable && mentionInfo.mentionPosition === 
+                                                scope.currentMentionPosition)
+                                        )
+                                    )
+                                )
+                            ) 
+                        {
                             /** save selection info about the target control for later re-selection */
                             scope.targetElement = mentionInfo.mentionSelectedElement;
                             scope.targetElementPath = mentionInfo.mentionSelectedPath;
                             scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
 
-                            /* publish to external */
+                            /* publish to external ngModel */
                             scope.setTriggerText(mentionInfo.mentionText);
+                            /* remember current position */
+                            scope.currentMentionPosition = mentionInfo.mentionPosition;
+                            scope.currentMentionTriggerChar = mentionInfo.mentionTriggerChar;
                             /* perform query */
                             scope.query(mentionInfo.mentionTriggerChar, mentionInfo.mentionText);
                         } else {

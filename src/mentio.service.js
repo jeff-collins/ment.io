@@ -6,7 +6,7 @@ angular.module('mentio')
         // public
         function popUnderMention (triggerCharSet, selectionEl, requireLeadingSpace) {
             var coordinates;
-            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace);
+            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace, false);
 
             if (mentionInfo !== undefined) {
 
@@ -204,7 +204,7 @@ angular.module('mentio')
         function replaceTriggerText (targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
             resetSelection(targetElement, path, offset);
 
-            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace);
+            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace, true);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
@@ -332,7 +332,7 @@ angular.module('mentio')
         }
 
         // public
-        function getTriggerInfo (triggerCharSet, requireLeadingSpace) {
+        function getTriggerInfo (triggerCharSet, requireLeadingSpace, menuAlreadyActive) {
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput()) {
                 selected = document.activeElement;
@@ -346,6 +346,7 @@ angular.module('mentio')
                 }
             }
             var effectiveRange = getTextPrecedingCurrentSelection();
+
             if (effectiveRange !== undefined && effectiveRange !== null) {
                 var mostRecentTriggerCharPos = -1;
                 var triggerChar;
@@ -373,7 +374,13 @@ angular.module('mentio')
                         effectiveRange.length);
 
                     triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+1);
-                    if (!(/[\xA0\s]/g.test(currentTriggerSnippet))) {
+                    var firstSnippetChar = currentTriggerSnippet.substring(0,1);
+                    var leadingSpace = currentTriggerSnippet.length > 0 && 
+                        (
+                            firstSnippetChar === ' ' ||
+                            firstSnippetChar === '\xA0'
+                        );
+                    if (!leadingSpace && (menuAlreadyActive || !(/[\xA0\s]/g.test(currentTriggerSnippet)))) {
                         return {
                             mentionPosition: mostRecentTriggerCharPos,
                             mentionText: currentTriggerSnippet,
