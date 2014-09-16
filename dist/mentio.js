@@ -61,11 +61,8 @@ angular.module('mentio', [])
                     }
                 };
 
-                $scope.replaceText = function (triggerChar, item) {
-                    var remoteScope = $scope.triggerCharMap[triggerChar];
-                    var text = remoteScope.select({
-                        item: item
-                    });
+                $scope.replaceText = function (text) {
+                    $scope.hideAll();
                     mentioUtil.replaceTriggerText($scope.targetElement, $scope.targetElementPath,
                         $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace);
                     $scope.setTriggerText('');
@@ -190,7 +187,7 @@ angular.module('mentio', [])
                     'keydown keypress paste', function (event) {
                         var activeMenuScope = $scope.getActiveMenuScope();
                         if (activeMenuScope) {
-                            if (event.which === 9) {
+                            if (event.which === 9 || event.which === 13) {
                                 event.preventDefault();
                                 activeMenuScope.selectActive();
                             }
@@ -216,10 +213,9 @@ angular.module('mentio', [])
                                 });
                             }
 
-                            if (event.which === 13) {
+                            if (event.which === 37 || event.which === 39) {
                                 event.preventDefault();
-                                activeMenuScope.selectActive();
-                            }
+                             }
                         }
                     }
                 );
@@ -363,8 +359,15 @@ angular.module('mentio', [])
 
                 // callable both with controller (menuItem) and without controller (local)
                 this.selectItem = $scope.selectItem = function (item) {
-                    $scope.hideMenu();
-                    $scope.parentMentio.replaceText($scope.triggerChar, item);
+                    var text = $scope.select({
+                        item: item
+                    });
+                    if (typeof text.then === 'function') {
+                        /* text is a promise, at least our best guess */
+                        text.then($scope.parentMentio.replaceText);
+                    } else {
+                        $scope.parentMentio.replaceText(text);
+                    }
                 };
 
                 $scope.activateNextItem = function () {
