@@ -365,7 +365,8 @@
                 <strong>Optional.</strong>
                 Specifies a function call to invoke when the user has picked an item in the menu.  The item in <code>mentio-items</code>
                 corresponding to the selected item in the menu is bound to the <code>item</code> parameter of the select function.  The
-                select function must return a string to use to replace the current trigger char and mention text.
+                select function may return a string or a <code>Promise</code> that returns a string value to use to replace the 
+                current trigger char and mention text.
                 <p></p>
                 If no select function is specified, the trigger char is prepended to the <code>label</code> property of the current item.
 
