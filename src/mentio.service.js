@@ -443,6 +443,7 @@ angular.module('mentio')
                 markerEl = document.getElementById(markerId);
             } else if (window.getSelection) {
                 var sel = window.getSelection();
+                var prevRange = sel.getRangeAt(0);
                 range = document.createRange();
 
                 range.setStart(sel.anchorNode, selectedNodePosition);
@@ -455,6 +456,8 @@ angular.module('mentio')
                 markerEl.id = markerId;
                 markerEl.appendChild(document.createTextNode(markerTextChar));
                 range.insertNode(markerEl);
+                sel.removeAllRanges();
+                sel.addRange(prevRange);
             }
 
             var obj = markerEl;
