@@ -86,15 +86,14 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
         };
 
         $scope.getProductTextRaw = function(item) {
+            var deferred = $q.defer();
             /* the select() function can also return a Promise which ment.io will handle
             propertly during replacement */
-            return new Promise(function(fulfill) {  
                     // simulated async promise              
-                    $timeout(function() {
-                        fulfill('#' + item.sku);
-                    }, 500);
-                }
-            );
+            $timeout(function() {
+                deferred.resolve('#' + item.sku);
+            }, 500);
+            return deferred.promise;
         };
 
         $scope.getPeopleText = function(item) {
