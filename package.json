@@ -2,7 +2,7 @@
   "name": "ment.io",
   "version": "0.9.16",
   "description": "Mentions for Angular",
-  "main": "index.html",
+  "main": "dist/mentio.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "coveralls": "gulp coveralls"
