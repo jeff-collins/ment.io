@@ -618,62 +618,41 @@ angular.module('mentio')
                     }
                 }
             }
-            if (document.selection && document.selection.createRange) {
-                // Clone the TextRange and collapse
-                range = document.selection.createRange().duplicate();
-                range.select(elem);
-                range.selectStartOffset(offset);
-                range.selectEndOffset(offset);
-                range.collapse(true);
-                document.selection.removeAllRanges();
-                document.selection.addRange(range);
-            } else if (window.getSelection) {
-                var sel = window.getSelection();
+            var sel = window.getSelection();
 
-                range = document.createRange();
-                range.setStart(elem, offset);
-                range.setEnd(elem, offset);
-                range.collapse(true);
-                try{sel.removeAllRanges();}catch(error){}
-                sel.addRange(range);
-                targetElement.focus();
-            }
+            range = document.createRange();
+            range.setStart(elem, offset);
+            range.setEnd(elem, offset);
+            range.collapse(true);
+            try{sel.removeAllRanges();}catch(error){}
+            sel.addRange(range);
+            targetElement.focus();
         }
 
         function pasteHtml (html, startPos, endPos) {
             var range, sel;
-            if (document.selection && document.selection.createRange) {
-                range = document.selection.createRange().duplicate();
-                range.selectStartOffset(startPos);
-                range.selectEndOffset(endPos);
-                range.collapse(false);
-                range.deleteContents();
+            sel = window.getSelection();
+            range = document.createRange();
+            range.setStart(sel.anchorNode, startPos);
+            range.setEnd(sel.anchorNode, endPos);
+            range.deleteContents();
 
-                range.pasteHTML(html);
-            } else if (window.getSelection) {
-                sel = window.getSelection();
-                range = document.createRange();
-                range.setStart(sel.anchorNode, startPos);
-                range.setEnd(sel.anchorNode, endPos);
-                range.deleteContents();
+            var el = document.createElement('div');
+            el.innerHTML = html;
+            var frag = document.createDocumentFragment(),
+                node, lastNode;
+            while ((node = el.firstChild)) {
+                lastNode = frag.appendChild(node);
+            }
+            range.insertNode(frag);
 
-                var el = document.createElement('div');
-                el.innerHTML = html;
-                var frag = document.createDocumentFragment(),
-                    node, lastNode;
-                while ((node = el.firstChild)) {
-                    lastNode = frag.appendChild(node);
-                }
-                range.insertNode(frag);
-
-                // Preserve the selection
-                if (lastNode) {
-                    range = range.cloneRange();
-                    range.setStartAfter(lastNode);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
+            // Preserve the selection
+            if (lastNode) {
+                range = range.cloneRange();
+                range.setStartAfter(lastNode);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
             }
         }
 
@@ -702,23 +681,12 @@ angular.module('mentio')
             if (macroMatchInfo !== undefined) {
                 var element = document.activeElement;
                 if (selectedElementIsTextAreaOrInput()) {
-                    //IE support
-                    if (document.selection) {
-                        element.focus();
-                        var sel = document.selection.createRange();
-                        sel.selectStartOffset(macroMatchInfo.macroPosition);
-                        sel.selectEndOffset(macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
-                        sel.text = text;
-                    }
-                    //MOZILLA and others
-                    else {
-                        var startPos = macroMatchInfo.macroPosition;
-                        var endPos = macroMatchInfo.macroPosition + macroMatchInfo.macroText.length;
-                        element.value = element.value.substring(0, startPos) + text +
-                            element.value.substring(endPos, element.value.length);
-                        element.selectionStart = startPos + text.length;
-                        element.selectionEnd = startPos + text.length;
-                    }
+                    var startPos = macroMatchInfo.macroPosition;
+                    var endPos = macroMatchInfo.macroPosition + macroMatchInfo.macroText.length;
+                    element.value = element.value.substring(0, startPos) + text +
+                        element.value.substring(endPos, element.value.length);
+                    element.selectionStart = startPos + text.length;
+                    element.selectionEnd = startPos + text.length;
                 } else {
                     pasteHtml(text, macroMatchInfo.macroPosition,
                             macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
@@ -736,23 +704,12 @@ angular.module('mentio')
                 if (selectedElementIsTextAreaOrInput()) {
                     var myField = document.activeElement;
                     text = text + ' ';
-                    //IE support
-                    if (document.selection) {
-                        myField.focus();
-                        var sel = document.selection.createRange();
-                        sel.selectStartOffset(mentionInfo.mentionPosition);
-                        sel.selectEndOffset(mentionInfo.mentionPosition + mentionInfo.mentionText.length);
-                        sel.text = text;
-                    }
-                    //MOZILLA and others
-                    else {
-                        var startPos = mentionInfo.mentionPosition;
-                        var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
-                        myField.value = myField.value.substring(0, startPos) + text +
-                            myField.value.substring(endPos, myField.value.length);
-                        myField.selectionStart = startPos + text.length;
-                        myField.selectionEnd = startPos + text.length;
-                    }
+                    var startPos = mentionInfo.mentionPosition;
+                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
+                    myField.value = myField.value.substring(0, startPos) + text +
+                        myField.value.substring(endPos, myField.value.length);
+                    myField.selectionStart = startPos + text.length;
+                    myField.selectionEnd = startPos + text.length;
                 } else {
                     // add a space to the end of the pasted text
                     text = text + '\xA0';
@@ -796,7 +753,7 @@ angular.module('mentio')
 
                 var hasTrailingSpace = false;
 
-                if (effectiveRange.length > 0 && 
+                if (effectiveRange.length > 0 &&
                     (effectiveRange.charAt(effectiveRange.length - 1) === '\xA0' ||
                         effectiveRange.charAt(effectiveRange.length - 1) === ' ')) {
                     hasTrailingSpace = true;
@@ -883,25 +840,25 @@ angular.module('mentio')
                         triggerChar = c;
                     }
                 });
-                if (mostRecentTriggerCharPos >= 0 && 
+                if (mostRecentTriggerCharPos >= 0 &&
                         (
-                            mostRecentTriggerCharPos === 0 || 
+                            mostRecentTriggerCharPos === 0 ||
                             !requireLeadingSpace ||
                             /[\xA0\s]/g.test
                             (
                                 effectiveRange.substring(
-                                    mostRecentTriggerCharPos - 1, 
+                                    mostRecentTriggerCharPos - 1,
                                     mostRecentTriggerCharPos)
                             )
                         )
-                    ) 
+                    )
                 {
                     var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
                         effectiveRange.length);
 
                     triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+1);
                     var firstSnippetChar = currentTriggerSnippet.substring(0,1);
-                    var leadingSpace = currentTriggerSnippet.length > 0 && 
+                    var leadingSpace = currentTriggerSnippet.length > 0 &&
                         (
                             firstSnippetChar === ' ' ||
                             firstSnippetChar === '\xA0'
@@ -924,20 +881,11 @@ angular.module('mentio')
             var text;
             if (selectedElementIsTextAreaOrInput()) {
                 var textComponent = document.activeElement;
-                // IE version
-                if (document.selection !== undefined) {
-                    textComponent.focus();
-                    var sel = document.selection.createRange();
-                    text = sel.text;
-                }
-                // Mozilla version
-                else if (textComponent.selectionStart !== undefined) {
-                    var startPos = textComponent.selectionStart;
-                    text = textComponent.value.substring(0, startPos);
-                }
+                var startPos = textComponent.selectionStart;
+                text = textComponent.value.substring(0, startPos);
 
             } else {
-                var selectedElem = window.getSelection().anchorNode; 
+                var selectedElem = window.getSelection().anchorNode;
                 if (selectedElem != null) {
                     var workingNodeContent = selectedElem.textContent;
                     var selectStartOffset = window.getSelection().getRangeAt(0).startOffset;
@@ -951,40 +899,25 @@ angular.module('mentio')
 
         function getContentEditableCaretPosition (selectedNodePosition) {
             var markerTextChar = '\ufeff';
-            var markerTextCharEntity = '&#xfeff;';
             var markerEl, markerId = 'sel_' + new Date().getTime() + '_' + Math.random().toString().substr(2);
 
             var range;
-            if (document.selection && document.selection.createRange) {
-                // Clone the TextRange and collapse
-                range = document.selection.createRange().duplicate();
-                range.selectStartOffset(selectedNodePosition);
-                range.selectEndOffset(selectedNodePosition);
-                range.collapse(false);
+            var sel = window.getSelection();
+            var prevRange = sel.getRangeAt(0);
+            range = document.createRange();
 
-                // Create the marker element containing a single invisible character by
-                // creating literal HTML and insert it
-                range.pasteHTML('<span id="' + markerId + '" style="position: relative;">' +
-                    markerTextCharEntity + '</span>');
-                markerEl = document.getElementById(markerId);
-            } else if (window.getSelection) {
-                var sel = window.getSelection();
-                var prevRange = sel.getRangeAt(0);
-                range = document.createRange();
+            range.setStart(sel.anchorNode, selectedNodePosition);
+            range.setEnd(sel.anchorNode, selectedNodePosition);
 
-                range.setStart(sel.anchorNode, selectedNodePosition);
-                range.setEnd(sel.anchorNode, selectedNodePosition);
+            range.collapse(false);
 
-                range.collapse(false);
-
-                // Create the marker element containing a single invisible character using DOM methods and insert it
-                markerEl = document.createElement('span');
-                markerEl.id = markerId;
-                markerEl.appendChild(document.createTextNode(markerTextChar));
-                range.insertNode(markerEl);
-                sel.removeAllRanges();
-                sel.addRange(prevRange);
-            }
+            // Create the marker element containing a single invisible character using DOM methods and insert it
+            markerEl = document.createElement('span');
+            markerEl.id = markerId;
+            markerEl.appendChild(document.createTextNode(markerTextChar));
+            range.insertNode(markerEl);
+            sel.removeAllRanges();
+            sel.addRange(prevRange);
 
             var obj = markerEl;
             var coordinates = {
@@ -1002,12 +935,12 @@ angular.module('mentio')
 
         function getTextAreaOrInputUnderlinePosition (element, position) {
             var properties = [
-                'direction', 
+                'direction',
                 'boxSizing',
-                'width', 
+                'width',
                 'height',
                 'overflowX',
-                'overflowY', 
+                'overflowY',
                 'borderTopWidth',
                 'borderRightWidth',
                 'borderBottomWidth',
@@ -1043,12 +976,12 @@ angular.module('mentio')
 
             style.whiteSpace = 'pre-wrap';
             if (element.nodeName !== 'INPUT') {
-                style.wordWrap = 'break-word'; 
+                style.wordWrap = 'break-word';
             }
 
             // position off-screen
-            style.position = 'absolute'; 
-            style.visibility = 'hidden'; 
+            style.position = 'absolute';
+            style.visibility = 'hidden';
 
             // transfer the element's properties to the div
             properties.forEach(function (prop) {
@@ -1060,7 +993,7 @@ angular.module('mentio')
                 if (element.scrollHeight > parseInt(computed.height))
                     style.overflowY = 'scroll';
             } else {
-                style.overflow = 'hidden'; 
+                style.overflow = 'hidden';
             }
 
             div.textContent = element.value.substring(0, position);
