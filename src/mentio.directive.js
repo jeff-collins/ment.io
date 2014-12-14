@@ -256,7 +256,11 @@ angular.module('mentio', [])
 
                 scope.$watch(
                     'ngModel',
-                    function () {
+                    function (newValue) {
+                        if (newValue === undefined) {
+                            // ignore while setting up
+                            return;
+                        }
                         if (scope.triggerCharSet === undefined) {
                             $log.error('Error, no mentio-items attribute was provided, ' +
                                 'and no separate mentio-menus were specified.  Nothing to do.');
