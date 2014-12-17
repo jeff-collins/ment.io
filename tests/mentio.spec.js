@@ -547,5 +547,14 @@ describe('mentio-menu', function () {
 
     });
 
+    it('should remove its menu when destroyed', function () {
+        $scope.mockItems = [];
+        var element = angular.element('<textarea ng-model="test" mentio mentio-items="mockItems" />');
+        $compile(element)($scope);
+        $scope.$apply();
 
+        expect(document.getElementsByTagName('mentio-menu').length).toBe(1);
+        $scope.$broadcast('$destroy');
+        expect(document.getElementsByTagName('mentio-menu').length).toBe(0);
+    });
 });
