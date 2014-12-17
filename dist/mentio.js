@@ -248,6 +248,10 @@ angular.module('mentio', [])
                     var el = linkFn(scope);
 
                     element.parent().append(el);
+
+                    scope.$on('$destroy', function() {
+                      el.remove();
+                    });
                 }
 
                 if (attrs.mentioTypedTerm) {
