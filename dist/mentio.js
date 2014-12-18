@@ -248,6 +248,10 @@ angular.module('mentio', [])
                     var el = linkFn(scope);
 
                     element.parent().append(el);
+
+                    scope.$on('$destroy', function() {
+                      el.remove();
+                    });
                 }
 
                 if (attrs.mentioTypedTerm) {
@@ -1011,7 +1015,7 @@ angular.module('mentio')
             div.appendChild(span);
 
             var coordinates = {
-                top: span.offsetTop + parseInt(computed.borderTopWidth) + span.offsetHeight,
+                top: span.offsetTop + parseInt(computed.borderTopWidth) + parseInt(computed.fontSize),
                 left: span.offsetLeft + parseInt(computed.borderLeftWidth)
             };
 
