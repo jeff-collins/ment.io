@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('mentio', [])
-    .directive('mentio', ["mentioUtil", "$compile", "$log", "$document", "$timeout", function (mentioUtil, $compile, $log, $document, $timeout) {
+    .directive('mentio', ['mentioUtil', '$document', '$compile', '$log', '$timeout',
+        function (mentioUtil, $document, $compile, $log, $timeout) {
         return {
             restrict: 'A',
             scope: {
@@ -11,6 +12,7 @@ angular.module('mentio', [])
                 items: '=mentioItems',
                 typedTerm: '=mentioTypedTerm',
                 altId: '=mentioId',
+                windowEl: '=mentioWindowElement',
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
                 ngModel: '='
             },
@@ -61,9 +63,15 @@ angular.module('mentio', [])
                     }
                 };
 
+                $scope.context = function() {
+                    if ($scope.windowEl) {
+                        return {iframe: $scope.windowEl};
+                    }
+                };
+
                 $scope.replaceText = function (text) {
                     $scope.hideAll();
-                    mentioUtil.replaceTriggerText($scope.targetElement, $scope.targetElementPath,
+                    mentioUtil.replaceTriggerText($scope.context(), $scope.targetElement, $scope.targetElementPath,
                         $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace);
                     $scope.setTriggerText('');
                     angular.element($scope.targetElement).triggerHandler('change');
@@ -126,8 +134,9 @@ angular.module('mentio', [])
                     if (!hasTrailingSpace) {
                         $scope.replacingMacro = true;
                         $scope.timer = $timeout(function() {
-                            mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
-                                $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
+                            mentioUtil.replaceMacroText($scope.context(), $scope.targetElement, 
+                                $scope.targetElementPath, $scope.targetElementSelectedOffset, 
+                                $scope.macros, $scope.macros[macro]);
                             angular.element($scope.targetElement).triggerHandler('change');
                             $scope.replacingMacro = false;
                         }, 300);
@@ -135,7 +144,7 @@ angular.module('mentio', [])
                             $timeout.cancel($scope.timer);
                         });
                     } else {
-                        mentioUtil.replaceMacroText($scope.targetElement, $scope.targetElementPath,
+                        mentioUtil.replaceMacroText($scope.context(), $scope.targetElement, $scope.targetElementPath,
                             $scope.targetElementSelectedOffset, $scope.macros, $scope.macros[macro]);
                     }
                 };
@@ -259,6 +268,63 @@ angular.module('mentio', [])
                 }
 
                 scope.$watch(
+                    'windowEl', function(newValue) {
+                        if (newValue) {
+                            var iFrameChildren = angular.element(newValue).contents();
+                            iFrameChildren.on(
+                                'click', function () {
+                                    if (scope.isActive()) {
+                                        scope.$apply(function () {
+                                            scope.hideAll();
+                                        });
+                                    }
+                                }
+                            );
+
+                            iFrameChildren.on(
+                                'keydown keypress paste', function (event) {
+                                    var activeMenuScope = scope.getActiveMenuScope();
+                                    if (activeMenuScope) {
+                                        if (event.which === 9 || event.which === 13) {
+                                            event.preventDefault();
+                                            activeMenuScope.selectActive();
+                                        }
+
+                                        if (event.which === 27) {
+                                            event.preventDefault();
+                                            activeMenuScope.$apply(function () {
+                                                activeMenuScope.hideMenu();
+                                            });
+                                        }
+
+                                        if (event.which === 40) {
+                                            event.preventDefault();
+                                            activeMenuScope.$apply(function () {
+                                                activeMenuScope.activateNextItem();
+                                            });
+                                        }
+
+                                        if (event.which === 38) {
+                                            event.preventDefault();
+                                            activeMenuScope.$apply(function () {
+                                                activeMenuScope.activatePreviousItem();
+                                            });
+                                        }
+
+                                        if (event.which === 37 || event.which === 39) {
+                                            event.preventDefault();
+                                         }
+                                    }
+                                }
+                            );
+                            // scope.$on ( '$destroy', function() {
+                            //     iFrameChildren.off ( 'click', clickEventHandler );
+                            // });                            
+                        }
+                    }
+                );
+
+                scope.$watch(
                     'ngModel',
                     function (newValue) {
                         if (newValue === undefined) {
@@ -285,7 +351,7 @@ angular.module('mentio', [])
                         var isActive = scope.isActive();
                         var isContentEditable = scope.isContentEditable();
 
-                        var mentionInfo = mentioUtil.getTriggerInfo(scope.triggerCharSet, 
+                        var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet, 
                             scope.requireLeadingSpace, isActive);
 
                         if (mentionInfo !== undefined && 
@@ -326,7 +392,7 @@ angular.module('mentio', [])
                             scope.setTriggerText('');
                             scope.hideAll();
 
-                            var macroMatchInfo = mentioUtil.getMacroMatch(scope.macros);
+                            var macroMatchInfo = mentioUtil.getMacroMatch(scope.context(), scope.macros);
 
                             if (macroMatchInfo !== undefined) {
                                 scope.targetElement = macroMatchInfo.macroSelectedElement;
@@ -341,7 +407,8 @@ angular.module('mentio', [])
         };
     }])
 
-    .directive('mentioMenu', ["mentioUtil", "$rootScope", "$log", "$window", "$document", function (mentioUtil, $rootScope, $log, $window, $document) {
+    .directive('mentioMenu', ['mentioUtil', '$rootScope', '$log', '$window', '$document', 
+        function (mentioUtil, $rootScope, $log, $window, $document) {
         return {
             restrict: 'E',
             scope: {
@@ -441,7 +508,8 @@ angular.module('mentio', [])
                         if (scope.isVisible()) {
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
-                            mentioUtil.popUnderMention(triggerCharSet, element, scope.requireLeadingSpace);
+                            mentioUtil.popUnderMention(scope.parentMentio.context(), 
+                                triggerCharSet, element, scope.requireLeadingSpace);
                         }
                     }
                 );
@@ -463,7 +531,8 @@ angular.module('mentio', [])
                     if (visible) {
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
-                        mentioUtil.popUnderMention(triggerCharSet, element, scope.requireLeadingSpace);
+                        mentioUtil.popUnderMention(scope.parentMentio.context(), 
+                            triggerCharSet, element, scope.requireLeadingSpace);
                     }
                 });
 
@@ -536,17 +605,17 @@ angular.module('mentio')
     .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (triggerCharSet, selectionEl, requireLeadingSpace) {
+        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
             var coordinates;
-            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace, false);
+            var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
 
             if (mentionInfo !== undefined) {
 
-                if (selectedElementIsTextAreaOrInput()) {
-                    coordinates = getTextAreaOrInputUnderlinePosition(document.activeElement,
+                if (selectedElementIsTextAreaOrInput(ctx)) {
+                    coordinates = getTextAreaOrInputUnderlinePosition(ctx, getDocument(ctx).activeElement,
                         mentionInfo.mentionPosition);
                 } else {
-                    coordinates = getContentEditableCaretPosition(mentionInfo.mentionPosition);
+                    coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition);
                 }
 
                 // Move the button into place.
@@ -559,7 +628,7 @@ angular.module('mentio')
                 });
 
                 $timeout(function(){
-                    scrollIntoView(selectionEl);
+                    scrollIntoView(ctx, selectionEl);
                 },0);
             } else {
                 selectionEl.css({
@@ -568,7 +637,7 @@ angular.module('mentio')
             }
         }
 
-        function scrollIntoView(elem)
+        function scrollIntoView(ctx, elem)
         {
             // cheap hack in px - need to check styles relative to the element
             var reasonableBuffer = 20;
@@ -601,8 +670,8 @@ angular.module('mentio')
             }
         }
 
-        function selectedElementIsTextAreaOrInput () {
-            var element = document.activeElement;
+        function selectedElementIsTextAreaOrInput (ctx) {
+            var element = getDocument(ctx).activeElement;
             if (element !== null) {
                 var nodeName = element.nodeName;
                 var type = element.getAttribute('type');
@@ -611,7 +680,7 @@ angular.module('mentio')
             return false;
         }
 
-        function selectElement (targetElement, path, offset) {
+        function selectElement (ctx, targetElement, path, offset) {
             var range;
             var elem = targetElement;
             if (path) {
@@ -626,9 +695,9 @@ angular.module('mentio')
                     }
                 }
             }
-            var sel = window.getSelection();
+            var sel = getWindowSelection(ctx);
 
-            range = document.createRange();
+            range = getDocument(ctx).createRange();
             range.setStart(elem, offset);
             range.setEnd(elem, offset);
             range.collapse(true);
@@ -637,17 +706,17 @@ angular.module('mentio')
             targetElement.focus();
         }
 
-        function pasteHtml (html, startPos, endPos) {
+        function pasteHtml (ctx, html, startPos, endPos) {
             var range, sel;
-            sel = window.getSelection();
-            range = document.createRange();
+            sel = getWindowSelection(ctx);
+            range = getDocument(ctx).createRange();
             range.setStart(sel.anchorNode, startPos);
             range.setEnd(sel.anchorNode, endPos);
             range.deleteContents();
 
-            var el = document.createElement('div');
+            var el = getDocument(ctx).createElement('div');
             el.innerHTML = html;
-            var frag = document.createDocumentFragment(),
+            var frag = getDocument(ctx).createDocumentFragment(),
                 node, lastNode;
             while ((node = el.firstChild)) {
                 lastNode = frag.appendChild(node);
@@ -664,22 +733,22 @@ angular.module('mentio')
             }
         }
 
-        function resetSelection (targetElement, path, offset) {
+        function resetSelection (ctx, targetElement, path, offset) {
             var nodeName = targetElement.nodeName;
             if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
-                if (targetElement !== document.activeElement) {
+                if (targetElement !== getDocument(ctx).activeElement) {
                     targetElement.focus();
                 }
             } else {
-                selectElement(targetElement, path, offset);
+                selectElement(ctx, targetElement, path, offset);
             }
         }
 
         // public
-        function replaceMacroText (targetElement, path, offset, macros, text) {
-            resetSelection(targetElement, path, offset);
+        function replaceMacroText (ctx, targetElement, path, offset, macros, text) {
+            resetSelection(ctx, targetElement, path, offset);
 
-            var macroMatchInfo = getMacroMatch(macros);
+            var macroMatchInfo = getMacroMatch(ctx, macros);
 
             if (macroMatchInfo.macroHasTrailingSpace) {
                 macroMatchInfo.macroText = macroMatchInfo.macroText + '\xA0';
@@ -687,8 +756,8 @@ angular.module('mentio')
             }
 
             if (macroMatchInfo !== undefined) {
-                var element = document.activeElement;
-                if (selectedElementIsTextAreaOrInput()) {
+                var element = getDocument(ctx).activeElement;
+                if (selectedElementIsTextAreaOrInput(ctx)) {
                     var startPos = macroMatchInfo.macroPosition;
                     var endPos = macroMatchInfo.macroPosition + macroMatchInfo.macroText.length;
                     element.value = element.value.substring(0, startPos) + text +
@@ -696,21 +765,21 @@ angular.module('mentio')
                     element.selectionStart = startPos + text.length;
                     element.selectionEnd = startPos + text.length;
                 } else {
-                    pasteHtml(text, macroMatchInfo.macroPosition,
+                    pasteHtml(ctx, text, macroMatchInfo.macroPosition,
                             macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
                 }
             }
         }
 
         // public
-        function replaceTriggerText (targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
-            resetSelection(targetElement, path, offset);
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
+            resetSelection(ctx, targetElement, path, offset);
 
-            var mentionInfo = getTriggerInfo(triggerCharSet, requireLeadingSpace, true);
+            var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
-                    var myField = document.activeElement;
+                    var myField = getDocument(ctx).activeElement;
                     text = text + ' ';
                     var startPos = mentionInfo.mentionPosition;
                     var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
@@ -721,13 +790,13 @@ angular.module('mentio')
                 } else {
                     // add a space to the end of the pasted text
                     text = text + '\xA0';
-                    pasteHtml(text, mentionInfo.mentionPosition,
+                    pasteHtml(ctx, text, mentionInfo.mentionPosition,
                             mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
                 }
             }
         }
 
-        function getNodePositionInParent (elem) {
+        function getNodePositionInParent (ctx, elem) {
             if (elem.parentNode === null) {
                 return 0;
             }
@@ -740,21 +809,21 @@ angular.module('mentio')
         }
 
         // public
-        function getMacroMatch (macros) {
+        function getMacroMatch (ctx, macros) {
             var selected, path = [], offset;
 
-            if (selectedElementIsTextAreaOrInput()) {
-                selected = document.activeElement;
+            if (selectedElementIsTextAreaOrInput(ctx)) {
+                selected = getDocument(ctx).activeElement;
             } else {
                 // content editable
-                var selectionInfo = getContentEditableSelectedPath();
+                var selectionInfo = getContentEditableSelectedPath(ctx);
                 if (selectionInfo) {
                     selected = selectionInfo.selected;
                     path = selectionInfo.path;
                     offset = selectionInfo.offset;
                 }
             }
-            var effectiveRange = getTextPrecedingCurrentSelection();
+            var effectiveRange = getTextPrecedingCurrentSelection(ctx);
             if (effectiveRange !== undefined && effectiveRange !== null) {
 
                 var matchInfo;
@@ -794,9 +863,9 @@ angular.module('mentio')
             }
         }
 
-        function getContentEditableSelectedPath() {
+        function getContentEditableSelectedPath(ctx) {
             // content editable
-            var sel = window.getSelection();
+            var sel = getWindowSelection(ctx);
             var selected = sel.anchorNode;
             var path = [];
             var offset;
@@ -804,7 +873,7 @@ angular.module('mentio')
                 var i;
                 var ce = selected.contentEditable;
                 while (selected !== null && ce !== 'true') {
-                    i = getNodePositionInParent(selected);
+                    i = getNodePositionInParent(ctx, selected);
                     path.push(i);
                     selected = selected.parentNode;
                     if (selected !== null) {
@@ -823,20 +892,20 @@ angular.module('mentio')
         }
 
         // public
-        function getTriggerInfo (triggerCharSet, requireLeadingSpace, menuAlreadyActive) {
+        function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive) {
             var selected, path, offset;
-            if (selectedElementIsTextAreaOrInput()) {
-                selected = document.activeElement;
+            if (selectedElementIsTextAreaOrInput(ctx)) {
+                selected = getDocument(ctx).activeElement;
             } else {
                 // content editable
-                var selectionInfo = getContentEditableSelectedPath();
+                var selectionInfo = getContentEditableSelectedPath(ctx);
                 if (selectionInfo) {
                     selected = selectionInfo.selected;
                     path = selectionInfo.path;
                     offset = selectionInfo.offset;
                 }
             }
-            var effectiveRange = getTextPrecedingCurrentSelection();
+            var effectiveRange = getTextPrecedingCurrentSelection(ctx);
 
             if (effectiveRange !== undefined && effectiveRange !== null) {
                 var mostRecentTriggerCharPos = -1;
@@ -885,18 +954,34 @@ angular.module('mentio')
             }
         }
 
-        function getTextPrecedingCurrentSelection () {
+        function getWindowSelection(ctx) {
+            if (!ctx) {
+                return window.getSelection();
+            } else {
+                return ctx.iframe.contentWindow.getSelection();
+            }
+        }
+
+        function getDocument(ctx) {
+            if (!ctx) {
+                return document;
+            } else {
+                return ctx.iframe.contentWindow.document;
+            }
+        }
+
+        function getTextPrecedingCurrentSelection (ctx) {
             var text;
-            if (selectedElementIsTextAreaOrInput()) {
-                var textComponent = document.activeElement;
+            if (selectedElementIsTextAreaOrInput(ctx)) {
+                var textComponent = getDocument(ctx).activeElement;
                 var startPos = textComponent.selectionStart;
                 text = textComponent.value.substring(0, startPos);
 
             } else {
-                var selectedElem = window.getSelection().anchorNode;
+                var selectedElem = getWindowSelection(ctx).anchorNode;
                 if (selectedElem != null) {
                     var workingNodeContent = selectedElem.textContent;
-                    var selectStartOffset = window.getSelection().getRangeAt(0).startOffset;
+                    var selectStartOffset = getWindowSelection(ctx).getRangeAt(0).startOffset;
                     if (selectStartOffset >= 0) {
                         text = workingNodeContent.substring(0, selectStartOffset);
                     }
@@ -905,14 +990,14 @@ angular.module('mentio')
             return text;
         }
 
-        function getContentEditableCaretPosition (selectedNodePosition) {
+        function getContentEditableCaretPosition (ctx, selectedNodePosition) {
             var markerTextChar = '\ufeff';
             var markerEl, markerId = 'sel_' + new Date().getTime() + '_' + Math.random().toString().substr(2);
 
             var range;
-            var sel = window.getSelection();
+            var sel = getWindowSelection(ctx);
             var prevRange = sel.getRangeAt(0);
-            range = document.createRange();
+            range = getDocument(ctx).createRange();
 
             range.setStart(sel.anchorNode, selectedNodePosition);
             range.setEnd(sel.anchorNode, selectedNodePosition);
@@ -920,9 +1005,9 @@ angular.module('mentio')
             range.collapse(false);
 
             // Create the marker element containing a single invisible character using DOM methods and insert it
-            markerEl = document.createElement('span');
+            markerEl = getDocument(ctx).createElement('span');
             markerEl.id = markerId;
-            markerEl.appendChild(document.createTextNode(markerTextChar));
+            markerEl.appendChild(getDocument(ctx).createTextNode(markerTextChar));
             range.insertNode(markerEl);
             sel.removeAllRanges();
             sel.addRange(prevRange);
@@ -932,16 +1017,23 @@ angular.module('mentio')
                 left: 0,
                 top: markerEl.offsetHeight
             };
-            do {
+
+            var iframe = ctx ? ctx.iframe : null;
+            while(obj) {
                 coordinates.left += obj.offsetLeft;
                 coordinates.top += obj.offsetTop;
-            } while (obj = obj.offsetParent);
+                obj = obj.offsetParent;
+                if (!obj && iframe) {
+                    obj = iframe;
+                    iframe = null;
+                }
+            }
 
             markerEl.parentNode.removeChild(markerEl);
             return coordinates;
         }
 
-        function getTextAreaOrInputUnderlinePosition (element, position) {
+        function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
             var properties = [
                 'direction',
                 'boxSizing',
@@ -975,9 +1067,9 @@ angular.module('mentio')
 
             var isFirefox = (window.mozInnerScreenX !== null);
 
-            var div = document.createElement('div');
+            var div = getDocument(ctx).createElement('div');
             div.id = 'input-textarea-caret-position-mirror-div';
-            document.body.appendChild(div);
+            getDocument(ctx).body.appendChild(div);
 
             var style = div.style;
             var computed = window.getComputedStyle ? getComputedStyle(element) : element.currentStyle;
@@ -1010,7 +1102,7 @@ angular.module('mentio')
                 div.textContent = div.textContent.replace(/\s/g, '\u00a0');
             }
 
-            var span = document.createElement('span');
+            var span = getDocument(ctx).createElement('span');
             span.textContent = element.value.substring(position) || '.';
             div.appendChild(span);
 
@@ -1020,12 +1112,18 @@ angular.module('mentio')
             };
 
             var obj = element;
-            do {
+            var iframe = ctx ? ctx.iframe : null;
+            while(obj) {
                 coordinates.left += obj.offsetLeft;
                 coordinates.top += obj.offsetTop;
-            } while (obj = obj.offsetParent);
+                obj = obj.offsetParent;
+                if (!obj && iframe) {
+                    obj = iframe;
+                    iframe = null;
+                }
+            }
 
-            document.body.removeChild(div);
+            getDocument(ctx).body.removeChild(div);
 
             return coordinates;
         }

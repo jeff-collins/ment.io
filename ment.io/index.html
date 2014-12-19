@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-route.min.js"></script>
+    <script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
     <script src="/dist/mentio.js"></script>
     <script src="scripts.js"></script>
-</head>
+    <script src="/bower_components/angular-ui-tinymce/src/tinymce.js"></script>
+    </head>
 <body ng-controller="mentio-demo-ctrl">
 <div>
     <nav class="navbar navbar-default" role="navigation">
@@ -126,6 +128,13 @@
                         <input type="text" mentio mentio-typed-text="typedTerm" mentio-items="simplePeople | filter:label:typedTerm" class="form-control" ng-model="theTextArea2"
                                   size="100"/>
                         </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <h3>TinyMCE (iframe-based):</h3>
+                        <textarea ui-tinymce="tinyMceOptions" mentio mentio-typed-text="typedTerm" 
+                            mentio-items="simplePeople | filter:label:typedTerm" ng-model='foo'
+                            mentio-window-element="windowEl"></textarea>
                     </div>
 
                     <div class="form-group">

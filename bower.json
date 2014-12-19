@@ -23,6 +23,7 @@
   ],
   "devDependencies": {
     "angular": "~1.2.18",
-    "angular-mocks": "~1.2.18"
+    "angular-mocks": "~1.2.18",
+    "angular-ui-tinymce": "latest"
   }
 }

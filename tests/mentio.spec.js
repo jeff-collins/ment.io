@@ -164,7 +164,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        var coordinates = mentioUtilService.getTextAreaOrInputUnderlinePosition(textarea[0], 2);
+        var coordinates = mentioUtilService.getTextAreaOrInputUnderlinePosition(null, textarea[0], 2);
 
         expect(coordinates.top).toBeGreaterThan(0);
         expect(coordinates.left).toBeGreaterThan(0);
@@ -175,7 +175,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        var coordinates = mentioUtilService.getTextAreaOrInputUnderlinePosition(textarea[0], 2);
+        var coordinates = mentioUtilService.getTextAreaOrInputUnderlinePosition(null, textarea[0], 2);
 
         expect(coordinates.top).toBeGreaterThan(0);
         expect(coordinates.left).toBeGreaterThan(0);
@@ -212,7 +212,7 @@ describe('mentio-menu', function () {
         $compile(elem)($scope);
         $document[0].body.appendChild(elem[0]);
 
-        mentioUtilService.selectElement(elem[0], [0], 1);
+        mentioUtilService.selectElement(null, elem[0], [0], 1);
         text = mentioUtilService.getTextPrecedingCurrentSelection();
 
         expect(text).toEqual('a');
@@ -226,7 +226,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.selectElement(elem[0], [0], 0);
+        mentioUtilService.selectElement(null, elem[0], [0], 0);
 
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
@@ -234,7 +234,7 @@ describe('mentio-menu', function () {
         expect(selectionInfo.path).toEqual([0]);
         expect(selectionInfo.offset).toEqual(0);
 
-        mentioUtilService.selectElement(elem[0], [0], 1);
+        mentioUtilService.selectElement(null, elem[0], [0], 1);
 
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
@@ -246,7 +246,7 @@ describe('mentio-menu', function () {
         $compile(elem)($scope);
         $document[0].body.appendChild(elem[0]);
 
-        mentioUtilService.selectElement(elem[0], [0,0], 1);
+        mentioUtilService.selectElement(null, elem[0], [0,0], 1);
 
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
@@ -254,7 +254,7 @@ describe('mentio-menu', function () {
         expect(selectionInfo.path).toEqual([0,0]);
         expect(selectionInfo.offset).toEqual(1);
 
-        mentioUtilService.selectElement(elem[0], [0,2], 1);
+        mentioUtilService.selectElement(null, elem[0], [0,2], 1);
 
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
@@ -273,9 +273,9 @@ describe('mentio-menu', function () {
         $scope.$apply();
         elem[0].focus();
 
-        mentioUtilService.selectElement(elem[0], [0], 0);
+        mentioUtilService.selectElement(null, elem[0], [0], 0);
 
-        var coordinates = mentioUtilService.getContentEditableCaretPosition(2);
+        var coordinates = mentioUtilService.getContentEditableCaretPosition(null, 2);
 
         expect(coordinates.top).toBeGreaterThan(0);
         expect(coordinates.left).toBeGreaterThan(0);
@@ -289,9 +289,9 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.selectElement(elem[0], [0], 0);
+        mentioUtilService.selectElement(null, elem[0], [0], 0);
 
-        mentioUtilService.pasteHtml('hi', 1, 1);
+        mentioUtilService.pasteHtml(null, 'hi', 1, 1);
 
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
@@ -312,7 +312,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.selectElement(elem[0], [0], 5);
+        mentioUtilService.selectElement(null, elem[0], [0], 5);
 
         // This is ugly, uses undocumented method to access the child scopes
         for(var cs = $scope.$$childHead; cs; cs = cs.$$nextSibling) {
@@ -372,7 +372,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.resetSelection(elem[0], [0], 5);
+        mentioUtilService.resetSelection(null, elem[0], [0], 5);
 
         var selectionInfo = mentioUtilService.getContentEditableSelectedPath();
 
@@ -386,7 +386,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.resetSelection(elem[0], [], 0);
+        mentioUtilService.resetSelection(null, elem[0], [], 0);
         expect($document[0].activeElement).toEqual(elem[0]);
     });
 
@@ -403,7 +403,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.replaceTriggerText(elem[0], [0], 9, ['@'], 'foo');
+        mentioUtilService.replaceTriggerText(null, elem[0], [0], 9, ['@'], 'foo');
         expect(elem.html()).toEqual('123 foo&nbsp; abc');
 
         elem = angular.element('<textarea mentio mentio-items="mockItems" ng-trim="false">123 @test abc</textarea>');
@@ -415,7 +415,7 @@ describe('mentio-menu', function () {
         elem[0].selectionStart = 9;
         elem[0].selectionEnd = 9;
 
-        mentioUtilService.replaceTriggerText(elem[0], [0], 9, ['@'], 'zzz');
+        mentioUtilService.replaceTriggerText(null, elem[0], [0], 9, ['@'], 'zzz');
         expect(elem.val()).toEqual('123 zzz  abc');
     });
 
@@ -437,7 +437,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.replaceMacroText(elem[0], [0], 7, macros, 'Be right back');
+        mentioUtilService.replaceMacroText(null, elem[0], [0], 7, macros, 'Be right back');
         expect(elem.html()).toEqual('123 Be right back abc');
 
         elem = angular.element('<textarea mentio mentio-items="mockItems" ng-trim="false">123 omw abc</textarea>');
@@ -449,7 +449,7 @@ describe('mentio-menu', function () {
         elem[0].selectionStart = 7;
         elem[0].selectionEnd = 7;
 
-        mentioUtilService.replaceMacroText(elem[0], [0], 7, macros, 'On my way');
+        mentioUtilService.replaceMacroText(null, elem[0], [0], 7, macros, 'On my way');
         expect(elem.val()).toEqual('123 On my way abc');
     });    
 
@@ -470,13 +470,13 @@ describe('mentio-menu', function () {
 
         expect(last[0].getBoundingClientRect().top + last[0].getBoundingClientRect().height > $window.innerHeight)
 
-        mentioUtilService.scrollIntoView(last);
+        mentioUtilService.scrollIntoView(null, last);
 
         expect(last[0].getBoundingClientRect().top + last[0].getBoundingClientRect().height === $window.innerHeight)
 
         expect(first[0].getBoundingClientRect().top < 0)
 
-        mentioUtilService.scrollIntoView(first);
+        mentioUtilService.scrollIntoView(null, first);
 
         expect(first[0].getBoundingClientRect().top === 0)
     });
@@ -500,7 +500,7 @@ describe('mentio-menu', function () {
 
         $scope.$apply();
 
-        mentioUtilService.selectElement(elem[0], [0], 5);
+        mentioUtilService.selectElement(null, elem[0], [0], 5);
 
         // This is ugly, uses undocumented method to access the child scopes
         for(var cs = $scope.$$childHead; cs; cs = cs.$$nextSibling) {
@@ -523,7 +523,7 @@ describe('mentio-menu', function () {
 
         $scope.test = "@test";
         elem.html('@test');
-        mentioUtilService.selectElement(elem[0], [0], 5);
+        mentioUtilService.selectElement(null, elem[0], [0], 5);
         mentioScope.query('@', 'test');
         mentioScope.$apply();
 
@@ -536,7 +536,7 @@ describe('mentio-menu', function () {
         expect(elem.html()).toEqual('@test1&nbsp;');
 
         elem.html('brb');
-        mentioUtilService.selectElement(elem[0], [0], 3);
+        mentioUtilService.selectElement(null, elem[0], [0], 3);
         $scope.test = "brb2";
         mentioScope.$apply();
         $scope.test = "brb";

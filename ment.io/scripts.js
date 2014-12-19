@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mentio-demo', ['mentio', 'ngRoute'])
+angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
 
     .config(function($routeProvider) {
         $routeProvider
@@ -31,6 +31,12 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
     })
 
     .controller('mentio-demo-ctrl', function ($scope, $rootScope, $http, $q, $sce, $timeout, mentioUtil) {
+
+        $scope.tinyMceOptions = {
+            init_instance_callback: function(editor) {
+                $scope.windowEl = editor.iframeElement;
+            }
+        };
 
         $scope.macros = {
             'brb': 'Be right back',
@@ -114,7 +120,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute'])
                     ngHtmlContent.html(html);
                     ngHtmlContent.scope().htmlContent = html;
                     // select right after the @
-                    mentioUtil.selectElement(htmlContent, [0], 8);
+                    mentioUtil.selectElement(null, htmlContent, [0], 8);
                     ngHtmlContent.scope().$apply();
                 }
             }, 0);
