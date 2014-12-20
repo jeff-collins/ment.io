@@ -92,6 +92,9 @@ angular.module('mentio')
                         offset -= elem.length;
                         elem = elem.nextSibling;
                     }
+                    if (elem.childNodes.length === 0 && !elem.length) {
+                        elem = elem.previousSibling;
+                    }
                 }
             }
             var sel = getWindowSelection(ctx);

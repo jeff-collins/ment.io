@@ -79,7 +79,7 @@ angular.module('mentio', [])
                         $scope.contentEditableMenuPasted = true;
                         var timer = $timeout(function() {
                             $scope.contentEditableMenuPasted = false;
-                        }, 100);
+                        }, 200);
                         $scope.$on('$destroy', function() {
                             $timeout.cancel(timer);
                         });
@@ -705,6 +705,9 @@ angular.module('mentio')
                     while (elem.length < offset) {
                         offset -= elem.length;
                         elem = elem.nextSibling;
+                    }
+                    if (elem.childNodes.length === 0 && !elem.length) {
+                        elem = elem.previousSibling;
                     }
                 }
             }

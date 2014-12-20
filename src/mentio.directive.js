@@ -79,7 +79,7 @@ angular.module('mentio', [])
                         $scope.contentEditableMenuPasted = true;
                         var timer = $timeout(function() {
                             $scope.contentEditableMenuPasted = false;
-                        }, 100);
+                        }, 200);
                         $scope.$on('$destroy', function() {
                             $timeout.cancel(timer);
                         });
