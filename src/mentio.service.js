@@ -411,25 +411,33 @@ angular.module('mentio')
             sel.removeAllRanges();
             sel.addRange(prevRange);
 
-            var obj = markerEl;
             var coordinates = {
                 left: 0,
                 top: markerEl.offsetHeight
             };
 
+            localToGlobalCoordinates(ctx, markerEl, coordinates);
+
+            markerEl.parentNode.removeChild(markerEl);
+            return coordinates;
+        }
+
+        function localToGlobalCoordinates(ctx, element, coordinates) {
+            var obj = element;
             var iframe = ctx ? ctx.iframe : null;
             while(obj) {
                 coordinates.left += obj.offsetLeft;
                 coordinates.top += obj.offsetTop;
+                if (obj !== getDocument().body) {
+                    coordinates.top -= obj.scrollTop;
+                    coordinates.left -= obj.scrollLeft;
+                }
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
                     iframe = null;
                 }
-            }
-
-            markerEl.parentNode.removeChild(markerEl);
-            return coordinates;
+            }            
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
@@ -510,17 +518,7 @@ angular.module('mentio')
                 left: span.offsetLeft + parseInt(computed.borderLeftWidth)
             };
 
-            var obj = element;
-            var iframe = ctx ? ctx.iframe : null;
-            while(obj) {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-                obj = obj.offsetParent;
-                if (!obj && iframe) {
-                    obj = iframe;
-                    iframe = null;
-                }
-            }
+            localToGlobalCoordinates(ctx, element, coordinates);
 
             getDocument(ctx).body.removeChild(div);
 

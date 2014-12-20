@@ -12,7 +12,7 @@ angular.module('mentio', [])
                 items: '=mentioItems',
                 typedTerm: '=mentioTypedTerm',
                 altId: '=mentioId',
-                windowEl: '=mentioWindowElement',
+                iframeElement: '=mentioIframeElement',
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
                 ngModel: '='
             },
@@ -64,8 +64,8 @@ angular.module('mentio', [])
                 };
 
                 $scope.context = function() {
-                    if ($scope.windowEl) {
-                        return {iframe: $scope.windowEl};
+                    if ($scope.iframeElement) {
+                        return {iframe: $scope.iframeElement};
                     }
                 };
 
@@ -267,12 +267,57 @@ angular.module('mentio', [])
                     scope.syncTriggerText = true;
                 }
 
+                function keyHandler(event) {
+                    function stopEvent(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                    }
+                    var activeMenuScope = scope.getActiveMenuScope();
+                    if (activeMenuScope) {
+                        if (event.which === 9 || event.which === 13) {
+                            stopEvent(event);
+                            activeMenuScope.selectActive();
+                            return false;
+                        }
+
+                        if (event.which === 27) {
+                            stopEvent(event);
+                            activeMenuScope.$apply(function () {
+                                activeMenuScope.hideMenu();
+                            });
+                            return false;
+                        }
+
+                        if (event.which === 40) {
+                            stopEvent(event);
+                            activeMenuScope.$apply(function () {
+                                activeMenuScope.activateNextItem();
+                            });
+                            return false;
+                        }
+
+                        if (event.which === 38) {
+                            stopEvent(event);
+                            activeMenuScope.$apply(function () {
+                                activeMenuScope.activatePreviousItem();
+                            });
+                            return false;
+                        }
+
+                        if (event.which === 37 || event.which === 39) {
+                            stopEvent(event);
+                            return false;
+                        }
+                    }
+                }
+
                 scope.$watch(
-                    'windowEl', function(newValue) {
+                    'iframeElement', function(newValue) {
                         if (newValue) {
-                            var iFrameChildren = angular.element(newValue).contents();
-                            iFrameChildren.on(
-                                'click', function () {
+                            var iframeDocument = newValue.contentWindow.document;
+                            iframeDocument.addEventListener('click',
+                                function () {
                                     if (scope.isActive()) {
                                         scope.$apply(function () {
                                             scope.hideAll();
@@ -281,45 +326,12 @@ angular.module('mentio', [])
                                 }
                             );
 
-                            iFrameChildren.on(
-                                'keydown keypress paste', function (event) {
-                                    var activeMenuScope = scope.getActiveMenuScope();
-                                    if (activeMenuScope) {
-                                        if (event.which === 9 || event.which === 13) {
-                                            event.preventDefault();
-                                            activeMenuScope.selectActive();
-                                        }
 
-                                        if (event.which === 27) {
-                                            event.preventDefault();
-                                            activeMenuScope.$apply(function () {
-                                                activeMenuScope.hideMenu();
-                                            });
-                                        }
-
-                                        if (event.which === 40) {
-                                            event.preventDefault();
-                                            activeMenuScope.$apply(function () {
-                                                activeMenuScope.activateNextItem();
-                                            });
-                                        }
-
-                                        if (event.which === 38) {
-                                            event.preventDefault();
-                                            activeMenuScope.$apply(function () {
-                                                activeMenuScope.activatePreviousItem();
-                                            });
-                                        }
-
-                                        if (event.which === 37 || event.which === 39) {
-                                            event.preventDefault();
-                                         }
-                                    }
-                                }
-                            );
-                            // scope.$on ( '$destroy', function() {
-                            //     iFrameChildren.off ( 'click', clickEventHandler );
-                            // });                            
+                            iframeDocument.addEventListener('keydown', keyHandler, true /*capture*/);
+                                            
+                            scope.$on ( '$destroy', function() {
+                                iframeDocument.removeEventListener ( 'keydown', keyHandler );
+                            });                            
                         }
                     }
                 );
@@ -327,7 +339,8 @@ angular.module('mentio', [])
                 scope.$watch(
                     'ngModel',
                     function (newValue) {
-                        if (newValue === undefined) {
+                        /*jshint maxcomplexity:11 */
+                        if (!newValue || newValue === '') {
                             // ignore while setting up
                             return;
                         }
@@ -1012,25 +1025,33 @@ angular.module('mentio')
             sel.removeAllRanges();
             sel.addRange(prevRange);
 
-            var obj = markerEl;
             var coordinates = {
                 left: 0,
                 top: markerEl.offsetHeight
             };
 
+            localToGlobalCoordinates(ctx, markerEl, coordinates);
+
+            markerEl.parentNode.removeChild(markerEl);
+            return coordinates;
+        }
+
+        function localToGlobalCoordinates(ctx, element, coordinates) {
+            var obj = element;
             var iframe = ctx ? ctx.iframe : null;
             while(obj) {
                 coordinates.left += obj.offsetLeft;
                 coordinates.top += obj.offsetTop;
+                if (obj !== getDocument().body) {
+                    coordinates.top -= obj.scrollTop;
+                    coordinates.left -= obj.scrollLeft;
+                }
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
                     iframe = null;
                 }
-            }
-
-            markerEl.parentNode.removeChild(markerEl);
-            return coordinates;
+            }            
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
@@ -1111,17 +1132,7 @@ angular.module('mentio')
                 left: span.offsetLeft + parseInt(computed.borderLeftWidth)
             };
 
-            var obj = element;
-            var iframe = ctx ? ctx.iframe : null;
-            while(obj) {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-                obj = obj.offsetParent;
-                if (!obj && iframe) {
-                    obj = iframe;
-                    iframe = null;
-                }
-            }
+            localToGlobalCoordinates(ctx, element, coordinates);
 
             getDocument(ctx).body.removeChild(div);
 

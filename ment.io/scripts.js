@@ -34,7 +34,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
 
         $scope.tinyMceOptions = {
             init_instance_callback: function(editor) {
-                $scope.windowEl = editor.iframeElement;
+                $scope.iframeElement = editor.iframeElement;
             }
         };
 
