@@ -9,3 +9,5 @@ bower_components
 *.sublime-project
 
 src/templates.js
+
+ment.io/tinymce.js

@@ -22,7 +22,7 @@ var bump = require('gulp-bump');
  */
 gulp.task('default', ['site']);
 
-gulp.task('site', ['dist'], function () {
+gulp.task('site', ['copy', 'dist'], function () {
     var express = require('express');
     var app = express();
 
@@ -77,6 +77,11 @@ gulp.task('tpl', function () {
         .pipe(gulp.dest('src'));
 });
 
+gulp.task('copy', function() {
+    gulp.src(['bower_components/angular-ui-tinymce/src/tinymce.js'])
+    .pipe(gulp.dest('ment.io'))
+});
+
 // Basic usage:
 // Will patch the version
 gulp.task('bump', function(){
@@ -108,7 +113,7 @@ function testTask (params) {
 /**
  * Run the karma spec tests
  */
-gulp.task('test', ['dist'], function () {
+gulp.task('test', ['copy', 'dist'], function () {
     testTask({
         isWatch: gutil.env.hasOwnProperty('watch')
     });
