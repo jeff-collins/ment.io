@@ -432,7 +432,7 @@ angular.module('mentio', [])
                                         /* text is a promise, at least our best guess */
                                         text.then(scope.replaceText);
                                     } else {
-                                        scope.replaceText(text);
+                                        scope.replaceText(text, true);
                                     }
                                 }
                             }
