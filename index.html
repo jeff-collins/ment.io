@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-route.min.js"></script>
+    <script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
     <script src="dist/mentio.js"></script>
     <script src="scripts.js"></script>
-</head>
+    <script src="/bower_components/angular-ui-tinymce/src/tinymce.js"></script>
+    </head>
 <body ng-controller="mentio-demo-ctrl">
 <div>
     <nav class="navbar navbar-default" role="navigation">
@@ -43,6 +45,7 @@
                             mentio-typed-term="typedTerm"
                             mentio-macros="macros"
                             mentio-require-leading-space="true"
+                            mentio-select-not-found="true"
                             class="editor form-control"
                             mentio-id="'htmlContent'"
                             id="htmlContent"
@@ -126,6 +129,13 @@
                         <input type="text" mentio mentio-typed-text="typedTerm" mentio-items="simplePeople | filter:label:typedTerm" class="form-control" ng-model="theTextArea2"
                                   size="100"/>
                         </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <h3>TinyMCE (iframe-based):</h3>
+                        <textarea ui-tinymce="tinyMceOptions" mentio mentio-typed-text="typedTerm" 
+                            mentio-items="simplePeople | filter:label:typedTerm" ng-model='foo'
+                            mentio-iframe-element="iframeElement"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -259,6 +269,16 @@
                 contain the configured trigger character, but for some languages like Chinese, spaces cannot be required.
                 <p></p>
  
+                <header class="text-primary documentation-attr">mentio-iframe-element</header>
+                <strong>Optional.</strong> Specifies an iframe DOM element within which the ment.io menu will be shown.
+                This is useful for situations where the actual control is a <code>textarea</code>, but the editor is 
+                presented in an iframe, like TinyMCE.
+                <p></p>
+
+                <header class="text-primary documentation-attr">mentio-select-not-found</header>
+                <strong>Optional.</strong> Will run the <code>mentio-select</code> function passing a the <code>typedText</code> scope variable in the label property of a JSON object when the typedText will become empty (after a space was typed, for instance).  This is useful for creating new items dynamically even if they do not exist in your backend service yet (e.g. tags).
+                <p></p>
+
                  <h4 class="section-heading">Provided Scope Properties</h4>
 
                 <header class="text-primary documentation-attr">typedTerm</header>
