@@ -174,10 +174,11 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+                text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
-            var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true);
+            var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true, hasTrailingSpace);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
@@ -294,7 +295,9 @@ angular.module('mentio')
         }
 
         // public
-        function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive) {
+        function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
+            /*jshint maxcomplexity:11 */
+            // yes this function needs refactoring 
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -342,6 +345,9 @@ angular.module('mentio')
                             firstSnippetChar === ' ' ||
                             firstSnippetChar === '\xA0'
                         );
+                    if (hasTrailingSpace) {
+                        currentTriggerSnippet = currentTriggerSnippet.trim();
+                    }
                     if (!leadingSpace && (menuAlreadyActive || !(/[\xA0\s]/g.test(currentTriggerSnippet)))) {
                         return {
                             mentionPosition: mostRecentTriggerCharPos,

@@ -14,6 +14,7 @@ angular.module('mentio', [])
                 altId: '=mentioId',
                 iframeElement: '=mentioIframeElement',
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
+                selectNotFound: '=mentioSelectNotFound',
                 ngModel: '='
             },
             controller: ["$scope", "$timeout", "$attrs", function($scope, $timeout, $attrs) {
@@ -69,20 +70,25 @@ angular.module('mentio', [])
                     }
                 };
 
-                $scope.replaceText = function (text) {
+                $scope.replaceText = function (text, hasTrailingSpace) {
                     $scope.hideAll();
+
                     mentioUtil.replaceTriggerText($scope.context(), $scope.targetElement, $scope.targetElementPath,
-                        $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace);
-                    $scope.setTriggerText('');
-                    angular.element($scope.targetElement).triggerHandler('change');
-                    if ($scope.isContentEditable()) {
-                        $scope.contentEditableMenuPasted = true;
-                        var timer = $timeout(function() {
-                            $scope.contentEditableMenuPasted = false;
-                        }, 200);
-                        $scope.$on('$destroy', function() {
-                            $timeout.cancel(timer);
-                        });
+                        $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace,
+                        hasTrailingSpace);
+
+                    if (!hasTrailingSpace) {
+                        $scope.setTriggerText('');
+                        angular.element($scope.targetElement).triggerHandler('change');
+                        if ($scope.isContentEditable()) {
+                            $scope.contentEditableMenuPasted = true;
+                            var timer = $timeout(function() {
+                                $scope.contentEditableMenuPasted = false;
+                            }, 200);
+                            $scope.$on('$destroy', function() {
+                                $timeout.cancel(timer);
+                            });
+                        }
                     }
                 };
 
@@ -339,7 +345,9 @@ angular.module('mentio', [])
                 scope.$watch(
                     'ngModel',
                     function (newValue) {
-                        /*jshint maxcomplexity:11 */
+                        /*jshint maxcomplexity:14 */
+                        /*jshint maxstatements:38 */
+                        // yes this function needs refactoring 
                         if (!newValue || newValue === '') {
                             // ignore while setting up
                             return;
@@ -402,6 +410,7 @@ angular.module('mentio', [])
                             /* perform query */
                             scope.query(mentionInfo.mentionTriggerChar, mentionInfo.mentionText);
                         } else {
+                            var currentTypedTerm = scope.typedTerm;
                             scope.setTriggerText('');
                             scope.hideAll();
 
@@ -412,6 +421,20 @@ angular.module('mentio', [])
                                 scope.targetElementPath = macroMatchInfo.macroSelectedPath;
                                 scope.targetElementSelectedOffset = macroMatchInfo.macroSelectedOffset;
                                 scope.replaceMacro(macroMatchInfo.macroText, macroMatchInfo.macroHasTrailingSpace);
+                            } else if (scope.selectNotFound && currentTypedTerm && currentTypedTerm !== '') {
+                                var lastScope = scope.triggerCharMap[scope.currentMentionTriggerChar];
+                                if (lastScope) {
+                                    // just came out of typeahead state
+                                    var text = lastScope.select({
+                                        item: {label: currentTypedTerm}
+                                    });
+                                    if (typeof text.then === 'function') {
+                                        /* text is a promise, at least our best guess */
+                                        text.then(scope.replaceText);
+                                    } else {
+                                        scope.replaceText(text);
+                                    }
+                                }
                             }
                         }
                     }
@@ -788,10 +811,11 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, text, requireLeadingSpace) {
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+                text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
-            var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true);
+            var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true, hasTrailingSpace);
 
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
@@ -908,7 +932,9 @@ angular.module('mentio')
         }
 
         // public
-        function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive) {
+        function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
+            /*jshint maxcomplexity:11 */
+            // yes this function needs refactoring 
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -956,6 +982,9 @@ angular.module('mentio')
                             firstSnippetChar === ' ' ||
                             firstSnippetChar === '\xA0'
                         );
+                    if (hasTrailingSpace) {
+                        currentTriggerSnippet = currentTriggerSnippet.trim();
+                    }
                     if (!leadingSpace && (menuAlreadyActive || !(/[\xA0\s]/g.test(currentTriggerSnippet)))) {
                         return {
                             mentionPosition: mostRecentTriggerCharPos,

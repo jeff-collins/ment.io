@@ -103,7 +103,8 @@ angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
         };
 
         $scope.getPeopleText = function(item) {
-            return '[~<i>' + item.name + '</i>]';
+            // note item.label is sent when the typedText wasn't found
+            return '[~<i>' + (item.name || item.label) + '</i>]';
         };
 
         $scope.getPeopleTextRaw = function(item) {

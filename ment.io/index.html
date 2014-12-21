@@ -45,6 +45,7 @@
                             mentio-typed-term="typedTerm"
                             mentio-macros="macros"
                             mentio-require-leading-space="true"
+                            mentio-select-not-found="true"
                             class="editor form-control"
                             mentio-id="'htmlContent'"
                             id="htmlContent"
@@ -272,6 +273,10 @@
                 <strong>Optional.</strong> Specifies an iframe DOM element within which the ment.io menu will be shown.
                 This is useful for situations where the actual control is a <code>textarea</code>, but the editor is 
                 presented in an iframe, like TinyMCE.
+                <p></p>
+
+                <header class="text-primary documentation-attr">mentio-select-not-found</header>
+                <strong>Optional.</strong> Will run the <code>mentio-select</code> function passing a the <code>typedText</code> scope variable in the label property of a JSON object when the typedText will become empty (after a space was typed, for instance).  This is useful for creating new items dynamically even if they do not exist in your backend service yet (e.g. tags).
                 <p></p>
 
                  <h4 class="section-heading">Provided Scope Properties</h4>
