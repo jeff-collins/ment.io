@@ -346,9 +346,9 @@ angular.module('mentio', [])
                     'ngModel',
                     function (newValue) {
                         /*jshint maxcomplexity:14 */
-                        /*jshint maxstatements:38 */
+                        /*jshint maxstatements:39 */
                         // yes this function needs refactoring 
-                        if (!newValue || newValue === '') {
+                        if ((!newValue || newValue === '') && !scope.isActive()) {
                             // ignore while setting up
                             return;
                         }
@@ -374,6 +374,8 @@ angular.module('mentio', [])
 
                         var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet, 
                             scope.requireLeadingSpace, isActive);
+
+                        console.log('mentionInfo=', mentionInfo);
 
                         if (mentionInfo !== undefined && 
                                 (
