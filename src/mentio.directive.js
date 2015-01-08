@@ -375,8 +375,6 @@ angular.module('mentio', [])
                         var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet, 
                             scope.requireLeadingSpace, isActive);
 
-                        console.log('mentionInfo=', mentionInfo);
-
                         if (mentionInfo !== undefined && 
                                 (
                                     !isActive || 
