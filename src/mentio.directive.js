@@ -572,6 +572,10 @@ angular.module('mentio', [])
                     }
                 });
 
+                scope.parentMentio.$on('$destroy', function () {
+                    element.remove();
+                });
+
                 scope.hideMenu = function () {
                     scope.visible = false;
                     element.css('display', 'none');
