@@ -611,7 +611,6 @@ angular.module('mentio', [])
                 });
 
                 element.bind('click', function (e) {
-                    e.preventDefault();
                     controller.selectItem(scope.item);
                     return false;
                 });
