@@ -24,7 +24,6 @@ angular.module('mentio', [])
                     var remoteScope = $scope.triggerCharMap[triggerChar];
 
                     if ($scope.trimTerm === undefined || $scope.trimTerm) {
-                        console.log('trimming');
                         triggerText = triggerText.trim();
                     }
 
