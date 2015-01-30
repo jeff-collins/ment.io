@@ -14,7 +14,7 @@ describe('mentio-menu', function () {
         $timeout = _$timeout_;
         mentioUtilService = mentioUtil;
 
-        $templateCache.put('/people-mentions.tpl', 
+        $templateCache.put('/people-mentions.tpl',
                 '<div>' +
                 '<li mentio-menu-item="person" ng-repeat="person in items">' +
                 '   <img ng-src="{{person.imageUrl}}"><p class="name">{{person.name}}</p>' +
@@ -54,7 +54,7 @@ describe('mentio-menu', function () {
 
     function createMentioMenu(scope) {
         scope.mockItemsSource = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'}
         ];
 
@@ -92,7 +92,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(textarea[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -156,6 +156,23 @@ describe('mentio-menu', function () {
         compareItems($scope.mockItems, mentioScope.triggerCharMap['@']);
     });
 
+    it('should scrollIntoView when adjustScroll is called', function() {
+        createMentio($scope);
+
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var activeMenuScope = mentioScope.getActiveMenuScope();
+        var activeItemEl = document.querySelector('mentio-menu li.active')
+        var scrollIntoViewSpy = spyOn(activeItemEl, 'scrollIntoView');
+
+        activeMenuScope.adjustScroll();
+
+        expect(scrollIntoViewSpy).toHaveBeenCalled();
+    });
+
     it('should return valid coordinates for textarea/input underline position', function () {
 
         var textarea = angular.element('<textarea ng-trim="false">123</textarea>');
@@ -196,14 +213,14 @@ describe('mentio-menu', function () {
 
         textarea[0].selectionStart = 1;
         textarea[0].selectionEnd = 1;
- 
+
         text = mentioUtilService.getTextPrecedingCurrentSelection();
 
         expect(text).toEqual('1');
 
         textarea[0].selectionStart = 2;
         textarea[0].selectionEnd = 2;
- 
+
         text = mentioUtilService.getTextPrecedingCurrentSelection();
 
         expect(text).toEqual('12');
@@ -305,7 +322,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -365,7 +382,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -396,7 +413,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -425,13 +442,13 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
 
         var macros = {
-            brb: 'Be right back', 
+            brb: 'Be right back',
             omw: 'On my way'
          };
 
@@ -451,7 +468,7 @@ describe('mentio-menu', function () {
 
         mentioUtilService.replaceMacroText(null, elem[0], [0], 7, macros, 'On my way');
         expect(elem.val()).toEqual('123 On my way abc');
-    });    
+    });
 
     it('should be visible after scroll', function () {
         var first = angular.element('<div mentio contenteditable mentio-items="mockItems" ng-trim="false">123 brb abc</div>');
@@ -488,13 +505,13 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
 
         $scope.macros = {
-            brb: 'Be right back', 
+            brb: 'Be right back',
             omw: 'On my way'
          };
 
