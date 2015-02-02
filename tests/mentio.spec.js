@@ -186,6 +186,82 @@ describe('mentio-menu', function () {
         expect(searchSpy).toHaveBeenCalledWith({ term : 'test1 ' });
     });
 
+    it('should have a working isFirstItemActive method', function() {
+        createMentio($scope);
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var menu = mentioScope.getActiveMenuScope();
+        expect(menu.isFirstItemActive()).toBe(true);
+
+        menu.activateNextItem();
+        expect(menu.isFirstItemActive()).toBe(false);
+    });
+
+    it('should have a working isLastItemActive method', function() {
+        createMentio($scope);
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var menu = mentioScope.getActiveMenuScope();
+        expect(menu.isLastItemActive()).toBe(false);
+
+        menu.activatePreviousItem();
+        expect(menu.isLastItemActive()).toBe(true);
+    });
+
+    it('should have a working adjustScroll method', function() {
+        var menuItemsListEl = {
+            scrollTop: 0,
+            scrollHeight: 90
+        };
+
+        var menuItemEl = {
+            offsetHeight: 30
+        };
+
+        createMentio($scope);
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var menuScope = mentioScope.getActiveMenuScope();
+
+        menuScope.items = [{ label: 'test1' }, { label: 'test2' }, { label: 'test3' }];
+        menuScope.$apply();
+
+        var menuEl = document.querySelector('mentio-menu');
+        var querySpy = spyOn(menuEl, 'querySelector').andCallFake(function(sel) {
+            if (sel === 'ul') return menuItemsListEl;
+
+            return menuItemEl;
+        });
+
+        // First item active
+        menuScope.adjustScroll(1);
+        expect(menuItemsListEl.scrollTop).toBe(0);
+
+        // Second item active
+        menuScope.activateNextItem();
+        menuScope.adjustScroll(1);
+        expect(menuItemsListEl.scrollTop).toBe(30);
+
+        // Third item active
+        menuScope.activateNextItem();
+        menuScope.adjustScroll(1);
+        expect(menuItemsListEl.scrollTop).toBe(90);
+
+        // Previous (second) item active
+        menuScope.activatePreviousItem();
+        menuScope.adjustScroll(-1);
+        expect(menuItemsListEl.scrollTop).toBe(60);
+    });
+
     it('should return valid coordinates for textarea/input underline position', function () {
 
         var textarea = angular.element('<textarea ng-trim="false">123</textarea>');

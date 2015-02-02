@@ -225,6 +225,7 @@ angular.module('mentio', [])
                                 activeMenuScope.$apply(function () {
                                     activeMenuScope.activateNextItem();
                                 });
+                                activeMenuScope.adjustScroll(1);
                             }
 
                             if (event.which === 38) {
@@ -232,6 +233,7 @@ angular.module('mentio', [])
                                 activeMenuScope.$apply(function () {
                                     activeMenuScope.activatePreviousItem();
                                 });
+                                activeMenuScope.adjustScroll(-1);
                             }
 
                             if (event.which === 37 || event.which === 39) {
@@ -306,6 +308,7 @@ angular.module('mentio', [])
                             activeMenuScope.$apply(function () {
                                 activeMenuScope.activateNextItem();
                             });
+                            activeMenuScope.adjustScroll(1);
                             return false;
                         }
 
@@ -314,6 +317,7 @@ angular.module('mentio', [])
                             activeMenuScope.$apply(function () {
                                 activeMenuScope.activatePreviousItem();
                             });
+                            activeMenuScope.adjustScroll(-1);
                             return false;
                         }
 
@@ -500,6 +504,18 @@ angular.module('mentio', [])
                     this.activate($scope.items[index === 0 ? $scope.items.length - 1 : index - 1]);
                 };
 
+                $scope.isFirstItemActive = function () {
+                    var index = $scope.items.indexOf($scope.activeItem);
+
+                    return index === 0;
+                };
+
+                $scope.isLastItemActive = function () {
+                    var index = $scope.items.indexOf($scope.activeItem);
+
+                    return index === ($scope.items.length - 1);
+                };
+
                 $scope.selectActive = function () {
                     $scope.selectItem($scope.activeItem);
                 };
@@ -587,6 +603,24 @@ angular.module('mentio', [])
                     element.css('display', 'none');
                 };
 
+                scope.adjustScroll = function (direction) {
+                    var menuEl = element[0];
+                    var menuItemsList = menuEl.querySelector('ul');
+                    var menuItem = menuEl.querySelector('[mentio-menu-item].active');
+
+                    if (scope.isFirstItemActive()) {
+                        return menuItemsList.scrollTop = 0;
+                    } else if(scope.isLastItemActive()) {
+                        return menuItemsList.scrollTop = menuItemsList.scrollHeight;
+                    }
+
+                    if (direction === 1) {
+                        menuItemsList.scrollTop += menuItem.offsetHeight;
+                    } else {
+                        menuItemsList.scrollTop -= menuItem.offsetHeight;
+                    }
+                };
+
             }
         };
     }])
@@ -616,7 +650,7 @@ angular.module('mentio', [])
                     });
                 });
 
-                element.bind('click', function (e) {
+                element.bind('click', function () {
                     controller.selectItem(scope.item);
                     return false;
                 });
