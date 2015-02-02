@@ -45,64 +45,6 @@ angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
                 ' height="20" width="20">'
         };
 
-        $scope.keypress = function(event) {
-            var prevSib = function(node) {
-                console.log('checking previous sibling', node.textContent);
-                while(node && 
-                    (node.textContent === '' || node.textContent === '\xA0' || node.textContent === ' ')) {
-                    node = node.previousSibling;
-                    if (node) {
-                        console.log('previous node text content', node.textContent);
-                    }
-                };
-                return node;
-            };
-            console.log('keypress=', event.which);
-            var sel = window.getSelection();
-            var selectStart = sel.anchorNode;
-            var selectEnd = sel.focusNode;
-            var selectionInTag = 
-                angular.element(selectStart.parentNode.parentNode).hasClass('token-input-token-facebook') ||
-                angular.element(selectEnd.parentNode.parentNode).hasClass('token-input-token-facebook');
-
-            console.log(sel);
-            if (event.which === 13 || selectionInTag) {
-                event.preventDefault();
-            } else if (event.which === 8 && sel.isCollapsed) {
-                var tagToDelete;
-                if (sel.anchorNode.nodeName === '#text') {
-                    console.log('checking text node', sel.anchorNode.textContent);
-                    var prev = prevSib(sel.anchorNode);
-                    if (angular.element(prev).hasClass('token-input-token-facebook')) {
-                        tagToDelete = prev;
-                        console.log('text next to tag');
-                    }
-                } else {
-                    console.log('checking stats', sel.anchorNode.contentEditable, sel.anchorOffset, sel.anchorNode.nodeName, sel.anchorNode.childNodes);
-                    if (sel.anchorNode.contentEditable === 'true' && sel.anchorOffset > 0) { 
-                        var prev = prevSib(sel.anchorNode.childNodes[sel.anchorOffset-1]);                    
-                        if (angular.element(prev).hasClass('token-input-token-facebook')) {
-                            tagToDelete = prev;
-                            console.log('top level delete');
-                        }
-                    }
-                }
-                if (tagToDelete) {
-                    tagToDelete.parentNode.removeChild(tagToDelete);
-                    event.preventDefault();
-                }
-            }
-        };
-
-        $scope.mousedown = function(event) {
-            if (angular.element(event.toElement).hasClass('token-input-delete-token-facebook')) {
-                event.toElement.parentNode.parentNode.removeChild(event.toElement.parentNode);
-                event.preventDefault();
-            } else if (angular.element(event.toElement.parentNode).hasClass('token-input-token-facebook')) {
-                event.preventDefault();
-            }
-        };
-
         // shows the use of dynamic values in mentio-id and mentio-for to link elements
         $scope.myIndexValue = "5";
 
@@ -147,12 +89,6 @@ angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
 
         $scope.getProductText = function(item) {
             return '[~<strong>' + item.sku + '</strong>]';
-        };
-
-        $scope.makeTag = function(item) {
-            return '<span class="token-input-token-facebook">' + 
-                '<p>' + item.label + '</p>' +
-                '<span class="token-input-delete-token-facebook">×</span></span>&nbsp;';
         };
 
         $scope.getProductTextRaw = function(item) {
