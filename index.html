@@ -132,6 +132,21 @@
                     </div>
 
                     <div class="form-group">
+                        <h3>No trigger chars:</h3>
+                        <div contenteditable mentio
+                            mentio-typed-term="typedTerm"
+                            mentio-items="simplePeople | filter:label:typedTerm"
+                            mentio-no-trigger-char="true"
+                            mentio-select="makeTag(item)"
+                            class="form-control"
+                            ng-model="exampleNoTriggerChar"
+                            ng-keydown="keypress($event)"
+                            ng-mousedown="mousedown($event)"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <h3>TinyMCE (iframe-based):</h3>
                         <textarea ui-tinymce="tinyMceOptions" mentio mentio-typed-text="typedTerm" 
                             mentio-items="simplePeople | filter:label:typedTerm" ng-model='foo'
