@@ -14,7 +14,7 @@ angular.module('mentio')
                     coordinates = getTextAreaOrInputUnderlinePosition(ctx, getDocument(ctx).activeElement,
                         mentionInfo.mentionPosition);
                 } else {
-                    coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition);
+                    coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition, selectionEl);
                 }
 
                 // Move the button into place.
@@ -174,7 +174,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +297,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -398,7 +398,7 @@ angular.module('mentio')
             return text;
         }
 
-        function getContentEditableCaretPosition (ctx, selectedNodePosition) {
+        function getContentEditableCaretPosition (ctx, selectedNodePosition, selectionEl) {
             var markerTextChar = '\ufeff';
             var markerEl, markerId = 'sel_' + new Date().getTime() + '_' + Math.random().toString().substr(2);
 
@@ -425,7 +425,12 @@ angular.module('mentio')
                 top: markerEl.offsetHeight
             };
 
-            localToGlobalCoordinates(ctx, markerEl, coordinates);
+            if (selectionEl[0].parentNode === document.body) {
+                localToGlobalCoordinates(ctx, markerEl, coordinates);
+            } else {
+                coordinates.left += markerEl.offsetLeft;
+                coordinates.top += markerEl.offsetTop;
+            }
 
             markerEl.parentNode.removeChild(markerEl);
             return coordinates;
@@ -446,7 +451,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
