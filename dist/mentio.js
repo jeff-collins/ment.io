@@ -520,7 +520,8 @@ angular.module('mentio', [])
                     $scope.selectItem($scope.activeItem);
                 };
 
-                $scope.isVisible = function () {
+                // callable both with controller (menuItem) and without controller (local)
+                this.isVisible = $scope.isVisible = function () {
                     return $scope.visible;
                 };
 
