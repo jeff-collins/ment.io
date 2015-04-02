@@ -19,7 +19,7 @@ angular.module('mentio')
 
                 // Move the button into place.
                 selectionEl.css({
-                    top: coordinates.top + 'px',
+                    top: (coordinates.top - selectionEl[0].scrollHeight - 20) + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 100,
@@ -34,6 +34,13 @@ angular.module('mentio')
                     display: 'none'
                 });
             }
+        }
+
+        function updatePositionTop(selectionEl, newHeight, oldHeight) {
+            var currentTop = selectionEl[0].offsetTop;
+            selectionEl.css({
+                top: (currentTop - newHeight + oldHeight) + 'px'
+            });
         }
 
         function scrollIntoView(ctx, elem)
@@ -174,7 +181,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +304,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -446,7 +453,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
@@ -537,6 +544,7 @@ angular.module('mentio')
         return {
             // public
             popUnderMention: popUnderMention,
+            updatePositionTop: updatePositionTop,
             replaceMacroText: replaceMacroText,
             replaceTriggerText: replaceTriggerText,
             getMacroMatch: getMacroMatch,

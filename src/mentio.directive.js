@@ -572,6 +572,14 @@ angular.module('mentio', [])
                     }
                 );
 
+                scope.$watch(function() {
+                    return element[0].scrollHeight;
+                }, function(newValue, oldValue) {
+                    if(newValue!==oldValue) {
+                        mentioUtil.updatePositionTop(element, newValue, oldValue);
+                    }
+                });
+
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
                         scope.activate(items[0]);
