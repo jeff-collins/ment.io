@@ -572,19 +572,21 @@ angular.module('mentio', [])
                             triggerCharSet.push(scope.triggerChar);
                             mentioUtil.popUnderMention(scope.parentMentio.context(),
                                 triggerCharSet, element, scope.requireLeadingSpace,
-                                scope.parentScope.displayAbove());
+                                scope.parentScope ? scope.parentScope.displayAbove(): false);
                         }
                     }
                 );
 
-                if(scope.parentScope.displayAbove()) {
-                    scope.$watch(function() {
-                        return element[0].scrollHeight;
-                    }, function(newValue, oldValue) {
-                        if(newValue!==oldValue) {
-                            mentioUtil.updatePositionTop(element, newValue, oldValue);
-                        }
-                    });
+                if (scope.parentScope) {
+                    if (scope.parentScope.displayAbove()) {
+                        scope.$watch(function() {
+                            return element[0].scrollHeight;
+                        }, function(newValue, oldValue) {
+                            if(newValue!==oldValue) {
+                                mentioUtil.updatePositionTop(element, newValue, oldValue);
+                            }
+                        });
+                    }
                 }
 
                 scope.$watch('items', function (items) {
@@ -606,7 +608,7 @@ angular.module('mentio', [])
                         triggerCharSet.push(scope.triggerChar);
                         mentioUtil.popUnderMention(scope.parentMentio.context(),
                             triggerCharSet, element, scope.requireLeadingSpace,
-                            scope.parentScope.displayAbove());
+                            scope.parentScope ? scope.parentScope.displayAbove() : false);
                     }
                 });
 
