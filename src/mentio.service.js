@@ -4,7 +4,7 @@ angular.module('mentio')
     .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
+        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace, above) {
             var coordinates;
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
 
@@ -18,9 +18,13 @@ angular.module('mentio')
                 }
 
                 // Move the button into place.
-                var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
+                var topCoordinate = coordinates.top;
+                if (above) {
+                    var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
+                    topCoordinate -= selectionEl[0] + textFontSize;
+                }
                 selectionEl.css({
-                    top: (coordinates.top - selectionEl[0].scrollHeight - textFontSize) + 'px',
+                    top: topCoordinate + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 100,

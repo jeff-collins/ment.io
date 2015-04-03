@@ -571,7 +571,8 @@ angular.module('mentio', [])
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
                             mentioUtil.popUnderMention(scope.parentMentio.context(),
-                                triggerCharSet, element, scope.requireLeadingSpace);
+                                triggerCharSet, element, scope.requireLeadingSpace,
+                                scope.parentScope.displayAbove());
                         }
                     }
                 );
@@ -604,7 +605,8 @@ angular.module('mentio', [])
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
                         mentioUtil.popUnderMention(scope.parentMentio.context(),
-                            triggerCharSet, element, scope.requireLeadingSpace);
+                            triggerCharSet, element, scope.requireLeadingSpace,
+                            scope.parentScope.displayAbove());
                     }
                 });
 
@@ -699,7 +701,7 @@ angular.module('mentio')
     .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
+        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace, above) {
             var coordinates;
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
 
@@ -713,9 +715,13 @@ angular.module('mentio')
                 }
 
                 // Move the button into place.
-                var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
+                var topCoordinate = coordinates.top;
+                if (above) {
+                    var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
+                    topCoordinate -= selectionEl[0] + textFontSize;
+                }
                 selectionEl.css({
-                    top: (coordinates.top - selectionEl[0].scrollHeight - textFontSize) + 'px',
+                    top: topCoordinate + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 100,
