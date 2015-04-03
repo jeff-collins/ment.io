@@ -76,6 +76,10 @@ angular.module('mentio', [])
                     }
                 };
 
+                $scope.displayAbove =  function() {
+                    return $attrs.mentioMenuPosition === 'top';
+                };
+
                 $scope.replaceText = function (text, hasTrailingSpace) {
                     $scope.hideAll();
 
@@ -567,10 +571,23 @@ angular.module('mentio', [])
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
                             mentioUtil.popUnderMention(scope.parentMentio.context(),
-                                triggerCharSet, element, scope.requireLeadingSpace);
+                                triggerCharSet, element, scope.requireLeadingSpace,
+                                scope.parentScope ? scope.parentScope.displayAbove(): false);
                         }
                     }
                 );
+
+                if (scope.parentScope) {
+                    if (scope.parentScope.displayAbove()) {
+                        scope.$watch(function() {
+                            return element[0].scrollHeight;
+                        }, function(newValue, oldValue) {
+                            if(newValue!==oldValue) {
+                                mentioUtil.updatePositionTop(element, newValue, oldValue);
+                            }
+                        });
+                    }
+                }
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
@@ -590,7 +607,8 @@ angular.module('mentio', [])
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
                         mentioUtil.popUnderMention(scope.parentMentio.context(),
-                            triggerCharSet, element, scope.requireLeadingSpace);
+                            triggerCharSet, element, scope.requireLeadingSpace,
+                            scope.parentScope ? scope.parentScope.displayAbove() : false);
                     }
                 });
 
