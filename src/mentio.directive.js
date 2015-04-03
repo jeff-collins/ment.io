@@ -76,6 +76,10 @@ angular.module('mentio', [])
                     }
                 };
 
+                $scope.displayAbove =  function() {
+                    return $attrs.mentioMenuPosition === 'top';
+                };
+
                 $scope.replaceText = function (text, hasTrailingSpace) {
                     $scope.hideAll();
 
@@ -572,13 +576,15 @@ angular.module('mentio', [])
                     }
                 );
 
-                scope.$watch(function() {
-                    return element[0].scrollHeight;
-                }, function(newValue, oldValue) {
-                    if(newValue!==oldValue) {
-                        mentioUtil.updatePositionTop(element, newValue, oldValue);
-                    }
-                });
+                if(scope.parentScope.displayAbove()) {
+                    scope.$watch(function() {
+                        return element[0].scrollHeight;
+                    }, function(newValue, oldValue) {
+                        if(newValue!==oldValue) {
+                            mentioUtil.updatePositionTop(element, newValue, oldValue);
+                        }
+                    });
+                }
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
