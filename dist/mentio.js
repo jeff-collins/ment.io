@@ -76,6 +76,10 @@ angular.module('mentio', [])
                     }
                 };
 
+                $scope.displayAbove =  function() {
+                    return $attrs.mentioMenuPosition === 'top';
+                };
+
                 $scope.replaceText = function (text, hasTrailingSpace) {
                     $scope.hideAll();
 
@@ -572,13 +576,16 @@ angular.module('mentio', [])
                     }
                 );
 
-                scope.$watch(function() {
-                    return element[0].scrollHeight;
-                }, function(newValue, oldValue) {
-                    if(newValue!==oldValue) {
-                        mentioUtil.updatePositionTop(element, newValue, oldValue);
-                    }
-                });
+                if(scope.parentScope.displayAbove()) {
+                    scope.$watch(function() {
+                        return element[0].scrollHeight;
+                    }, function(newValue, oldValue) {
+                        if(newValue!==oldValue) {
+                            mentioUtil.updatePositionTop(element, newValue, oldValue);
+                        }
+                    });
+                }
+
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
                         scope.activate(items[0]);
@@ -706,8 +713,9 @@ angular.module('mentio')
                 }
 
                 // Move the button into place.
+                var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
                 selectionEl.css({
-                    top: (coordinates.top - selectionEl[0].scrollHeight - 20) + 'px',
+                    top: (coordinates.top - selectionEl[0].scrollHeight - textFontSize) + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 100,
@@ -721,6 +729,23 @@ angular.module('mentio')
                 selectionEl.css({
                     display: 'none'
                 });
+            }
+        }
+
+        function _getStyle(el, styleProp) {
+            var camelize = function (str) {
+                return str.replace(/\-(\w)/g, function(str, letter){
+                    return letter.toUpperCase();
+                });
+            };
+
+            if (el.currentStyle) {
+                return el.currentStyle[camelize(styleProp)];
+            } else if (document.defaultView && document.defaultView.getComputedStyle) {
+                return document.defaultView.getComputedStyle(el,null)
+                                           .getPropertyValue(styleProp);
+            } else {
+                return el.style[camelize(styleProp)];
             }
         }
 
