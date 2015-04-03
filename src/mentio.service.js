@@ -18,8 +18,9 @@ angular.module('mentio')
                 }
 
                 // Move the button into place.
+                var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
                 selectionEl.css({
-                    top: (coordinates.top - selectionEl[0].scrollHeight - 20) + 'px',
+                    top: (coordinates.top - selectionEl[0].scrollHeight - textFontSize) + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 100,
@@ -33,6 +34,23 @@ angular.module('mentio')
                 selectionEl.css({
                     display: 'none'
                 });
+            }
+        }
+
+        function _getStyle(el, styleProp) {
+            var camelize = function (str) {
+                return str.replace(/\-(\w)/g, function(str, letter){
+                    return letter.toUpperCase();
+                });
+            };
+
+            if (el.currentStyle) {
+                return el.currentStyle[camelize(styleProp)];
+            } else if (document.defaultView && document.defaultView.getComputedStyle) {
+                return document.defaultView.getComputedStyle(el,null)
+                                           .getPropertyValue(styleProp);
+            } else {
+                return el.style[camelize(styleProp)];
             }
         }
 
