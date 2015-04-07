@@ -580,7 +580,7 @@ angular.module('mentio', [])
                 if (scope.parentScope) {
                     if (scope.parentScope.displayAbove()) {
                         scope.$watch(function() {
-                            return element[0].offsetHeight;
+                            return element[0].scrollHeight;
                         }, function(newValue, oldValue) {
                             if(newValue!==oldValue) {
                                 mentioUtil.updatePositionTop(element, newValue, oldValue);
@@ -720,7 +720,7 @@ angular.module('mentio')
                 var topCoordinate = coordinates.top;
                 if (above) {
                     var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
-                    topCoordinate -= selectionEl[0].offsetHeight + textFontSize;
+                    topCoordinate -= selectionEl[0].scrollHeight + textFontSize;
                 }
                 selectionEl.css({
                     top: topCoordinate + 'px',
