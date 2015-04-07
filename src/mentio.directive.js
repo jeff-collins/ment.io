@@ -580,7 +580,7 @@ angular.module('mentio', [])
                 if (scope.parentScope) {
                     if (scope.parentScope.displayAbove()) {
                         scope.$watch(function() {
-                            return element[0].scrollHeight;
+                            return element[0].offsetHeight;
                         }, function(newValue, oldValue) {
                             if(newValue!==oldValue) {
                                 mentioUtil.updatePositionTop(element, newValue, oldValue);

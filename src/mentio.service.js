@@ -21,7 +21,7 @@ angular.module('mentio')
                 var topCoordinate = coordinates.top;
                 if (above) {
                     var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
-                    topCoordinate -= selectionEl[0] + textFontSize;
+                    topCoordinate -= selectionEl[0].offsetHeight + textFontSize;
                 }
                 selectionEl.css({
                     top: topCoordinate + 'px',
