@@ -76,6 +76,10 @@ angular.module('mentio', [])
                     }
                 };
 
+                $scope.displayAbove =  function() {
+                    return $attrs.mentioMenuPosition === 'top';
+                };
+
                 $scope.replaceText = function (text, hasTrailingSpace) {
                     $scope.hideAll();
 
@@ -567,10 +571,23 @@ angular.module('mentio', [])
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
                             mentioUtil.popUnderMention(scope.parentMentio.context(),
-                                triggerCharSet, element, scope.requireLeadingSpace);
+                                triggerCharSet, element, scope.requireLeadingSpace,
+                                scope.parentScope ? scope.parentScope.displayAbove(): false);
                         }
                     }
                 );
+
+                if (scope.parentScope) {
+                    if (scope.parentScope.displayAbove()) {
+                        scope.$watch(function() {
+                            return element[0].scrollHeight;
+                        }, function(newValue, oldValue) {
+                            if(newValue!==oldValue) {
+                                mentioUtil.updatePositionTop(element, newValue, oldValue);
+                            }
+                        });
+                    }
+                }
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
@@ -590,7 +607,8 @@ angular.module('mentio', [])
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
                         mentioUtil.popUnderMention(scope.parentMentio.context(),
-                            triggerCharSet, element, scope.requireLeadingSpace);
+                            triggerCharSet, element, scope.requireLeadingSpace,
+                            scope.parentScope ? scope.parentScope.displayAbove() : false);
                     }
                 });
 
@@ -685,7 +703,7 @@ angular.module('mentio')
     .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
+        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace, above) {
             var coordinates;
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
 
@@ -699,8 +717,13 @@ angular.module('mentio')
                 }
 
                 // Move the button into place.
+                var topCoordinate = coordinates.top;
+                if (above) {
+                    var textFontSize = _getStyle(getDocument(ctx).activeElement, 'font-size').replace('px', '');
+                    topCoordinate -= selectionEl[0].scrollHeight + textFontSize;
+                }
                 selectionEl.css({
-                    top: coordinates.top + 'px',
+                    top: topCoordinate + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 100,
@@ -715,6 +738,30 @@ angular.module('mentio')
                     display: 'none'
                 });
             }
+        }
+
+        function _getStyle(el, styleProp) {
+            var camelize = function (str) {
+                return str.replace(/\-(\w)/g, function(str, letter){
+                    return letter.toUpperCase();
+                });
+            };
+
+            if (el.currentStyle) {
+                return el.currentStyle[camelize(styleProp)];
+            } else if (document.defaultView && document.defaultView.getComputedStyle) {
+                return document.defaultView.getComputedStyle(el,null)
+                                           .getPropertyValue(styleProp);
+            } else {
+                return el.style[camelize(styleProp)];
+            }
+        }
+
+        function updatePositionTop(selectionEl, newHeight, oldHeight) {
+            var currentTop = selectionEl[0].offsetTop;
+            selectionEl.css({
+                top: (currentTop - newHeight + oldHeight) + 'px'
+            });
         }
 
         function scrollIntoView(ctx, elem)
@@ -855,7 +902,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -978,7 +1025,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -1127,7 +1174,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
@@ -1218,6 +1265,7 @@ angular.module('mentio')
         return {
             // public
             popUnderMention: popUnderMention,
+            updatePositionTop: updatePositionTop,
             replaceMacroText: replaceMacroText,
             replaceTriggerText: replaceTriggerText,
             getMacroMatch: getMacroMatch,
