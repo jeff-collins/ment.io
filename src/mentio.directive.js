@@ -19,6 +19,49 @@ angular.module('mentio', [])
             },
             controller: function($scope, $timeout, $attrs) {
 
+                function handleDocumentClick() {
+                    if ($scope.isActive()) {
+                        $scope.$apply(function () {
+                            $scope.hideAll();
+                        });
+                    }
+                };
+
+                function handleDocumentInput(event) {
+                    var activeMenuScope = $scope.getActiveMenuScope();
+                    if (activeMenuScope) {
+                        if (event.which === 9 || event.which === 13) {
+                            event.preventDefault();
+                            activeMenuScope.selectActive();
+                        }
+
+                        if (event.which === 27) {
+                            event.preventDefault();
+                            activeMenuScope.$apply(function () {
+                                activeMenuScope.hideMenu();
+                            });
+                        }
+
+                        if (event.which === 40) {
+                            event.preventDefault();
+                            activeMenuScope.$apply(function () {
+                                activeMenuScope.activateNextItem();
+                            });
+                        }
+
+                        if (event.which === 38) {
+                            event.preventDefault();
+                            activeMenuScope.$apply(function () {
+                                activeMenuScope.activatePreviousItem();
+                            });
+                        }
+
+                        if (event.which === 37 || event.which === 39) {
+                            event.preventDefault();
+                         }
+                    }
+                };
+
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.triggerCharMap[triggerChar];
                     remoteScope.showMenu();
@@ -188,52 +231,13 @@ angular.module('mentio', [])
                     }
                 );
 
-                $document.on(
-                    'click', function () {
-                        if ($scope.isActive()) {
-                            $scope.$apply(function () {
-                                $scope.hideAll();
-                            });
-                        }
-                    }
-                );
+                $document.on('click', handleDocumentClick);
+                $document.on('keydown keypress paste', handleDocumentInput);
 
-                $document.on(
-                    'keydown keypress paste', function (event) {
-                        var activeMenuScope = $scope.getActiveMenuScope();
-                        if (activeMenuScope) {
-                            if (event.which === 9 || event.which === 13) {
-                                event.preventDefault();
-                                activeMenuScope.selectActive();
-                            }
-
-                            if (event.which === 27) {
-                                event.preventDefault();
-                                activeMenuScope.$apply(function () {
-                                    activeMenuScope.hideMenu();
-                                });
-                            }
-
-                            if (event.which === 40) {
-                                event.preventDefault();
-                                activeMenuScope.$apply(function () {
-                                    activeMenuScope.activateNextItem();
-                                });
-                            }
-
-                            if (event.which === 38) {
-                                event.preventDefault();
-                                activeMenuScope.$apply(function () {
-                                    activeMenuScope.activatePreviousItem();
-                                });
-                            }
-
-                            if (event.which === 37 || event.which === 39) {
-                                event.preventDefault();
-                             }
-                        }
-                    }
-                );
+                $scope.$on('$destroy', function () {
+                    $document.off('click', handleDocumentClick);
+                    $document.off('keydown keypress paste', handleDocumentInput);
+                });
             },
             link: function (scope, element, attrs) {
                 scope.triggerCharMap = {};
