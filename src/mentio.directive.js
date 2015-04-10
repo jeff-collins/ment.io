@@ -574,6 +574,8 @@ angular.module('mentio', [])
 
                 scope.parentMentio.$on('$destroy', function () {
                     element.remove();
+                    angular.element($window).unbind('resize', handleResize);
+                    scope.menuElement = null;
                 });
 
                 scope.hideMenu = function () {
@@ -593,6 +595,16 @@ angular.module('mentio', [])
             },
             require: '^mentioMenu',
             link: function (scope, element, attrs, controller) {
+                function handleMouseEnter() {
+                    scope.$apply(function () {
+                        controller.activate(scope.item);
+                    });
+                };
+
+                function handleClick(e) {
+                    e.preventDefault();
+                    controller.selectItem(scope.item);
+                };
 
                 scope.$watch(function () {
                     return controller.isActive(scope.item);
@@ -604,16 +616,12 @@ angular.module('mentio', [])
                     }
                 });
 
-                element.bind('mouseenter', function () {
-                    scope.$apply(function () {
-                        controller.activate(scope.item);
-                    });
-                });
+                element.bind('mouseenter', handleMouseEnter);
+                element.bind('click', handleClick);
 
-                element.bind('click', function (e) {
-                    e.preventDefault();
-                    controller.selectItem(scope.item);
-                    return false;
+                scope.$on('$destroy', function () {
+                    element.unbind('mouseenter', handleMouseEnter);
+                    element.unbind('click', handleClick);
                 });
             }
         };
