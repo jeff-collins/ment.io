@@ -316,25 +316,22 @@ angular.module('mentio')
                 var mostRecentTriggerCharPos = -1;
                 var triggerChar;
                 triggerCharSet.forEach(function(c) {
-                    var idx = effectiveRange.lastIndexOf(c);
+                    var idx;
+                    if (requireLeadingSpace) {
+                        idx = Math.max(
+                            effectiveRange.lastIndexOf(' ' + c),
+                            effectiveRange.lastIndexOf('\xA0' + c),
+                            effectiveRange && effectiveRange.charAt(0) === c ? 0 : -1
+                        );
+                    } else {
+                        idx = effectiveRange.lastIndexOf(c);
+                    }
                     if (idx > mostRecentTriggerCharPos) {
                         mostRecentTriggerCharPos = idx;
                         triggerChar = c;
                     }
                 });
-                if (mostRecentTriggerCharPos >= 0 &&
-                        (
-                            mostRecentTriggerCharPos === 0 ||
-                            !requireLeadingSpace ||
-                            /[\xA0\s]/g.test
-                            (
-                                effectiveRange.substring(
-                                    mostRecentTriggerCharPos - 1,
-                                    mostRecentTriggerCharPos)
-                            )
-                        )
-                    )
-                {
+                if (mostRecentTriggerCharPos >= 0) {
                     var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
                         effectiveRange.length);
 
