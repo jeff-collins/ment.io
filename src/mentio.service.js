@@ -320,6 +320,7 @@ angular.module('mentio')
                     if (requireLeadingSpace) {
                         idx = Math.max(
                             effectiveRange.lastIndexOf(' ' + c),
+                            effectiveRange.lastIndexOf('\n' + c),
                             effectiveRange.lastIndexOf('\xA0' + c));
                         if (idx < 0) {
                             idx = effectiveRange && effectiveRange.charAt(0) === c ? 0 : -1;
@@ -343,6 +344,7 @@ angular.module('mentio')
                     var leadingSpace = currentTriggerSnippet.length > 0 &&
                         (
                             firstSnippetChar === ' ' ||
+                            firstSnippetChar === '\n' ||
                             firstSnippetChar === '\xA0'
                         );
                     if (hasTrailingSpace) {
