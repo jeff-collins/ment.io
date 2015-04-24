@@ -174,7 +174,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +297,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -316,25 +316,26 @@ angular.module('mentio')
                 var mostRecentTriggerCharPos = -1;
                 var triggerChar;
                 triggerCharSet.forEach(function(c) {
-                    var idx = effectiveRange.lastIndexOf(c);
+                    var idx;
+                    if (requireLeadingSpace) {
+                        idx = Math.max(
+                            effectiveRange.lastIndexOf(' ' + c),
+                            effectiveRange.lastIndexOf('\n' + c),
+                            effectiveRange.lastIndexOf('\xA0' + c));
+                        if (idx < 0) {
+                            idx = effectiveRange && effectiveRange.charAt(0) === c ? 0 : -1;
+                        } else {
+                            idx++;
+                        }
+                    } else {
+                        idx = effectiveRange.lastIndexOf(c);
+                    }
                     if (idx > mostRecentTriggerCharPos) {
                         mostRecentTriggerCharPos = idx;
                         triggerChar = c;
                     }
                 });
-                if (mostRecentTriggerCharPos >= 0 &&
-                        (
-                            mostRecentTriggerCharPos === 0 ||
-                            !requireLeadingSpace ||
-                            /[\xA0\s]/g.test
-                            (
-                                effectiveRange.substring(
-                                    mostRecentTriggerCharPos - 1,
-                                    mostRecentTriggerCharPos)
-                            )
-                        )
-                    )
-                {
+                if (mostRecentTriggerCharPos >= 0) {
                     var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
                         effectiveRange.length);
 
@@ -343,6 +344,7 @@ angular.module('mentio')
                     var leadingSpace = currentTriggerSnippet.length > 0 &&
                         (
                             firstSnippetChar === ' ' ||
+                            firstSnippetChar === '\n' ||
                             firstSnippetChar === '\xA0'
                         );
                     if (hasTrailingSpace) {
@@ -446,7 +448,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
