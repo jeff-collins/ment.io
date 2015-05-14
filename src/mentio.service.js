@@ -185,7 +185,7 @@ angular.module('mentio')
                     var myField = getDocument(ctx).activeElement;
                     text = text + ' ';
                     var startPos = mentionInfo.mentionPosition;
-                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
+                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + mentionInfo.mentionTriggerChar.length;
                     myField.value = myField.value.substring(0, startPos) + text +
                         myField.value.substring(endPos, myField.value.length);
                     myField.selectionStart = startPos + text.length;
@@ -194,7 +194,7 @@ angular.module('mentio')
                     // add a space to the end of the pasted text
                     text = text + '\xA0';
                     pasteHtml(ctx, text, mentionInfo.mentionPosition,
-                            mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
+                            mentionInfo.mentionPosition + mentionInfo.mentionText.length + mentionInfo.mentionTriggerChar.length);
                 }
             }
         }
@@ -316,7 +316,7 @@ angular.module('mentio')
                 var mostRecentTriggerCharPos = -1;
                 var triggerChar;
                 triggerCharSet.forEach(function(c) {
-                    var idx = effectiveRange.lastIndexOf(c);
+                    var idx = c === '' ? 0 : effectiveRange.lastIndexOf(c);
                     if (idx > mostRecentTriggerCharPos) {
                         mostRecentTriggerCharPos = idx;
                         triggerChar = c;
@@ -329,16 +329,16 @@ angular.module('mentio')
                             /[\xA0\s]/g.test
                             (
                                 effectiveRange.substring(
-                                    mostRecentTriggerCharPos - 1,
+                                    mostRecentTriggerCharPos - triggerChar.length,
                                     mostRecentTriggerCharPos)
                             )
                         )
                     )
                 {
-                    var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
+                    var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + triggerChar.length,
                         effectiveRange.length);
 
-                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+1);
+                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+triggerChar.length);
                     var firstSnippetChar = currentTriggerSnippet.substring(0,1);
                     var leadingSpace = currentTriggerSnippet.length > 0 &&
                         (

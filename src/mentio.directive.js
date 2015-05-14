@@ -548,7 +548,7 @@ angular.module('mentio', [])
                         $log.error('mentio-menu requires a target element in tbe mentio-for attribute');
                         return;
                     }
-                    if (!scope.triggerChar) {
+                    if (typeof scope.triggerChar !== 'string') {
                         $log.error('mentio-menu requires a trigger char');
                         return;
                     }
