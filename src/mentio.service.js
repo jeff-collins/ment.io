@@ -185,7 +185,8 @@ angular.module('mentio')
                     var myField = getDocument(ctx).activeElement;
                     text = text + ' ';
                     var startPos = mentionInfo.mentionPosition;
-                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + mentionInfo.mentionTriggerChar.length;
+                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 
+                        mentionInfo.mentionTriggerChar.length;
                     myField.value = myField.value.substring(0, startPos) + text +
                         myField.value.substring(endPos, myField.value.length);
                     myField.selectionStart = startPos + text.length;
@@ -194,7 +195,8 @@ angular.module('mentio')
                     // add a space to the end of the pasted text
                     text = text + '\xA0';
                     pasteHtml(ctx, text, mentionInfo.mentionPosition,
-                            mentionInfo.mentionPosition + mentionInfo.mentionText.length + mentionInfo.mentionTriggerChar.length);
+                            mentionInfo.mentionPosition + mentionInfo.mentionText.length +
+                                mentionInfo.mentionTriggerChar.length);
                 }
             }
         }
@@ -338,7 +340,8 @@ angular.module('mentio')
                     var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + triggerChar.length,
                         effectiveRange.length);
 
-                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+triggerChar.length);
+                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos,
+                        mostRecentTriggerCharPos + triggerChar.length);
                     var firstSnippetChar = currentTriggerSnippet.substring(0,1);
                     var leadingSpace = currentTriggerSnippet.length > 0 &&
                         (
