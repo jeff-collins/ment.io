@@ -328,6 +328,102 @@ angular.module('mentio', [])
                     }
                 }
 
+                function evaluateModelValue(newValue) {
+                    /*jshint maxcomplexity:14 */
+                    /*jshint maxstatements:39 */
+                    // yes this function needs refactoring
+                    if ((!newValue && !(newValue === '' && scope.triggerCharSet.indexOf('') >= 0)) &&
+                            !scope.isActive()) {
+                        // ignore while setting up
+                        return;
+                    }
+                    if (scope.triggerCharSet === undefined) {
+                        $log.error('Error, no mentio-items attribute was provided, ' +
+                            'and no separate mentio-menus were specified.  Nothing to do.');
+                        return;
+                    }
+
+                    if (scope.contentEditableMenuPasted) {
+                        // don't respond to changes from insertion of the menu content
+                        scope.contentEditableMenuPasted = false;
+                        return;
+                    }
+
+                    if (scope.replacingMacro) {
+                        $timeout.cancel(scope.timer);
+                        scope.replacingMacro = false;
+                    }
+
+                    var isActive = scope.isActive();
+                    var isContentEditable = scope.isContentEditable();
+
+                    var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet,
+                        scope.requireLeadingSpace, isActive);
+
+                    if (mentionInfo !== undefined &&
+                            (
+                                !isActive ||
+                                (isActive &&
+                                    (
+                                        /* content editable selection changes to local nodes which
+                                        modifies the start position of the selection over time,
+                                        just consider triggerchar changes which
+                                        will have the odd effect that deleting a trigger char pops
+                                        the menu for a previous
+                                        trigger char sequence if one exists in a content editable */
+                                        (isContentEditable && mentionInfo.mentionTriggerChar ===
+                                            scope.currentMentionTriggerChar) ||
+                                        (!isContentEditable && mentionInfo.mentionPosition ===
+                                            scope.currentMentionPosition)
+                                    )
+                                )
+                            )
+                        )
+                    {
+                        /** save selection info about the target control for later re-selection */
+                        if (mentionInfo.mentionSelectedElement) {
+                            scope.targetElement = mentionInfo.mentionSelectedElement;
+                            scope.targetElementPath = mentionInfo.mentionSelectedPath;
+                            scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
+                        }
+
+                        /* publish to external ngModel */
+                        scope.setTriggerText(mentionInfo.mentionText);
+                        /* remember current position */
+                        scope.currentMentionPosition = mentionInfo.mentionPosition;
+                        scope.currentMentionTriggerChar = mentionInfo.mentionTriggerChar;
+                        /* perform query */
+                        scope.query(mentionInfo.mentionTriggerChar, mentionInfo.mentionText);
+                    } else {
+                        var currentTypedTerm = scope.typedTerm;
+                        scope.setTriggerText('');
+                        scope.hideAll();
+
+                        var macroMatchInfo = mentioUtil.getMacroMatch(scope.context(), scope.macros);
+
+                        if (macroMatchInfo !== undefined) {
+                            scope.targetElement = macroMatchInfo.macroSelectedElement;
+                            scope.targetElementPath = macroMatchInfo.macroSelectedPath;
+                            scope.targetElementSelectedOffset = macroMatchInfo.macroSelectedOffset;
+                            scope.replaceMacro(macroMatchInfo.macroText, macroMatchInfo.macroHasTrailingSpace);
+                        } else if (scope.selectNotFound && currentTypedTerm && currentTypedTerm !== '') {
+                            var lastScope = scope.triggerCharMap[scope.currentMentionTriggerChar];
+                            if (lastScope) {
+                                // just came out of typeahead state
+                                var text = lastScope.select({
+                                    item: {label: currentTypedTerm}
+                                });
+                                if (typeof text.then === 'function') {
+                                    /* text is a promise, at least our best guess */
+                                    text.then(scope.replaceText);
+                                } else {
+                                    scope.replaceText(text, true);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 scope.$watch(
                     'iframeElement', function(newValue) {
                         if (newValue) {
@@ -354,99 +450,12 @@ angular.module('mentio', [])
 
                 scope.$watch(
                     'ngModel',
-                    function (newValue) {
-                        /*jshint maxcomplexity:14 */
-                        /*jshint maxstatements:39 */
-                        // yes this function needs refactoring
-                        if ((!newValue || newValue === '') && !scope.isActive()) {
-                            // ignore while setting up
-                            return;
-                        }
-                        if (scope.triggerCharSet === undefined) {
-                            $log.error('Error, no mentio-items attribute was provided, ' +
-                                'and no separate mentio-menus were specified.  Nothing to do.');
-                            return;
-                        }
+                    evaluateModelValue
+                );
 
-                        if (scope.contentEditableMenuPasted) {
-                            // don't respond to changes from insertion of the menu content
-                            scope.contentEditableMenuPasted = false;
-                            return;
-                        }
-
-                        if (scope.replacingMacro) {
-                            $timeout.cancel(scope.timer);
-                            scope.replacingMacro = false;
-                        }
-
-                        var isActive = scope.isActive();
-                        var isContentEditable = scope.isContentEditable();
-
-                        var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet,
-                            scope.requireLeadingSpace, isActive);
-
-                        if (mentionInfo !== undefined &&
-                                (
-                                    !isActive ||
-                                    (isActive &&
-                                        (
-                                            /* content editable selection changes to local nodes which
-                                            modifies the start position of the selection over time,
-                                            just consider triggerchar changes which
-                                            will have the odd effect that deleting a trigger char pops
-                                            the menu for a previous
-                                            trigger char sequence if one exists in a content editable */
-                                            (isContentEditable && mentionInfo.mentionTriggerChar ===
-                                                scope.currentMentionTriggerChar) ||
-                                            (!isContentEditable && mentionInfo.mentionPosition ===
-                                                scope.currentMentionPosition)
-                                        )
-                                    )
-                                )
-                            )
-                        {
-                            /** save selection info about the target control for later re-selection */
-                            if (mentionInfo.mentionSelectedElement) {
-                                scope.targetElement = mentionInfo.mentionSelectedElement;
-                                scope.targetElementPath = mentionInfo.mentionSelectedPath;
-                                scope.targetElementSelectedOffset = mentionInfo.mentionSelectedOffset;
-                            }
-
-                            /* publish to external ngModel */
-                            scope.setTriggerText(mentionInfo.mentionText);
-                            /* remember current position */
-                            scope.currentMentionPosition = mentionInfo.mentionPosition;
-                            scope.currentMentionTriggerChar = mentionInfo.mentionTriggerChar;
-                            /* perform query */
-                            scope.query(mentionInfo.mentionTriggerChar, mentionInfo.mentionText);
-                        } else {
-                            var currentTypedTerm = scope.typedTerm;
-                            scope.setTriggerText('');
-                            scope.hideAll();
-
-                            var macroMatchInfo = mentioUtil.getMacroMatch(scope.context(), scope.macros);
-
-                            if (macroMatchInfo !== undefined) {
-                                scope.targetElement = macroMatchInfo.macroSelectedElement;
-                                scope.targetElementPath = macroMatchInfo.macroSelectedPath;
-                                scope.targetElementSelectedOffset = macroMatchInfo.macroSelectedOffset;
-                                scope.replaceMacro(macroMatchInfo.macroText, macroMatchInfo.macroHasTrailingSpace);
-                            } else if (scope.selectNotFound && currentTypedTerm && currentTypedTerm !== '') {
-                                var lastScope = scope.triggerCharMap[scope.currentMentionTriggerChar];
-                                if (lastScope) {
-                                    // just came out of typeahead state
-                                    var text = lastScope.select({
-                                        item: {label: currentTypedTerm}
-                                    });
-                                    if (typeof text.then === 'function') {
-                                        /* text is a promise, at least our best guess */
-                                        text.then(scope.replaceText);
-                                    } else {
-                                        scope.replaceText(text, true);
-                                    }
-                                }
-                            }
-                        }
+                scope.targetElement.on(
+                    'focus', function(){
+                        evaluateModelValue(scope.ngModel);
                     }
                 );
             }
@@ -548,7 +557,7 @@ angular.module('mentio', [])
                         $log.error('mentio-menu requires a target element in tbe mentio-for attribute');
                         return;
                     }
-                    if (!scope.triggerChar) {
+                    if (typeof scope.triggerChar !== 'string') {
                         $log.error('mentio-menu requires a trigger char');
                         return;
                     }
@@ -866,7 +875,8 @@ angular.module('mentio')
                     var myField = getDocument(ctx).activeElement;
                     text = text + ' ';
                     var startPos = mentionInfo.mentionPosition;
-                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
+                    var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 
+                        mentionInfo.mentionTriggerChar.length;
                     myField.value = myField.value.substring(0, startPos) + text +
                         myField.value.substring(endPos, myField.value.length);
                     myField.selectionStart = startPos + text.length;
@@ -875,7 +885,8 @@ angular.module('mentio')
                     // add a space to the end of the pasted text
                     text = text + '\xA0';
                     pasteHtml(ctx, text, mentionInfo.mentionPosition,
-                            mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
+                            mentionInfo.mentionPosition + mentionInfo.mentionText.length +
+                                mentionInfo.mentionTriggerChar.length);
                 }
             }
         }
@@ -997,7 +1008,7 @@ angular.module('mentio')
                 var mostRecentTriggerCharPos = -1;
                 var triggerChar;
                 triggerCharSet.forEach(function(c) {
-                    var idx = effectiveRange.lastIndexOf(c);
+                    var idx = c === '' ? 0 : effectiveRange.lastIndexOf(c);
                     if (idx > mostRecentTriggerCharPos) {
                         mostRecentTriggerCharPos = idx;
                         triggerChar = c;
@@ -1010,16 +1021,17 @@ angular.module('mentio')
                             /[\xA0\s]/g.test
                             (
                                 effectiveRange.substring(
-                                    mostRecentTriggerCharPos - 1,
+                                    mostRecentTriggerCharPos - triggerChar.length,
                                     mostRecentTriggerCharPos)
                             )
                         )
                     )
                 {
-                    var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
+                    var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + triggerChar.length,
                         effectiveRange.length);
 
-                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos, mostRecentTriggerCharPos+1);
+                    triggerChar = effectiveRange.substring(mostRecentTriggerCharPos,
+                        mostRecentTriggerCharPos + triggerChar.length);
                     var firstSnippetChar = currentTriggerSnippet.substring(0,1);
                     var leadingSpace = currentTriggerSnippet.length > 0 &&
                         (
