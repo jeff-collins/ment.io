@@ -183,7 +183,7 @@ angular.module('mentio')
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
                     var myField = getDocument(ctx).activeElement;
-                    if(suppressTrailingSpace) {
+                    if(!suppressTrailingSpace) {
                         text = text + ' ';
                     }
                     var startPos = mentionInfo.mentionPosition;
@@ -193,7 +193,7 @@ angular.module('mentio')
                     myField.selectionStart = startPos + text.length;
                     myField.selectionEnd = startPos + text.length;
                 } else {
-                    if(suppressTrailingSpace) {
+                    if(!suppressTrailingSpace) {
                         // add a space to the end of the pasted text
                         text = text + '\xA0';
                     }
