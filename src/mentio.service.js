@@ -4,7 +4,7 @@ angular.module('mentio')
     .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
-        function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
+        function popUnderMention (ctx, triggerCharSet, selectionEl, zIndex, requireLeadingSpace) {
             var coordinates;
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
 
@@ -22,7 +22,7 @@ angular.module('mentio')
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
-                    zIndex: 100,
+                    zIndex: zIndex,
                     display: 'block'
                 });
 
