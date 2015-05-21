@@ -14,6 +14,7 @@ angular.module('mentio', [])
                 altId: '=mentioId',
                 iframeElement: '=mentioIframeElement',
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
+                suppressTrailingSpace: '=mentioSuppressTrailingSpace',
                 selectNotFound: '=mentioSelectNotFound',
                 trimTerm: '=mentioTrimTerm',
                 ngModel: '='
@@ -81,7 +82,7 @@ angular.module('mentio', [])
 
                     mentioUtil.replaceTriggerText($scope.context(), $scope.targetElement, $scope.targetElementPath,
                         $scope.targetElementSelectedOffset, $scope.triggerCharSet, text, $scope.requireLeadingSpace,
-                        hasTrailingSpace);
+                        hasTrailingSpace, $scope.suppressTrailingSpace);
 
                     if (!hasTrailingSpace) {
                         $scope.setTriggerText('');
