@@ -354,14 +354,10 @@ angular.module('mentio', [])
 
                 scope.$watch(
                     'ngModel',
-                    function (newValue) {
+                    function () {
                         /*jshint maxcomplexity:14 */
                         /*jshint maxstatements:39 */
                         // yes this function needs refactoring
-                        if ((!newValue || newValue === '') && !scope.isActive()) {
-                            // ignore while setting up
-                            return;
-                        }
                         if (scope.triggerCharSet === undefined) {
                             $log.error('Error, no mentio-items attribute was provided, ' +
                                 'and no separate mentio-menus were specified.  Nothing to do.');
@@ -862,7 +858,7 @@ angular.module('mentio')
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true, hasTrailingSpace);
 
             if (mentionInfo !== undefined) {
-                if (selectedElementIsTextAreaOrInput()) {
+                if (selectedElementIsTextAreaOrInput(ctx)) {
                     var myField = getDocument(ctx).activeElement;
                     text = text + ' ';
                     var startPos = mentionInfo.mentionPosition;
