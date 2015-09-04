@@ -1,7 +1,8 @@
+
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
+    .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", function ($window, $location, $anchorScroll, $timeout) {
 
         // public
         function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
@@ -544,8 +545,6 @@ angular.module('mentio')
             selectElement: selectElement,
 
 
-
-
             // private: for unit testing only
             getTextAreaOrInputUnderlinePosition: getTextAreaOrInputUnderlinePosition,
             getTextPrecedingCurrentSelection: getTextPrecedingCurrentSelection,
@@ -556,4 +555,4 @@ angular.module('mentio')
             resetSelection: resetSelection,
             scrollIntoView: scrollIntoView
         };
-    });
+    }]);
