@@ -226,12 +226,12 @@ angular.module('mentio', [])
                                 preCaretTextRange.setEndPoint("EndToEnd", textRange);
                                 caretOffset = preCaretTextRange.text.length;
                             }
-                            
+
                             var elCont = element.innerHTML;
                             var truncCont = elCont.substr(0, caretOffset);
 
-                            console.log(range.endContainer.children);
-                            console.log(range.commonAncestorContainer.parentElement.className);
+                            // console.log(range.endContainer.children);
+                            // console.log(range.commonAncestorContainer.parentElement.className);
 
                             var returnValue = null;
                             if (range.endContainer.children || document.getSelection().anchorNode.parentNode.className == "label label-primary") {
@@ -256,17 +256,17 @@ angular.module('mentio', [])
                                     var nextNode = table.nextSibling;
                                     var parent = table.parentNode;
                                     var range = window.getSelection().getRangeAt(0);
-                                     if (table.children && range.endContainer.children) {
+                                    if (table.children && range.endContainer.children) {
                                         //label-primary
                                         var isHtml = getCaret($scope.targetElement);
-                                        console.log(isHtml);
+                                        // console.log(isHtml);
                                         var selectedItem = mentioUtil.getContentEditableSelectedPath($scope.context(), $scope.targetElement);
                                         if (table.children.length) {
                                             table.removeChild(table.children[table.children.length - 1]);
                                         }
                                     }
-                                    
-          
+
+
                                 }
 
 
@@ -764,7 +764,7 @@ angular.module('mentio', [])
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout","$compile",
+    .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", "$compile",
         function($window, $location, $anchorScroll, $timeout, $compile) {
 
             // public
@@ -874,8 +874,8 @@ angular.module('mentio')
             }
 
             function pasteHtml(ctx, html, startPos, endPos, scope, targetElement) {
-             
-            
+
+
                 var range, sel;
                 sel = getWindowSelection(ctx);
                 range = getDocument(ctx).createRange();
@@ -886,8 +886,8 @@ angular.module('mentio')
                 var el = getDocument(ctx).createElement('div');
                 el.innerHTML = html;
 
-//TODO:decorator                
-$compile(el)(scope);
+                //TODO:decorator                
+                $compile(el)(scope);
 
                 var frag = getDocument(ctx).createDocumentFragment(),
                     node, lastNode;
@@ -957,18 +957,18 @@ $compile(el)(scope);
                     if (selectedElementIsTextAreaOrInput()) {
                         var myField = getDocument(ctx).activeElement;
                         text = text + ' ';
-                        text = '<input type="text" value="'+ text +'" class="label-primary" zy-elastic-input disabled/>';
+                        text = '<input type="text" value="' + text + '" class="label-primary" zy-elastic-input disabled/>';
                         var startPos = mentionInfo.mentionPosition;
                         var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
                         myField.value = myField.value.substring(0, startPos) + text +
-                        myField.value.substring(endPos, myField.value.length);
+                            myField.value.substring(endPos, myField.value.length);
                         myField.selectionStart = startPos + text.length;
                         myField.selectionEnd = startPos + text.length;
                     } else {
                         //TODO:: ***** Decorate *******
                         // add a space to the end of the pasted text
                         text = ' ' + text + '\xA0';
-                        text = '<input type="text" value="'+ text +'" class="label-primary" zy-elastic-input disabled/>';
+                        text = '<input type="text" value="' + text + '" class="label-primary" zy-elastic-input disabled/>';
                         pasteHtml(ctx, text, mentionInfo.mentionPosition, mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1, scope, targetElement);
                         //END TODO:: ***** Decorate *******
                     }
