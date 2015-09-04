@@ -244,6 +244,7 @@ angular.module('mentio', [])
                         }
                         //END TODO:: ***** Decorate *******
 
+
                         $element.on(
                             'keydown keypress paste', function(event) {
 
