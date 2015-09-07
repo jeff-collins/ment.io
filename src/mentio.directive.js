@@ -230,8 +230,7 @@ angular.module('mentio', [])
                             var elCont = element.innerHTML;
                             var truncCont = elCont.substr(0, caretOffset);
 
-                            console.log(range.endContainer.children);
-                            console.log(range.commonAncestorContainer.parentElement.className);
+          
 
                             var returnValue = null;
                             if (range.endContainer.children || document.getSelection().anchorNode.parentNode.className == "label label-primary") {
@@ -260,7 +259,7 @@ angular.module('mentio', [])
                                      if (table.children && range.endContainer.children) {
                                         //label-primary
                                         var isHtml = getCaret($scope.targetElement);
-                                        console.log(isHtml);
+                                        // console.log(isHtml);
                                         var selectedItem = mentioUtil.getContentEditableSelectedPath($scope.context(), $scope.targetElement);
                                         if (table.children.length) {
                                             table.removeChild(table.children[table.children.length - 1]);
