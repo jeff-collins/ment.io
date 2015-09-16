@@ -174,7 +174,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +297,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -432,33 +432,10 @@ angular.module('mentio')
         }
 
         function localToGlobalCoordinates(ctx, element, coordinates) {
-            var obj = element;
-            var iframe = ctx ? ctx.iframe : null;
-            while(obj) {
-                coordinates.left += obj.offsetLeft + obj.clientLeft;
-                coordinates.top += obj.offsetTop + obj.clientTop;
-                obj = obj.offsetParent;
-                if (!obj && iframe) {
-                    obj = iframe;
-                    iframe = null;
-                }
-            }            
-            obj = element;
-            iframe = ctx ? ctx.iframe : null;
-            while(obj !== getDocument().body) {
-                if (obj.scrollTop && obj.scrollTop > 0) {
-                    coordinates.top -= obj.scrollTop;
-                }
-                if (obj.scrollLeft && obj.scrollLeft > 0) {
-                    coordinates.left -= obj.scrollLeft;
-                }
-                obj = obj.parentNode;
-                if (!obj && iframe) {
-                    obj = iframe;
-                    iframe = null;
-                }
-            }            
-         }
+            var boundingClientRect = element.getBoundingClientRect();
+            coordinates.left += boundingClientRect.left + window.pageXOffset;
+            coordinates.top += boundingClientRect.top + window.pageYOffset;
+        }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
             var properties = [
