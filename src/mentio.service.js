@@ -432,21 +432,9 @@ angular.module('mentio')
         }
 
         function localToGlobalCoordinates(ctx, element, coordinates) {
-            var obj = element;
-            var iframe = ctx ? ctx.iframe : null;
-            while(obj) {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-                if (obj !== getDocument().body) {
-                    coordinates.top -= obj.scrollTop;
-                    coordinates.left -= obj.scrollLeft;
-                }
-                obj = obj.offsetParent;
-                if (!obj && iframe) {
-                    obj = iframe;
-                    iframe = null;
-                }
-            }            
+            var boundingClientRect = element.getBoundingClientRect();
+            coordinates.left += boundingClientRect.left + window.scrollX;
+            coordinates.top += boundingClientRect.top + window.scrollY;
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
