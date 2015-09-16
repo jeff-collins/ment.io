@@ -195,7 +195,7 @@ angular.module('mentio', [])
                 );
 
                 $document.on(
-                    'click', function () {
+                    'click.mentio', function () {
                         if ($scope.isActive()) {
                             $scope.$apply(function () {
                                 $scope.hideAll();
@@ -205,7 +205,7 @@ angular.module('mentio', [])
                 );
 
                 $document.on(
-                    'keydown keypress paste', function (event) {
+                    'keydown.mentio keypress.mentio paste.mentio', function (event) {
                         var activeMenuScope = $scope.getActiveMenuScope();
                         if (activeMenuScope) {
                             if (event.which === 9 || event.which === 13) {
@@ -242,6 +242,9 @@ angular.module('mentio', [])
                         }
                     }
                 );
+                $scope.$on('$destroy', function () {
+                    $document.off('click.mentio keydown.mentio keypress.mentio paste.mentio');
+                });
             }],
             link: function (scope, element, attrs) {
                 scope.triggerCharMap = {};
@@ -562,7 +565,7 @@ angular.module('mentio', [])
                 }
 
                 angular.element($window).bind(
-                    'resize', function () {
+                    'resize.mentio', function () {
                         if (scope.isVisible()) {
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
@@ -571,6 +574,10 @@ angular.module('mentio', [])
                         }
                     }
                 );
+
+                scope.$on('$destroy', function () {
+                    angular.element($window).unbind('resize.mentio');
+                });
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
@@ -1113,21 +1120,9 @@ angular.module('mentio')
         }
 
         function localToGlobalCoordinates(ctx, element, coordinates) {
-            var obj = element;
-            var iframe = ctx ? ctx.iframe : null;
-            while(obj) {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-                if (obj !== getDocument().body) {
-                    coordinates.top -= obj.scrollTop;
-                    coordinates.left -= obj.scrollLeft;
-                }
-                obj = obj.offsetParent;
-                if (!obj && iframe) {
-                    obj = iframe;
-                    iframe = null;
-                }
-            }            
+            var boundingClientRect = element.getBoundingClientRect();
+            coordinates.left += boundingClientRect.left + window.scrollX;
+            coordinates.top += boundingClientRect.top + window.scrollY;
         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
