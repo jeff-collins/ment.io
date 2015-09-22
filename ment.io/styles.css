@@ -1,5 +1,5 @@
 .editor {
-	height: auto;
+	overflow: auto;
     min-height: 140px;
 }
 

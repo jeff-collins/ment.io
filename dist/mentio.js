@@ -606,7 +606,8 @@ angular.module('mentio', [])
                 scope.adjustScroll = function (direction) {
                     var menuEl = element[0];
                     var menuItemsList = menuEl.querySelector('ul');
-                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || menuEl.querySelector('[data-mentio-menu-item].active'));
+                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || 
+                        menuEl.querySelector('[data-mentio-menu-item].active'));
 
                     if (scope.isFirstItemActive()) {
                         return menuItemsList.scrollTop = 0;
@@ -703,7 +704,7 @@ angular.module('mentio')
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
-                    zIndex: 100,
+                    zIndex: 10000,
                     display: 'block'
                 });
 
@@ -1116,19 +1117,30 @@ angular.module('mentio')
             var obj = element;
             var iframe = ctx ? ctx.iframe : null;
             while(obj) {
-                coordinates.left += obj.offsetLeft;
-                coordinates.top += obj.offsetTop;
-                if (obj !== getDocument().body) {
-                    coordinates.top -= obj.scrollTop;
-                    coordinates.left -= obj.scrollLeft;
-                }
+                coordinates.left += obj.offsetLeft + obj.clientLeft;
+                coordinates.top += obj.offsetTop + obj.clientTop;
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
                     iframe = null;
                 }
             }            
-        }
+            obj = element;
+            iframe = ctx ? ctx.iframe : null;
+            while(obj !== getDocument().body) {
+                if (obj.scrollTop && obj.scrollTop > 0) {
+                    coordinates.top -= obj.scrollTop;
+                }
+                if (obj.scrollLeft && obj.scrollLeft > 0) {
+                    coordinates.left -= obj.scrollLeft;
+                }
+                obj = obj.parentNode;
+                if (!obj && iframe) {
+                    obj = iframe;
+                    iframe = null;
+                }
+            }            
+         }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
             var properties = [
