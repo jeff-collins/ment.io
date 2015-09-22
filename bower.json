@@ -1,7 +1,7 @@
 {
   "name": "ment.io",
   "main": "dist/mentio.js",
-  "version": "0.9.23",
+  "version": "0.9.24",
   "homepage": "https://github.com/jeff-collins/ment.io",
   "authors": [
     "jeff-collins <i.am.jeff.collins@gmail.com>",
