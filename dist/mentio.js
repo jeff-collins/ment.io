@@ -354,11 +354,13 @@ angular.module('mentio', [])
 
                 scope.$watch(
                     'ngModel',
-                    function (newValue) {
-                        /*jshint maxcomplexity:14 */
+                    function (newValue, oldValue) {
+                        /*jshint maxcomplexity:15 */
                         /*jshint maxstatements:39 */
                         // yes this function needs refactoring
-                        if ((!newValue || newValue === '') && !scope.isActive()) {
+
+
+                        if ((!newValue || newValue === '' || newValue === oldValue) && !scope.isActive()) {
                             // ignore while setting up
                             return;
                         }
@@ -606,7 +608,7 @@ angular.module('mentio', [])
                 scope.adjustScroll = function (direction) {
                     var menuEl = element[0];
                     var menuItemsList = menuEl.querySelector('ul');
-                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || 
+                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') ||
                         menuEl.querySelector('[data-mentio-menu-item].active'));
 
                     if (scope.isFirstItemActive()) {
