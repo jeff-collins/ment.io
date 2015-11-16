@@ -210,39 +210,6 @@ angular.module('mentio', [])
                             }
                         );
 
-                        //TODO:: ***** Decorate *******
-                        function getCaret(element) {
-                            var caretOffset = 0;
-                            if (typeof window.getSelection != "undefined") {
-                                var range = window.getSelection().getRangeAt(0);
-                                var preCaretRange = range.cloneRange();
-                                preCaretRange.selectNodeContents(element);
-                                preCaretRange.setEnd(range.endContainer, range.endOffset);
-                                caretOffset = preCaretRange.toString().length;
-                            } else if (typeof document.selection != "undefined" && document.selection.type != "Control") {
-                                var textRange = document.selection.createRange();
-                                var preCaretTextRange = document.body.createTextRange();
-                                preCaretTextRange.moveToElementText(element);
-                                preCaretTextRange.setEndPoint("EndToEnd", textRange);
-                                caretOffset = preCaretTextRange.text.length;
-                            }
-
-                            var elCont = element.innerHTML;
-                            var truncCont = elCont.substr(0, caretOffset);
-
-                            // console.log(range.endContainer.children);
-                            // console.log(range.commonAncestorContainer.parentElement.className);
-
-                            var returnValue = null;
-                            if (range.endContainer.children || document.getSelection().anchorNode.parentNode.className == "label label-primary") {
-                                returnValue = true;
-                            } else {
-                                returnValue = false;
-                            }
-                            return returnValue;
-
-                        }
-                        //END TODO:: ***** Decorate *******
 
                         $element.on(
                             'keydown keypress paste', function(event) {
@@ -257,9 +224,6 @@ angular.module('mentio', [])
                                     var parent = table.parentNode;
                                     var range = window.getSelection().getRangeAt(0);
                                     if (table.children && range.endContainer.children) {
-                                        //label-primary
-                                        var isHtml = getCaret($scope.targetElement);
-                                        // console.log(isHtml);
                                         var selectedItem = mentioUtil.getContentEditableSelectedPath($scope.context(), $scope.targetElement);
                                         if (table.children.length) {
                                             table.removeChild(table.children[table.children.length - 1]);
@@ -268,8 +232,6 @@ angular.module('mentio', [])
 
 
                                 }
-
-
                                 //END TODO:: ***** Decorate *******
 
 
@@ -539,6 +501,7 @@ angular.module('mentio', [])
                 items: '=mentioItems',
                 triggerChar: '=mentioTriggerChar',
                 forElem: '=mentioFor',
+                notified: '=notified',
                 parentScope: '=mentioParentScope'
             },
             templateUrl: function(tElement, tAttrs) {
@@ -730,8 +693,18 @@ angular.module('mentio', [])
 
             element.bind('click', function() {
 
-
                 controller.selectItem(scope.item);
+
+                element.removeClass('active');
+                //Clear menu DOM
+                var x = document.querySelectorAll("[mentio-menu-item].active");
+                var i;
+                for (i = 0; i < x.length; i++) {
+                    if (x[i].parentNode) {
+                         x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+
                 return false;
             });
         }
@@ -786,7 +759,7 @@ angular.module('mentio')
                         top: coordinates.top + 'px',
                         left: coordinates.left + 'px',
                         position: 'absolute',
-                        zIndex: 100,
+                        zIndex: 1055,
                         display: 'block'
                     });
 
@@ -956,8 +929,8 @@ angular.module('mentio')
                 if (mentionInfo !== undefined) {
                     if (selectedElementIsTextAreaOrInput()) {
                         var myField = getDocument(ctx).activeElement;
-                        text = text + ' ';
-                        text = '<input type="text" value="' + text + '" class="label-primary" zy-elastic-input disabled/>';
+                        // text = text + ' ';
+                        text = '<input type="text" value="' + text.name + '" urn="'+ text.urn +'" class="label-primary" zy-elastic-input disabled/>';
                         var startPos = mentionInfo.mentionPosition;
                         var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
                         myField.value = myField.value.substring(0, startPos) + text +
@@ -966,9 +939,14 @@ angular.module('mentio')
                         myField.selectionEnd = startPos + text.length;
                     } else {
                         //TODO:: ***** Decorate *******
-                        // add a space to the end of the pasted text
-                        text = ' ' + text + '\xA0';
-                        text = '<input type="text" value="' + text + '" class="label-primary" zy-elastic-input disabled/>';
+                        var notifiedClass ="";
+                        if(text.urn){
+                                text = '<input type="text" value="' + text.name + ' '+ text.lastName + '" urn="'+ text.urn +'" notified="'+ text.notified +'" class="label-primary mention" zy-elastic-input disabled/>\xA0';                                 
+                        }else{
+                           // text = text + '\xA0\xA0';
+                           text = '<input type="text" value="' + text + '" notified="true" class="label-primary hastag" zy-elastic-input disabled/>\xA0';
+                        }
+                       
                         pasteHtml(ctx, text, mentionInfo.mentionPosition, mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1, scope, targetElement);
                         //END TODO:: ***** Decorate *******
                     }
@@ -1208,19 +1186,32 @@ angular.module('mentio')
 
             function localToGlobalCoordinates(ctx, element, coordinates) {
                 var obj = element;
+                var modal = false;
                 var iframe = ctx ? ctx.iframe : null;
-                while (obj) {
+                while(obj) {
                     coordinates.left += obj.offsetLeft;
                     coordinates.top += obj.offsetTop;
                     if (obj !== getDocument().body) {
                         coordinates.top -= obj.scrollTop;
                         coordinates.left -= obj.scrollLeft;
+                        if (obj.className.indexOf("modal") > -1) {
+                            modal = true;
+                        }
                     }
                     obj = obj.offsetParent;
-                    if (!obj && iframe) {
+                    if (!obj && iframe) {                      
                         obj = iframe;
                         iframe = null;
                     }
+                }
+                if (modal) {
+                    obj = getDocument().body;
+                    while(obj) {
+                        coordinates.top += obj.offsetTop;
+                        coordinates.top += obj.scrollTop;
+                        obj = obj.offsetParent;
+                    }
+                    coordinates.top = coordinates.top - 178;
                 }
             }
 
@@ -1317,10 +1308,6 @@ angular.module('mentio')
                 getMacroMatch: getMacroMatch,
                 getTriggerInfo: getTriggerInfo,
                 selectElement: selectElement,
-
-
-
-
                 // private: for unit testing only
                 getTextAreaOrInputUnderlinePosition: getTextAreaOrInputUnderlinePosition,
                 getTextPrecedingCurrentSelection: getTextPrecedingCurrentSelection,
