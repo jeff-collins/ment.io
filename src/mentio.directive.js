@@ -15,9 +15,10 @@ angular.module('mentio', [])
                 iframeElement: '=mentioIframeElement',
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
                 selectNotFound: '=mentioSelectNotFound',
+                trimTerm: '=mentioTrimTerm',
                 ngModel: '='
             },
-            controller: ["$scope", "$timeout", "$attrs", function($scope, $timeout, $attrs) {
+            controller: ['$scope', '$timeout', '$attrs', function($scope, $timeout, $attrs) {
 
                 function handleDocumentClick() {
                     if ($scope.isActive()) {
@@ -25,7 +26,7 @@ angular.module('mentio', [])
                             $scope.hideAll();
                         });
                     }
-                };
+                }
 
                 function handleDocumentInput(event) {
                     var activeMenuScope = $scope.getActiveMenuScope();
@@ -47,6 +48,7 @@ angular.module('mentio', [])
                             activeMenuScope.$apply(function () {
                                 activeMenuScope.activateNextItem();
                             });
+                            activeMenuScope.adjustScroll(1);
                         }
 
                         if (event.which === 38) {
@@ -54,23 +56,29 @@ angular.module('mentio', [])
                             activeMenuScope.$apply(function () {
                                 activeMenuScope.activatePreviousItem();
                             });
+                            activeMenuScope.adjustScroll(-1);
                         }
 
                         if (event.which === 37 || event.which === 39) {
                             event.preventDefault();
-                         }
+                        }
                     }
-                };
+                }
 
                 $scope.query = function (triggerChar, triggerText) {
                     var remoteScope = $scope.triggerCharMap[triggerChar];
+
+                    if ($scope.trimTerm === undefined || $scope.trimTerm) {
+                        triggerText = triggerText.trim();
+                    }
+
                     remoteScope.showMenu();
 
                     remoteScope.search({
-                        term: triggerText.trim()
+                        term: triggerText
                     });
 
-                    remoteScope.typedTerm = triggerText.trim();
+                    remoteScope.typedTerm = triggerText;
                 };
 
                 $scope.defaultSearch = function(locals) {
@@ -103,7 +111,7 @@ angular.module('mentio', [])
 
                 $scope.setTriggerText = function(text) {
                     if ($scope.syncTriggerText) {
-                        $scope.typedTerm = text.trim();
+                        $scope.typedTerm = ($scope.trimTerm === undefined || $scope.trimTerm) ? text.trim() : text;
                     }
                 };
 
@@ -183,8 +191,8 @@ angular.module('mentio', [])
                     if (!hasTrailingSpace) {
                         $scope.replacingMacro = true;
                         $scope.timer = $timeout(function() {
-                            mentioUtil.replaceMacroText($scope.context(), $scope.targetElement, 
-                                $scope.targetElementPath, $scope.targetElementSelectedOffset, 
+                            mentioUtil.replaceMacroText($scope.context(), $scope.targetElement,
+                                $scope.targetElementPath, $scope.targetElementSelectedOffset,
                                 $scope.macros, $scope.macros[macro]);
                             angular.element($scope.targetElement).triggerHandler('change');
                             $scope.replacingMacro = false;
@@ -215,10 +223,10 @@ angular.module('mentio', [])
                         if (
                             $attrs.id !== undefined ||
                             $attrs.mentioId !== undefined
-                        ) 
+                        )
                         {
                             if (
-                                $attrs.id === data.targetElement || 
+                                $attrs.id === data.targetElement ||
                                 (
                                     $attrs.mentioId !== undefined &&
                                     $scope.altId === data.targetElement
@@ -305,6 +313,7 @@ angular.module('mentio', [])
                             activeMenuScope.$apply(function () {
                                 activeMenuScope.activateNextItem();
                             });
+                            activeMenuScope.adjustScroll(1);
                             return false;
                         }
 
@@ -313,6 +322,7 @@ angular.module('mentio', [])
                             activeMenuScope.$apply(function () {
                                 activeMenuScope.activatePreviousItem();
                             });
+                            activeMenuScope.adjustScroll(-1);
                             return false;
                         }
 
@@ -339,10 +349,10 @@ angular.module('mentio', [])
 
 
                             iframeDocument.addEventListener('keydown', keyHandler, true /*capture*/);
-                                            
+
                             scope.$on ( '$destroy', function() {
                                 iframeDocument.removeEventListener ( 'keydown', keyHandler );
-                            });                            
+                            });
                         }
                     }
                 );
@@ -352,7 +362,7 @@ angular.module('mentio', [])
                     function (newValue) {
                         /*jshint maxcomplexity:14 */
                         /*jshint maxstatements:39 */
-                        // yes this function needs refactoring 
+                        // yes this function needs refactoring
                         if ((!newValue || newValue === '') && !scope.isActive()) {
                             // ignore while setting up
                             return;
@@ -377,28 +387,28 @@ angular.module('mentio', [])
                         var isActive = scope.isActive();
                         var isContentEditable = scope.isContentEditable();
 
-                        var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet, 
+                        var mentionInfo = mentioUtil.getTriggerInfo(scope.context(), scope.triggerCharSet,
                             scope.requireLeadingSpace, isActive);
 
-                        if (mentionInfo !== undefined && 
+                        if (mentionInfo !== undefined &&
                                 (
-                                    !isActive || 
-                                    (isActive && 
+                                    !isActive ||
+                                    (isActive &&
                                         (
-                                            /* content editable selection changes to local nodes which 
-                                            modifies the start position of the selection over time, 
+                                            /* content editable selection changes to local nodes which
+                                            modifies the start position of the selection over time,
                                             just consider triggerchar changes which
-                                            will have the odd effect that deleting a trigger char pops 
+                                            will have the odd effect that deleting a trigger char pops
                                             the menu for a previous
                                             trigger char sequence if one exists in a content editable */
-                                            (isContentEditable && mentionInfo.mentionTriggerChar === 
+                                            (isContentEditable && mentionInfo.mentionTriggerChar ===
                                                 scope.currentMentionTriggerChar) ||
-                                            (!isContentEditable && mentionInfo.mentionPosition === 
+                                            (!isContentEditable && mentionInfo.mentionPosition ===
                                                 scope.currentMentionPosition)
                                         )
                                     )
                                 )
-                            ) 
+                            )
                         {
                             /** save selection info about the target control for later re-selection */
                             if (mentionInfo.mentionSelectedElement) {
@@ -448,7 +458,7 @@ angular.module('mentio', [])
         };
     }])
 
-    .directive('mentioMenu', ['mentioUtil', '$rootScope', '$log', '$window', '$document', 
+    .directive('mentioMenu', ['mentioUtil', '$rootScope', '$log', '$window', '$document',
         function (mentioUtil, $rootScope, $log, $window, $document) {
         return {
             restrict: 'E',
@@ -463,7 +473,7 @@ angular.module('mentio', [])
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mentioTemplateUrl !== undefined ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
             },
-            controller: ["$scope", function ($scope) {
+            controller: ['$scope', function ($scope) {
                 $scope.visible = false;
 
                 // callable both with controller (menuItem) and without controller (local)
@@ -499,6 +509,18 @@ angular.module('mentio', [])
                     this.activate($scope.items[index === 0 ? $scope.items.length - 1 : index - 1]);
                 };
 
+                $scope.isFirstItemActive = function () {
+                    var index = $scope.items.indexOf($scope.activeItem);
+
+                    return index === 0;
+                };
+
+                $scope.isLastItemActive = function () {
+                    var index = $scope.items.indexOf($scope.activeItem);
+
+                    return index === ($scope.items.length - 1);
+                };
+
                 $scope.selectActive = function () {
                     $scope.selectItem($scope.activeItem);
                 };
@@ -524,7 +546,7 @@ angular.module('mentio', [])
                     if (scope.isVisible()) {
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
-                        mentioUtil.popUnderMention(scope.parentMentio.context(), 
+                        mentioUtil.popUnderMention(scope.parentMentio.context(),
                             triggerCharSet, element, scope.requireLeadingSpace);
                     }
                 }
@@ -572,7 +594,7 @@ angular.module('mentio', [])
                     if (visible) {
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
-                        mentioUtil.popUnderMention(scope.parentMentio.context(), 
+                        mentioUtil.popUnderMention(scope.parentMentio.context(),
                             triggerCharSet, element, scope.requireLeadingSpace);
                     }
                 });
@@ -584,13 +606,28 @@ angular.module('mentio', [])
                     element.remove();
                 });
 
-                element.on('$destroy', function () {
-                    var a = 'a';
-                })
-
                 scope.hideMenu = function () {
                     scope.visible = false;
                     element.css('display', 'none');
+                };
+
+                scope.adjustScroll = function (direction) {
+                    var menuEl = element[0];
+                    var menuItemsList = menuEl.querySelector('ul');
+                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || 
+                        menuEl.querySelector('[data-mentio-menu-item].active'));
+
+                    if (scope.isFirstItemActive()) {
+                        return menuItemsList.scrollTop = 0;
+                    } else if(scope.isLastItemActive()) {
+                        return menuItemsList.scrollTop = menuItemsList.scrollHeight;
+                    }
+
+                    if (direction === 1) {
+                        menuItemsList.scrollTop += menuItem.offsetHeight;
+                    } else {
+                        menuItemsList.scrollTop -= menuItem.offsetHeight;
+                    }
                 };
 
             }
@@ -609,12 +646,13 @@ angular.module('mentio', [])
                     scope.$apply(function () {
                         controller.activate(scope.item);
                     });
-                };
+                }
 
                 function handleClick(e) {
                     e.preventDefault();
                     controller.selectItem(scope.item);
-                };
+                    return false;
+                }
 
                 scope.$watch(function () {
                     return controller.isActive(scope.item);
@@ -636,7 +674,7 @@ angular.module('mentio', [])
             }
         };
     })
-    .filter('unsafe', ["$sce", function($sce) {
+    .filter('unsafe', ['$sce', function($sce) {
         return function (val) {
             return $sce.trustAsHtml(val);
         };

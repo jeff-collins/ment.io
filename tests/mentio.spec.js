@@ -14,7 +14,7 @@ describe('mentio-menu', function () {
         $timeout = _$timeout_;
         mentioUtilService = mentioUtil;
 
-        $templateCache.put('/people-mentions.tpl', 
+        $templateCache.put('/people-mentions.tpl',
                 '<div>' +
                 '<li mentio-menu-item="person" ng-repeat="person in items">' +
                 '   <img ng-src="{{person.imageUrl}}"><p class="name">{{person.name}}</p>' +
@@ -42,10 +42,16 @@ describe('mentio-menu', function () {
         expect(childCount).toEqual(items.length);
     }
 
-    function createMentio(scope) {
+    function createMentio(scope, attr) {
         var mentionableTextArea = angular.element('<div><textarea mentio ' +
             'ng-model="textArea" id="textArea" ng-trim="false"></textarea>' +
             '<span>Mentioned: {{typedTerm}}</span></div>');
+
+        // Apply additional attributes to mentio
+        if (attr) {
+            angular.element(mentionableTextArea.children()[0]).attr(attr);
+        }
+
         $compile(mentionableTextArea)(scope);
         $document[0].body.appendChild(mentionableTextArea[0]);
 
@@ -54,7 +60,7 @@ describe('mentio-menu', function () {
 
     function createMentioMenu(scope) {
         scope.mockItemsSource = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'}
         ];
 
@@ -92,7 +98,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(textarea[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -156,6 +162,106 @@ describe('mentio-menu', function () {
         compareItems($scope.mockItems, mentioScope.triggerCharMap['@']);
     });
 
+    it('should trim search term by default', function() {
+        createMentio($scope);
+
+        createMentioMenu($scope);
+
+        mentioScope.query('@', 'test1 ');
+        mentioScope.$apply();
+
+        expect(searchSpy).toHaveBeenCalledWith({ term : 'test1' });
+    });
+
+    it('should not trim search term if disabled in the attributes', function() {
+        createMentio($scope, {
+            "mentio-trim-term": "false"
+        });
+
+        createMentioMenu($scope);
+
+        mentioScope.query('@', 'test1 ');
+        mentioScope.$apply();
+
+        expect(searchSpy).toHaveBeenCalledWith({ term : 'test1 ' });
+    });
+
+    it('should have a working isFirstItemActive method', function() {
+        createMentio($scope);
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var menu = mentioScope.getActiveMenuScope();
+        expect(menu.isFirstItemActive()).toBe(true);
+
+        menu.activateNextItem();
+        expect(menu.isFirstItemActive()).toBe(false);
+    });
+
+    it('should have a working isLastItemActive method', function() {
+        createMentio($scope);
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var menu = mentioScope.getActiveMenuScope();
+        expect(menu.isLastItemActive()).toBe(false);
+
+        menu.activatePreviousItem();
+        expect(menu.isLastItemActive()).toBe(true);
+    });
+
+    it('should have a working adjustScroll method', function() {
+        var menuItemsListEl = {
+            scrollTop: 0,
+            scrollHeight: 90
+        };
+
+        var menuItemEl = {
+            offsetHeight: 30
+        };
+
+        createMentio($scope);
+        createMentioMenu($scope);
+
+        mentioScope.query('@', '');
+        mentioScope.$apply();
+
+        var menuScope = mentioScope.getActiveMenuScope();
+
+        menuScope.items = [{ label: 'test1' }, { label: 'test2' }, { label: 'test3' }];
+        menuScope.$apply();
+
+        var menuEl = document.querySelector('mentio-menu');
+        var querySpy = spyOn(menuEl, 'querySelector').andCallFake(function(sel) {
+            if (sel === 'ul') return menuItemsListEl;
+
+            return menuItemEl;
+        });
+
+        // First item active
+        menuScope.adjustScroll(1);
+        expect(menuItemsListEl.scrollTop).toBe(0);
+
+        // Second item active
+        menuScope.activateNextItem();
+        menuScope.adjustScroll(1);
+        expect(menuItemsListEl.scrollTop).toBe(30);
+
+        // Third item active
+        menuScope.activateNextItem();
+        menuScope.adjustScroll(1);
+        expect(menuItemsListEl.scrollTop).toBe(90);
+
+        // Previous (second) item active
+        menuScope.activatePreviousItem();
+        menuScope.adjustScroll(-1);
+        expect(menuItemsListEl.scrollTop).toBe(60);
+    });
+
     it('should return valid coordinates for textarea/input underline position', function () {
 
         var textarea = angular.element('<textarea ng-trim="false">123</textarea>');
@@ -196,14 +302,14 @@ describe('mentio-menu', function () {
 
         textarea[0].selectionStart = 1;
         textarea[0].selectionEnd = 1;
- 
+
         text = mentioUtilService.getTextPrecedingCurrentSelection();
 
         expect(text).toEqual('1');
 
         textarea[0].selectionStart = 2;
         textarea[0].selectionEnd = 2;
- 
+
         text = mentioUtilService.getTextPrecedingCurrentSelection();
 
         expect(text).toEqual('12');
@@ -305,7 +411,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -365,7 +471,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -396,7 +502,7 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
@@ -425,13 +531,13 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
 
         var macros = {
-            brb: 'Be right back', 
+            brb: 'Be right back',
             omw: 'On my way'
          };
 
@@ -451,7 +557,7 @@ describe('mentio-menu', function () {
 
         mentioUtilService.replaceMacroText(null, elem[0], [0], 7, macros, 'On my way');
         expect(elem.val()).toEqual('123 On my way abc');
-    });    
+    });
 
     it('should be visible after scroll', function () {
         var first = angular.element('<div mentio contenteditable mentio-items="mockItems" ng-trim="false">123 brb abc</div>');
@@ -488,13 +594,13 @@ describe('mentio-menu', function () {
         $document[0].body.appendChild(elem[0]);
 
         $scope.mockItems = [
-            {label: 'test1'}, 
+            {label: 'test1'},
             {label: 'test2'},
             {label: 'test3'}
          ];
 
         $scope.macros = {
-            brb: 'Be right back', 
+            brb: 'Be right back',
             omw: 'On my way'
          };
 
