@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('mentio')
-    .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
+    .factory('mentioUtil', ["$window", "$location", "$anchorScroll", "$timeout", function ($window, $location, $anchorScroll, $timeout) {
 
         // public
         function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
@@ -22,7 +22,7 @@ angular.module('mentio')
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
-                    zIndex: 100,
+                    zIndex: 10000,
                     display: 'block'
                 });
 
@@ -183,7 +183,7 @@ angular.module('mentio')
             if (mentionInfo !== undefined) {
                 if (selectedElementIsTextAreaOrInput()) {
                     var myField = getDocument(ctx).activeElement;
-                    text = text + ' ';
+                    text = text;
                     var startPos = mentionInfo.mentionPosition;
                     var endPos = mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1;
                     myField.value = myField.value.substring(0, startPos) + text +
@@ -192,7 +192,7 @@ angular.module('mentio')
                     myField.selectionEnd = startPos + text.length;
                 } else {
                     // add a space to the end of the pasted text
-                    text = text + '\xA0';
+                    text = text;
                     pasteHtml(ctx, text, mentionInfo.mentionPosition,
                             mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
                 }
@@ -556,4 +556,4 @@ angular.module('mentio')
             resetSelection: resetSelection,
             scrollIntoView: scrollIntoView
         };
-    });
+    }]);

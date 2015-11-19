@@ -17,7 +17,7 @@ angular.module('mentio', [])
                 selectNotFound: '=mentioSelectNotFound',
                 ngModel: '='
             },
-            controller: function($scope, $timeout, $attrs) {
+            controller: ["$scope", "$timeout", "$attrs", function($scope, $timeout, $attrs) {
 
                 function handleDocumentClick() {
                     if ($scope.isActive()) {
@@ -238,7 +238,7 @@ angular.module('mentio', [])
                     $document.off('click', handleDocumentClick);
                     $document.off('keydown keypress paste', handleDocumentInput);
                 });
-            },
+            }],
             link: function (scope, element, attrs) {
                 scope.triggerCharMap = {};
 
@@ -269,6 +269,7 @@ angular.module('mentio', [])
                     element.parent().append(el);
 
                     scope.$on('$destroy', function() {
+                      angular.element(el).scope().$destroy();
                       el.remove();
                     });
                 }
@@ -462,7 +463,7 @@ angular.module('mentio', [])
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mentioTemplateUrl !== undefined ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
             },
-            controller: function ($scope) {
+            controller: ["$scope", function ($scope) {
                 $scope.visible = false;
 
                 // callable both with controller (menuItem) and without controller (local)
@@ -516,9 +517,18 @@ angular.module('mentio', [])
                     $scope.parentMentio = scope;
                     $scope.targetElement = scope.targetElement;
                 };
-            },
+            }],
 
             link: function (scope, element) {
+                function handleResize() {
+                    if (scope.isVisible()) {
+                        var triggerCharSet = [];
+                        triggerCharSet.push(scope.triggerChar);
+                        mentioUtil.popUnderMention(scope.parentMentio.context(), 
+                            triggerCharSet, element, scope.requireLeadingSpace);
+                    }
+                }
+
                 element[0].parentNode.removeChild(element[0]);
                 $document[0].body.appendChild(element[0]);
                 scope.menuElement = element; // for testing
@@ -543,16 +553,7 @@ angular.module('mentio', [])
                         });
                 }
 
-                angular.element($window).bind(
-                    'resize', function () {
-                        if (scope.isVisible()) {
-                            var triggerCharSet = [];
-                            triggerCharSet.push(scope.triggerChar);
-                            mentioUtil.popUnderMention(scope.parentMentio.context(), 
-                                triggerCharSet, element, scope.requireLeadingSpace);
-                        }
-                    }
-                );
+                angular.element($window).bind('resize', handleResize);
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
@@ -577,10 +578,15 @@ angular.module('mentio', [])
                 });
 
                 scope.parentMentio.$on('$destroy', function () {
-                    element.remove();
                     angular.element($window).unbind('resize', handleResize);
                     scope.menuElement = null;
+                    scope.$destroy();
+                    element.remove();
                 });
+
+                element.on('$destroy', function () {
+                    var a = 'a';
+                })
 
                 scope.hideMenu = function () {
                     scope.visible = false;
@@ -630,11 +636,11 @@ angular.module('mentio', [])
             }
         };
     })
-    .filter('unsafe', function($sce) {
+    .filter('unsafe', ["$sce", function($sce) {
         return function (val) {
             return $sce.trustAsHtml(val);
         };
-    })
+    }])
     .filter('mentioHighlight', function() {
         function escapeRegexp (queryToEscape) {
             return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
