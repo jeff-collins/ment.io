@@ -1102,9 +1102,19 @@ angular.module('mentio')
             sel.removeAllRanges();
             sel.addRange(prevRange);
 
+            function getAbsolutePosition(elem) {
+                var box = elem.getBoundingClientRect();
+                var body = document.body;
+                var docEl = document.documentElement;
+                var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+                var clientTop = docEl.clientTop || body.clientTop || 0;
+                var top  = box.top +  scrollTop - clientTop + elem.offsetHeight;
+                return Math.round(top)
+            }
+
             var coordinates = {
                 left: 0,
-                top: markerEl.offsetHeight
+                top: getAbsolutePosition(markerEl)
             };
 
             localToGlobalCoordinates(ctx, markerEl, coordinates);
@@ -1118,7 +1128,7 @@ angular.module('mentio')
             var iframe = ctx ? ctx.iframe : null;
             while(obj) {
                 coordinates.left += obj.offsetLeft + obj.clientLeft;
-                coordinates.top += obj.offsetTop + obj.clientTop;
+                coordinates.top += obj.clientTop;
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
