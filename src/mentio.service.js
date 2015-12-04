@@ -420,9 +420,30 @@ angular.module('mentio')
             sel.removeAllRanges();
             sel.addRange(prevRange);
 
+            function isWindow( obj ) {
+                return obj != null && obj === obj.window;
+            }
+            function getWindow( elem ) {
+                return isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
+            }
+            function offset( elem ) {
+
+                var docElem, win,
+                    box = { top: 0, left: 0 },
+                    doc = elem && elem.ownerDocument;
+
+                docElem = doc.documentElement;
+
+                if ( typeof elem.getBoundingClientRect !== typeof undefined ) {
+                    box = elem.getBoundingClientRect();
+                }
+                win = getWindow( doc );
+                return box.top + win.pageYOffset - docElem.clientTop + elem.offsetHeight
+            };
+
             var coordinates = {
                 left: 0,
-                top: markerEl.offsetHeight
+                top: offset(markerEl)
             };
 
             localToGlobalCoordinates(ctx, markerEl, coordinates);
@@ -436,7 +457,7 @@ angular.module('mentio')
             var iframe = ctx ? ctx.iframe : null;
             while(obj) {
                 coordinates.left += obj.offsetLeft + obj.clientLeft;
-                coordinates.top += obj.offsetTop + obj.clientTop;
+                coordinates.top += obj.clientTop;
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
