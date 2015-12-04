@@ -420,19 +420,30 @@ angular.module('mentio')
             sel.removeAllRanges();
             sel.addRange(prevRange);
 
-            function getAbsolutePosition(elem) {
-                var box = elem.getBoundingClientRect();
-                var body = document.body;
-                var docEl = document.documentElement;
-                var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-                var clientTop = docEl.clientTop || body.clientTop || 0;
-                var top  = box.top +  scrollTop - clientTop + elem.offsetHeight;
-                return Math.round(top)
+            function isWindow( obj ) {
+                return obj != null && obj === obj.window;
             }
+            function getWindow( elem ) {
+                return isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
+            }
+            function offset( elem ) {
+
+                var docElem, win,
+                    box = { top: 0, left: 0 },
+                    doc = elem && elem.ownerDocument;
+
+                docElem = doc.documentElement;
+
+                if ( typeof elem.getBoundingClientRect !== typeof undefined ) {
+                    box = elem.getBoundingClientRect();
+                }
+                win = getWindow( doc );
+                return box.top + win.pageYOffset - docElem.clientTop + elem.offsetHeight
+            };
 
             var coordinates = {
                 left: 0,
-                top: getAbsolutePosition(markerEl)
+                top: offset(markerEl)
             };
 
             localToGlobalCoordinates(ctx, markerEl, coordinates);
