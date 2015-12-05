@@ -17,11 +17,19 @@ angular.module('mentio')
                     coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition);
                 }
 
+
+                // Move the button into place.
+                if (selectionEl.attr('mentio-fixed') !== undefined) {
+                  var menu_position = 'fixed';
+                } else {
+                  var menu_position = 'absolute';
+                }
+
                 // Move the button into place.
                 selectionEl.css({
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
-                    position: 'absolute',
+                    position: menu_position,
                     zIndex: 10000,
                     display: 'block'
                 });
@@ -174,7 +182,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +305,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -442,7 +450,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
             obj = element;
             iframe = ctx ? ctx.iframe : null;
             while(obj !== getDocument().body) {
@@ -457,7 +465,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
          }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
