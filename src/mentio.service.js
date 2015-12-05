@@ -4,6 +4,20 @@ angular.module('mentio')
     .factory('mentioUtil', function ($window, $location, $anchorScroll, $timeout) {
 
         // public
+
+        function isElementFixed(element) {
+          var current_element =  element;
+          while (current_element.nodeName !== 'HTML') {
+            var computed = window.getComputedStyle ? getComputedStyle(current_element) : current_element.currentStyle;
+            if (computed.position==='fixed') {
+              return true;
+            } else {
+              current_element = current_element.parentNode;
+            }
+          }
+          return false;
+        }
+
         function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
             var coordinates;
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
@@ -21,7 +35,8 @@ angular.module('mentio')
                 selectionEl.css({
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
-                    position: 'absolute',
+                    position:
+                        isElementFixed(mentionInfo.mentionSelectedElement)?'fixed':'absolute',
                     zIndex: 10000,
                     display: 'block'
                 });
@@ -174,7 +189,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +312,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -442,7 +457,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
             obj = element;
             iframe = ctx ? ctx.iframe : null;
             while(obj !== getDocument().body) {
@@ -457,7 +472,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
          }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
