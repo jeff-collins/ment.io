@@ -6,16 +6,17 @@ angular.module('mentio')
         // public
 
         function isElementFixed(element) {
-          var current_element =  element;
-          while (current_element.nodeName !== 'HTML') {
-            var computed = window.getComputedStyle ? getComputedStyle(current_element) : current_element.currentStyle;
-            if (computed.position==='fixed') {
-              return true;
-            } else {
-              current_element = current_element.parentNode;
+            var current_element =  element;
+            while (current_element.nodeName !== 'HTML') {
+                var computed =
+                    window.getComputedStyle ? getComputedStyle(current_element) : current_element.currentStyle;
+                if (computed.position==='fixed') {
+                    return true;
+                } else {
+                    current_element = current_element.parentNode;
+                }
             }
-          }
-          return false;
+            return false;
         }
 
         function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
