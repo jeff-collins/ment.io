@@ -242,7 +242,7 @@ angular.module('mentio', [])
                 $document.on('click', clickElement);
                 $document.on('keydown keypress paste', keypressElement);
 
-                scope.$on('$destroy', function() {
+                $scope.$on('$destroy', function() {
                     $document.off('click', clickElement);
                     $document.off('keydown keypress paste', keypressElement);
                 });
