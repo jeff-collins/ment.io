@@ -575,8 +575,11 @@ angular.module('mentio', [])
                 }
 
                 angular.element($window).on('resize', resize);
-
-                angular.element($window).of('resize', resize);
+                
+                scope.$on('$destroy', function(){
+                    angular.element($window).off('resize', resize);
+                });
+                
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
