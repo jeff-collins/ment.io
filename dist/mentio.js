@@ -251,8 +251,7 @@ angular.module('mentio', [])
                 scope.triggerCharMap = {};
 
                 scope.targetElement = element;
-                attrs.$set('autocomplete','off');
-
+                
                 if (attrs.mentioItems) {
                     scope.localItems = [];
                     scope.parentScope = scope;
@@ -1073,7 +1072,7 @@ angular.module('mentio')
             var text;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 var textComponent = getDocument(ctx).activeElement;
-                var startPos = textComponent.selectionStart;
+                var startPos = textComponent.selectionEnd;
                 text = textComponent.value.substring(0, startPos);
 
             } else {

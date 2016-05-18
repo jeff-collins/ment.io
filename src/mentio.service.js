@@ -382,7 +382,7 @@ angular.module('mentio')
             var text;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 var textComponent = getDocument(ctx).activeElement;
-                var startPos = textComponent.selectionStart;
+                var startPos = textComponent.selectionEnd;
                 text = textComponent.value.substring(0, startPos);
 
             } else {
