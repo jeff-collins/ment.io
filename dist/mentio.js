@@ -708,12 +708,34 @@ angular.module('mentio')
                 }
 
                 // Move the button into place.
-                selectionEl.css({
-                    top: coordinates.top + 'px',
+                var css = {
                     left: coordinates.left + 'px',
                     position: 'absolute',
                     zIndex: 10000,
                     display: 'block'
+                };
+
+                if($window.outerHeight / 2 < coordinates.top) {
+                    css.bottom = $window.outerHeight - coordinates.top + 26 + 'px';
+                    css.top = 'initial';
+                    css.height = $window.outerHeight - ($window.outerHeight - coordinates.top) - 52 + 'px';
+                    selectionEl.removeClass('show-below');
+                    selectionEl.addClass('show-above');
+                } else {
+                    css.height= (coordinates.top - $window.outerHeight)*-1 + 'px';
+                    css.top = coordinates.top + 'px';
+                    css.bottom = 'initial';
+                    selectionEl.addClass('show-below');
+                    selectionEl.removeClass('show-above');
+                }
+                selectionEl.css(css);
+
+                angular.forEach(selectionEl.children(), function (child) {
+                    if(angular.element(child).attr('class').match('mentio-arrow')) {
+                        angular.element(child).css({
+                            left: coordinates.left + 'px'
+                        });
+                    }
                 });
 
                 $timeout(function(){
@@ -858,14 +880,14 @@ angular.module('mentio')
                     element.selectionEnd = startPos + text.length;
                 } else {
                     pasteHtml(ctx, text, macroMatchInfo.macroPosition,
-                            macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
+                        macroMatchInfo.macroPosition + macroMatchInfo.macroText.length);
                 }
             }
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
-                text, requireLeadingSpace, hasTrailingSpace) {
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
+                                     text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true, hasTrailingSpace);
@@ -884,7 +906,7 @@ angular.module('mentio')
                     // add a space to the end of the pasted text
                     text = text + '\xA0';
                     pasteHtml(ctx, text, mentionInfo.mentionPosition,
-                            mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
+                        mentionInfo.mentionPosition + mentionInfo.mentionText.length + 1);
                 }
             }
         }
@@ -925,7 +947,7 @@ angular.module('mentio')
 
                 if (effectiveRange.length > 0 &&
                     (effectiveRange.charAt(effectiveRange.length - 1) === '\xA0' ||
-                        effectiveRange.charAt(effectiveRange.length - 1) === ' ')) {
+                    effectiveRange.charAt(effectiveRange.length - 1) === ' ')) {
                     hasTrailingSpace = true;
                     // strip space
                     effectiveRange = effectiveRange.substring(0, effectiveRange.length-1);
@@ -987,7 +1009,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -1013,17 +1035,17 @@ angular.module('mentio')
                     }
                 });
                 if (mostRecentTriggerCharPos >= 0 &&
+                    (
+                        mostRecentTriggerCharPos === 0 ||
+                        !requireLeadingSpace ||
+                        /[\xA0\s]/g.test
                         (
-                            mostRecentTriggerCharPos === 0 ||
-                            !requireLeadingSpace ||
-                            /[\xA0\s]/g.test
-                            (
-                                effectiveRange.substring(
-                                    mostRecentTriggerCharPos - 1,
-                                    mostRecentTriggerCharPos)
-                            )
+                            effectiveRange.substring(
+                                mostRecentTriggerCharPos - 1,
+                                mostRecentTriggerCharPos)
                         )
                     )
+                )
                 {
                     var currentTriggerSnippet = effectiveRange.substring(mostRecentTriggerCharPos + 1,
                         effectiveRange.length);
@@ -1132,7 +1154,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
             obj = element;
             iframe = ctx ? ctx.iframe : null;
             while(obj !== getDocument().body) {
@@ -1147,8 +1169,8 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
-         }
+            }
+        }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
             var properties = [
