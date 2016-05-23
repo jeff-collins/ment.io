@@ -251,7 +251,7 @@ angular.module('mentio', [])
                 scope.triggerCharMap = {};
 
                 scope.targetElement = element;
-
+                
                 if (attrs.mentioItems) {
                     scope.localItems = [];
                     scope.parentScope = scope;
@@ -293,12 +293,8 @@ angular.module('mentio', [])
                     var activeMenuScope = scope.getActiveMenuScope();
                     if (activeMenuScope) {
                         if (event.which === 9 || event.which === 13) {
-                            if(activeMenuScope.items && activeMenuScope.items.length === 1) {
-                                event.preventDefault();
-                                activeMenuScope.selectActive();
-                            } else {
-                                activeMenuScope.hideMenu();
-                            }
+                            stopEvent(event);
+                            activeMenuScope.selectActive();
                             return false;
                         }
 
@@ -578,11 +574,11 @@ angular.module('mentio', [])
                 }
 
                 angular.element($window).on('resize', resize);
-
+                
                 scope.$on('$destroy', function(){
                     angular.element($window).off('resize', resize);
                 });
-
+                
 
                 scope.$watch('items', function (items) {
                     if (items && items.length > 0) {
@@ -618,7 +614,7 @@ angular.module('mentio', [])
                 scope.adjustScroll = function (direction) {
                     var menuEl = element[0];
                     var menuItemsList = menuEl.querySelector('ul');
-                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') ||
+                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || 
                         menuEl.querySelector('[data-mentio-menu-item].active'));
 
                     if (scope.isFirstItemActive()) {
