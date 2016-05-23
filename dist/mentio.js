@@ -206,8 +206,12 @@ angular.module('mentio', [])
                     var activeMenuScope = $scope.getActiveMenuScope();
                     if (activeMenuScope) {
                         if (event.which === 9 || event.which === 13) {
-                            event.preventDefault();
-                            activeMenuScope.selectActive();
+                            if(activeMenuScope.items && activeMenuScope.items.length === 1) { 
+                                event.preventDefault(); 
+                                activeMenuScope.selectActive(); 
+                            } else { 
+                                activeMenuScope.hideMenu(); 
+                            } 
                         }
 
                         if (event.which === 27) {
