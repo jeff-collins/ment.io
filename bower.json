@@ -1,7 +1,7 @@
 {
   "name": "ment.io",
   "main": "dist/mentio.js",
-  "version": "0.9.24",
+  "version": "0.9.25",
   "homepage": "https://github.com/jeff-collins/ment.io",
   "authors": [
     "jeff-collins <i.am.jeff.collins@gmail.com>",
@@ -25,5 +25,8 @@
     "angular": "~1.2.18",
     "angular-mocks": "~1.2.18",
     "angular-ui-tinymce": "latest"
+  },
+  "resolutions": {
+    "angular": "~1.2.18"
   }
 }
