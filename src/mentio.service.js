@@ -22,7 +22,6 @@ angular.module('mentio')
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
                     position: 'absolute',
-                    zIndex: 10000,
                     display: 'block'
                 });
 
