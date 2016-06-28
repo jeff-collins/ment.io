@@ -133,7 +133,7 @@
 
                     <div class="form-group">
                         <h3>TinyMCE (iframe-based):</h3>
-                        <textarea ui-tinymce="tinyMceOptions" mentio mentio-typed-text="typedTerm" 
+                        <textarea ui-tinymce="tinyMceOptions" mentio mentio-typed-text="typedTerm"
                             mentio-items="simplePeople | filter:label:typedTerm" ng-model='foo'
                             mentio-iframe-element="iframeElement"></textarea>
                     </div>
@@ -181,7 +181,7 @@
                     <h6 class="text-muted">(Angular @mentions with macros)</h6>
                 </header>
                 <h3 class="section-heading">Overview</h3>
-                The <code>mentio</code> directive is applied to any element that accepts selectable text input and exposes 
+                The <code>mentio</code> directive is applied to any element that accepts selectable text input and exposes
                 an <code>ngModel</code>.
                 The <code>mentio</code> directive watches the <code>ngModel</code> of the element for changes.  If the user enters
                 a sequence of non-wihtespace characters starting with a <em>trigger character</em>, a typeahead menu appears.
@@ -238,7 +238,7 @@
 
                 <header class="text-primary documentation-attr">mentio-id</header>
                 <strong>Optional.</strong> An angular expression representing the ID of the <code>mentio</code> element.  This value
-                is matched by the <code>mentio-for</code> attribute on any separate <code>mentio-menu</code> elements.  
+                is matched by the <code>mentio-for</code> attribute on any separate <code>mentio-menu</code> elements.
                 If no <code>mentio-id</code> is specified, the <code>id</code>
                 html attribute will be used to match <code>mentio-for</code>.  The <code>mentio-id</code> is unnecessary if there
                 is only one trigger character and all attributes are specified on the <code>mentio</code> directive.
@@ -263,15 +263,15 @@
                     };</pre>
 
                 <header class="text-primary documentation-attr">mentio-require-leading-space</header>
-                <strong>Optional.</strong> When <code>true</code>, specifies that the menu will only be displayed if the trigger character is 
-                preceded by a space.  This option can benefit the user by 
+                <strong>Optional.</strong> When <code>true</code>, specifies that the menu will only be displayed if the trigger character is
+                preceded by a space.  This option can benefit the user by
                 disambiguating typeahead text from other text that might normally
                 contain the configured trigger character, but for some languages like Chinese, spaces cannot be required.
                 <p></p>
- 
+
                 <header class="text-primary documentation-attr">mentio-iframe-element</header>
                 <strong>Optional.</strong> Specifies an iframe DOM element within which the ment.io menu will be shown.
-                This is useful for situations where the actual control is a <code>textarea</code>, but the editor is 
+                This is useful for situations where the actual control is a <code>textarea</code>, but the editor is
                 presented in an iframe, like TinyMCE.
                 <p></p>
 
@@ -282,13 +282,13 @@
                  <h4 class="section-heading">Provided Scope Properties</h4>
 
                 <header class="text-primary documentation-attr">typedTerm</header>
-                The <code>typedTerm</code> scope property is bound to the text currently after the trigger char.  
+                The <code>typedTerm</code> scope property is bound to the text currently after the trigger char.
                 This can be referenced from within the
                 <code>mentio-menu</code> template to highlight text when presenting menu items.
 
                 <p></p>
- 
-                <strong>Special note for contenteditable:</strong> To see the ment.io directive operate in a contenteditable, 
+
+                <strong>Special note for contenteditable:</strong> To see the ment.io directive operate in a contenteditable,
                 you must have set up the contenteditable to update the <code>ngModel</code> as per the AngularJS examples here:
                 <a href="https://docs.angularjs.org/api/ng/type/ngModel.NgModelController">
                 https://docs.angularjs.org/api/ng/type/ngModel.NgModelController</a>.  The approach of creating a custom
@@ -297,7 +297,7 @@
                 <header class="text-primary documentation-attr">mentio-trigger-char, mentio-items, mentio-template-url, mentio-search,
                 mentio-select </header>
                 <strong>Optional.</strong> If only one trigger char is needed, these attribtues can be used on the <code>mentio</code>
-                directive.  See the description of these attributes in <code>mentio-menu</code> below for details. 
+                directive.  See the description of these attributes in <code>mentio-menu</code> below for details.
 
                 <header class="documentation-element">
                     <code>
@@ -348,12 +348,12 @@
                     &lt;/ul&gt;
                 &lt;/script&gt;</pre>
 
-                <strong>Node</strong> The mentio directive watches the collection 
-                referenced by <code>mentio-items</code>.  If the values in this list are cached and never change, the menu 
+                <strong>Node</strong> The mentio directive watches the collection
+                referenced by <code>mentio-items</code>.  If the values in this list are cached and never change, the menu
                 will not appear.  Make sure in your <code>mentio-search</code> function to modify the items list in some way.
 
                 <header class="text-primary documentation-attr">mentio-trigger-char</header>
-                <strong>Optional.</strong> The character that should trigger the menu behavior.  In the example, '@' and '#'s are used. 
+                <strong>Optional.</strong> The character that should trigger the menu behavior.  In the example, '@' and '#'s are used.
                 The default value is '@'.
 
                 <header class="text-primary documentation-attr">mentio-template-url</header>
@@ -367,7 +367,7 @@
 
                 <header class="text-primary documentation-attr">mentio-search</header>
                 <strong>Optional.</strong>
-                Specifies a function call to invoke when the trigger char 
+                Specifies a function call to invoke when the trigger char
                 has been entered into the target text element.  The currently active
                 typed term after the trigger char is bound as the <code>term</code> argument in the expression.
                 <p></p>
@@ -375,25 +375,29 @@
                 attribute with data.  No return is expected from
                 the search fucntion.
                 <p></p>
-                If no search function is specified, the list of objects in <code>mentio-items</code> will 
+                If no search function is specified, the list of objects in <code>mentio-items</code> will
                 be scanned and the <code>label</code> property will be matched against the typed term.  Alternatively, the expression
                 for <code>mentio-items</code> can just be specified using a filter, as in this example:
                 <p></p>
 
                 <pre>
-                    &lt;input type="text" mentio mentio-typed-text="typedTerm" 
-                        mentio-items=<strong>"simplePeople | filter:label:typedTerm"</strong> class="form-control" 
-                        ng-model="theTextArea2" size="100"/&gt;               
+                    &lt;input type="text" mentio mentio-typed-text="typedTerm"
+                        mentio-items=<strong>"simplePeople | filter:label:typedTerm"</strong> class="form-control"
+                        ng-model="theTextArea2" size="100"/&gt;
                 </pre>
 
                 <header class="text-primary documentation-attr">mentio-select</header>
                 <strong>Optional.</strong>
                 Specifies a function call to invoke when the user has picked an item in the menu.  The item in <code>mentio-items</code>
                 corresponding to the selected item in the menu is bound to the <code>item</code> parameter of the select function.  The
-                select function may return a string or a <code>Promise</code> that returns a string value to use to replace the 
+                select function may return a string or a <code>Promise</code> that returns a string value to use to replace the
                 current trigger char and mention text.
                 <p></p>
                 If no select function is specified, the trigger char is prepended to the <code>label</code> property of the current item.
+
+                <header class="text-primary documentation-attr">mentio-z-index</header>
+                <strong>Optional.</strong>
+                Specifies the z-index that should be applied to the menu. Defaults to 10000.
 
                 <h4 class="section-heading">Provided Scope Properties</h4>
 

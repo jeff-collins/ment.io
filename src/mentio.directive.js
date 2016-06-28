@@ -16,7 +16,8 @@ angular.module('mentio', [])
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
                 selectNotFound: '=mentioSelectNotFound',
                 trimTerm: '=mentioTrimTerm',
-                ngModel: '='
+                ngModel: '=',
+                zIndex: '@mentioZIndex'
             },
             controller: function($scope, $timeout, $attrs) {
 
@@ -266,6 +267,7 @@ angular.module('mentio', [])
                     }
                     html = html + ' mentio-trigger-char="\'' + scope.defaultTriggerChar + '\'"' +
                         ' mentio-parent-scope="parentScope"' +
+                        ' mentio-z-index="' + (scope.zIndex || 10000) + '"' +
                         '/>';
                     var linkFn = $compile(html);
                     var el = linkFn(scope);
@@ -463,7 +465,8 @@ angular.module('mentio', [])
                 items: '=mentioItems',
                 triggerChar: '=mentioTriggerChar',
                 forElem: '=mentioFor',
-                parentScope: '=mentioParentScope'
+                parentScope: '=mentioParentScope',
+                zIndex: '@mentioZIndex'
             },
             templateUrl: function(tElement, tAttrs) {
                 return tAttrs.mentioTemplateUrl !== undefined ? tAttrs.mentioTemplateUrl : 'mentio-menu.tpl.html';
@@ -541,6 +544,8 @@ angular.module('mentio', [])
                 $document[0].body.appendChild(element[0]);
                 scope.menuElement = element; // for testing
 
+                var zIndex = scope.zIndex || 10000;
+
                 if (scope.parentScope) {
                     scope.parentScope.addMenu(scope);
                 } else {
@@ -567,7 +572,7 @@ angular.module('mentio', [])
                             var triggerCharSet = [];
                             triggerCharSet.push(scope.triggerChar);
                             mentioUtil.popUnderMention(scope.parentMentio.context(),
-                                triggerCharSet, element, scope.requireLeadingSpace);
+                                triggerCharSet, element, zIndex, scope.requireLeadingSpace);
                         }
                     }
                 );
@@ -590,7 +595,7 @@ angular.module('mentio', [])
                         var triggerCharSet = [];
                         triggerCharSet.push(scope.triggerChar);
                         mentioUtil.popUnderMention(scope.parentMentio.context(),
-                            triggerCharSet, element, scope.requireLeadingSpace);
+                            triggerCharSet, element, zIndex, scope.requireLeadingSpace);
                     }
                 });
 
@@ -606,7 +611,7 @@ angular.module('mentio', [])
                 scope.adjustScroll = function (direction) {
                     var menuEl = element[0];
                     var menuItemsList = menuEl.querySelector('ul');
-                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || 
+                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') ||
                         menuEl.querySelector('[data-mentio-menu-item].active'));
 
                     if (scope.isFirstItemActive()) {
