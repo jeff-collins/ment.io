@@ -21,7 +21,7 @@ angular.module('mentio')
                 selectionEl.css({
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
-                    position: 'absolute',
+                    position: coordinates.position || 'absolute',
                     zIndex: 10000,
                     display: 'block'
                 });
@@ -434,9 +434,19 @@ angular.module('mentio')
         function localToGlobalCoordinates(ctx, element, coordinates) {
             var obj = element;
             var iframe = ctx ? ctx.iframe : null;
+
             while(obj) {
                 coordinates.left += obj.offsetLeft + obj.clientLeft;
                 coordinates.top += obj.offsetTop + obj.clientTop;
+
+                // If the element has an ancestor with fixed positioning, then we should set the menu to fixed as well
+                if(!coordinates.position) {
+                  var computed = window.getComputedStyle ? getComputedStyle(obj) : obj.currentStyle;
+                  if (computed.position === 'fixed') {
+                     coordinates.position = 'fixed';
+                  }
+                }
+
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
