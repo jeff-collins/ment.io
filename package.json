@@ -1,6 +1,6 @@
 {
   "name": "ment.io",
-  "version": "0.9.24",
+  "version": "0.9.25",
   "description": "Mentions for Angular",
   "main": "dist/mentio.js",
   "scripts": {
@@ -19,9 +19,8 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jeff-collins/ment.io/issues"
+    "url": "https://github.com/sconno05/ment.io/issues"
   },
-  "homepage": "https://github.com/jeff-collins/ment.io",
   "devDependencies": {
     "connect-livereload": "^0.4.0",
     "express": "^4.1.2",
