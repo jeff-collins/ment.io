@@ -91,3 +91,14 @@
     overflow-y: auto;
 }
 
+.fixed {
+    border: solid 1px #e8e8e8;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+.relative {
+    position: relative;
+}

@@ -1,15 +1,16 @@
 {
   "name": "ment.io",
-  "version": "0.9.24",
+  "version": "0.9.27",
   "description": "Mentions for Angular",
   "main": "dist/mentio.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "coveralls": "gulp coveralls"
+    "coveralls": "gulp coveralls",
+    "gulp": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jeff-collins/ment.io.git"
+    "url": "https://github.com/sconno05/ment.io.git"
   },
   "keywords": [
     "angular",
@@ -19,9 +20,8 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jeff-collins/ment.io/issues"
+    "url": "https://github.com/sconno05/ment.io/issues"
   },
-  "homepage": "https://github.com/jeff-collins/ment.io",
   "devDependencies": {
     "connect-livereload": "^0.4.0",
     "express": "^4.1.2",

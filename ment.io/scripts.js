@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
+angular.module('mentio-demo', ['mentio', 'ngRoute'])
 
     .config(function($routeProvider) {
         $routeProvider
@@ -32,12 +32,7 @@ angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
 
     .controller('mentio-demo-ctrl', function ($scope, $rootScope, $http, $q, $sce, $timeout, mentioUtil) {
 
-        $scope.tinyMceOptions = {
-            init_instance_callback: function(editor) {
-                $scope.iframeElement = editor.iframeElement;
-            }
-        };
-
+        $scope.showFixed = false;
         $scope.macros = {
             'brb': 'Be right back',
             'omw': 'On my way',
@@ -126,6 +121,10 @@ angular.module('mentio-demo', ['mentio', 'ngRoute', 'ui.tinymce'])
                 }
             }, 0);
         };
+
+        $scope.toggleFixed = function() {
+            $scope.showFixed = !$scope.showFixed;
+        }
 
         $rootScope.$on('$routeChangeSuccess', function (event, current) {
             $scope.resetDemo();
