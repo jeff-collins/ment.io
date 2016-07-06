@@ -687,14 +687,16 @@ angular.module('mentio')
 
         // public
         function popUnderMention (ctx, triggerCharSet, selectionEl, requireLeadingSpace) {
-            var coordinates;
+            var coordinates, fixedPosition;
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, false);
 
             if (mentionInfo !== undefined) {
 
                 if (selectedElementIsTextAreaOrInput(ctx)) {
-                    coordinates = getTextAreaOrInputUnderlinePosition(ctx, getDocument(ctx).activeElement,
+                    var activeElement = getDocument(ctx).activeElement;
+                    coordinates = getTextAreaOrInputUnderlinePosition(ctx, activeElement,
                         mentionInfo.mentionPosition);
+                    fixedPosition = hasFixedAncestor(activeElement);
                 } else {
                     coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition);
                 }
@@ -703,7 +705,7 @@ angular.module('mentio')
                 selectionEl.css({
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
-                    position: coordinates.position || 'absolute',
+                    position: fixedPosition ? 'fixed' : 'absolute',
                     zIndex: 10000,
                     display: 'block'
                 });
@@ -1114,9 +1116,9 @@ angular.module('mentio')
         }
 
         function localToGlobalCoordinates(element, coordinates) {
-            var elementRect = element.getBoundingClientRect();
+            var elementRect = getOffset(element);
             coordinates.top +=  elementRect.top;
-            coordinates.left += elementRect.left;      
+            coordinates.left += elementRect.left;
          }
 
         function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
@@ -1158,7 +1160,7 @@ angular.module('mentio')
             getDocument(ctx).body.appendChild(div);
 
             var style = div.style;
-            var computed = window.getComputedStyle ? getComputedStyle(element) : element.currentStyle;
+            var computed = computedStyle(element);
 
             style.whiteSpace = 'pre-wrap';
             if (element.nodeName !== 'INPUT') {
@@ -1202,6 +1204,47 @@ angular.module('mentio')
             getDocument(ctx).body.removeChild(div);
 
             return coordinates;
+        }
+
+        function hasFixedAncestor(element) {
+            var nextParent = element.offsetParent;
+            while(nextParent) {
+                var computed = computedStyle(nextParent);
+                if(computed.position === 'fixed') {
+                    return true;
+                }
+                nextParent = nextParent.offsetParent;
+            }
+            return false;
+        }
+
+        function computedStyle(element) {
+            return window.getComputedStyle ? getComputedStyle(element) : element.currentStyle;
+        }
+
+        function getOffset(element) {
+            var docElem, win,
+                box = { top: 0, left: 0 },
+                doc = element && element.ownerDocument;
+
+            if (!doc) {
+                return;
+            }
+
+            docElem = doc.documentElement;
+
+            box = element.getBoundingClientRect();
+            var offset = {
+                top: box.top,
+                left: box.left
+            };
+
+            if(!hasFixedAncestor(element)) {
+                offset.top += (window.pageYOffset - docElem.clientTop);
+                offset.left += (window.pageXOffset - docElem.clientLeft);
+            }
+
+            return offset;
         }
 
         return {

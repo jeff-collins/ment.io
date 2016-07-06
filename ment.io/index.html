@@ -7,10 +7,8 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-route.min.js"></script>
-    <script src="//tinymce.cachefly.net/4.1/tinymce.min.js"></script>
     <script src="/dist/mentio.js"></script>
     <script src="scripts.js"></script>
-    <script src="tinymce.js"></script>
     </head>
 <body ng-controller="mentio-demo-ctrl">
 <div>
@@ -122,7 +120,6 @@
                                 mentio-search="searchPeople(term)"
                                 mentio-select="getPeopleTextRaw(item)"></mentio-menu>
 
-
                     <div class="form-group">
                         <h3>Minimal:</h3>
                         <!--Note no need for external mentio-menu elements because there is only one trigger character needed-->
@@ -132,14 +129,31 @@
                     </div>
 
                     <div class="form-group">
-                        <h3>TinyMCE (iframe-based):</h3>
-                        <textarea ui-tinymce="tinyMceOptions" mentio mentio-typed-text="typedTerm" 
-                            mentio-items="simplePeople | filter:label:typedTerm" ng-model='foo'
-                            mentio-iframe-element="iframeElement"></textarea>
+                         <input type="submit">
                     </div>
 
                     <div class="form-group">
-                         <input type="submit">
+                        <h3>Fixed:</h3>
+                        <span class="btn btn-primary" ng-click="toggleFixed()">Toggle Fixed</span>
+                        <div ng-show="showFixed" class="fixed">
+                            <p>Type the @ symbol in this fixed element</p>
+                            <input
+                                mentio
+                                ng-model="fixedText"
+                                mentio-id="'fixedText' + myIndexValue"
+                                type="text"
+                                class="form-control"
+                                ng-trim="false"
+                                size="100"/>
+
+                            <mentio-menu
+                                mentio-for="'fixedText' + myIndexValue"
+                                mentio-trigger-char="'@'"
+                                mentio-items="people"
+                                mentio-template-url="/people-mentions.tpl"
+                                mentio-search="searchPeople(term)"
+                                mentio-select="getPeopleTextRaw(item)"></mentio-menu>
+                        </div>
                     </div>
                 </div>
             </div>
