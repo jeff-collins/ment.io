@@ -1,6 +1,6 @@
 {
   "name": "ment.io",
-  "version": "0.9.24",
+  "version": "0.9.25",
   "description": "Mentions for Angular",
   "main": "dist/mentio.js",
   "scripts": {
