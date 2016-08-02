@@ -85,7 +85,7 @@ angular.module('mentio', [])
 
                     if (!hasTrailingSpace) {
                         $scope.setTriggerText('');
-                        angular.element($scope.targetElement).triggerHandler('change');
+                        angular.element($scope.targetElement).triggerHandler('keyup');
                         if ($scope.isContentEditable()) {
                             $scope.contentEditableMenuPasted = true;
                             var timer = $timeout(function() {
