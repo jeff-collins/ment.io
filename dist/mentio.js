@@ -703,8 +703,7 @@ angular.module('mentio')
                 selectionEl.css({
                     top: coordinates.top + 'px',
                     left: coordinates.left + 'px',
-                    position: 'absolute',
-                    zIndex: 10000,
+                    position: coordinates.fixed ? 'fixed' : 'absolute',
                     display: 'block'
                 });
 
@@ -1113,12 +1112,32 @@ angular.module('mentio')
             return coordinates;
         }
 
+        // borrowed from jQuery getStyles code
+        // https://github.com/jquery/jquery/blob/master/src/css/var/getStyles.js
+        function getStyles (elem) {
+            // Support: IE <=11 only, Firefox <=30 (#15098, #14150)
+            // IE throws on elements created in popups
+            // FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
+            var view = elem.ownerDocument.defaultView;
+
+            if ( !view || !view.opener ) {
+                view = window;
+            }
+
+            return view.getComputedStyle( elem );
+        }
+
         function localToGlobalCoordinates(ctx, element, coordinates) {
             var obj = element;
             var iframe = ctx ? ctx.iframe : null;
             while(obj) {
                 coordinates.left += obj.offsetLeft + obj.clientLeft;
                 coordinates.top += obj.offsetTop + obj.clientTop;
+
+                if (getStyles(obj).position == 'fixed') {
+                    coordinates.fixed = true;
+                }
+
                 obj = obj.offsetParent;
                 if (!obj && iframe) {
                     obj = iframe;
