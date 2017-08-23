@@ -1008,7 +1008,7 @@ angular.module('mentio')
                         (
                             mostRecentTriggerCharPos === 0 ||
                             !requireLeadingSpace ||
-                            /[\xA0\s]/g.test
+                            /[([\-\xA0\s]/g.test
                             (
                                 effectiveRange.substring(
                                     mostRecentTriggerCharPos - 1,
