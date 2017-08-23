@@ -536,9 +536,11 @@ angular.module('mentio', [])
                 };
             },
 
-            link: function (scope, element) {
-                element[0].parentNode.removeChild(element[0]);
-                $document[0].body.appendChild(element[0]);
+            link: function (scope, element, attrs) {
+                if (attrs.mentioApplyElement === undefined) {
+                    element[0].parentNode.removeChild(element[0]);
+                    $document[0].body.appendChild(element[0]);
+                }
                 scope.menuElement = element; // for testing
 
                 if (scope.parentScope) {
@@ -606,7 +608,7 @@ angular.module('mentio', [])
                 scope.adjustScroll = function (direction) {
                     var menuEl = element[0];
                     var menuItemsList = menuEl.querySelector('ul');
-                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') || 
+                    var menuItem = (menuEl.querySelector('[mentio-menu-item].active') ||
                         menuEl.querySelector('[data-mentio-menu-item].active'));
 
                     if (scope.isFirstItemActive()) {

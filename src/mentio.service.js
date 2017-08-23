@@ -12,9 +12,9 @@ angular.module('mentio')
 
                 if (selectedElementIsTextAreaOrInput(ctx)) {
                     coordinates = getTextAreaOrInputUnderlinePosition(ctx, getDocument(ctx).activeElement,
-                        mentionInfo.mentionPosition);
+                        mentionInfo.mentionPosition, selectionEl);
                 } else {
-                    coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition);
+                    coordinates = getContentEditableCaretPosition(ctx, mentionInfo.mentionPosition, selectionEl);
                 }
 
                 // Move the button into place.
@@ -174,7 +174,7 @@ angular.module('mentio')
         }
 
         // public
-        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet, 
+        function replaceTriggerText (ctx, targetElement, path, offset, triggerCharSet,
                 text, requireLeadingSpace, hasTrailingSpace) {
             resetSelection(ctx, targetElement, path, offset);
 
@@ -297,7 +297,7 @@ angular.module('mentio')
         // public
         function getTriggerInfo (ctx, triggerCharSet, requireLeadingSpace, menuAlreadyActive, hasTrailingSpace) {
             /*jshint maxcomplexity:11 */
-            // yes this function needs refactoring 
+            // yes this function needs refactoring
             var selected, path, offset;
             if (selectedElementIsTextAreaOrInput(ctx)) {
                 selected = getDocument(ctx).activeElement;
@@ -326,7 +326,7 @@ angular.module('mentio')
                         (
                             mostRecentTriggerCharPos === 0 ||
                             !requireLeadingSpace ||
-                            /[\xA0\s]/g.test
+                            /[([\-\xA0\s]/g.test
                             (
                                 effectiveRange.substring(
                                     mostRecentTriggerCharPos - 1,
@@ -348,7 +348,7 @@ angular.module('mentio')
                     if (hasTrailingSpace) {
                         currentTriggerSnippet = currentTriggerSnippet.trim();
                     }
-                    if (!leadingSpace && (menuAlreadyActive || !(/[\xA0\s]/g.test(currentTriggerSnippet)))) {
+                    if (!leadingSpace) {
                         return {
                             mentionPosition: mostRecentTriggerCharPos,
                             mentionText: currentTriggerSnippet,
@@ -398,7 +398,7 @@ angular.module('mentio')
             return text;
         }
 
-        function getContentEditableCaretPosition (ctx, selectedNodePosition) {
+        function getContentEditableCaretPosition (ctx, selectedNodePosition, selectionEl) {
             var markerTextChar = '\ufeff';
             var markerEl, markerId = 'sel_' + new Date().getTime() + '_' + Math.random().toString().substr(2);
 
@@ -425,7 +425,12 @@ angular.module('mentio')
                 top: markerEl.offsetHeight
             };
 
-            localToGlobalCoordinates(ctx, markerEl, coordinates);
+            if (selectionEl[0].parentNode === document.body) {
+                localToGlobalCoordinates(ctx, markerEl, coordinates);
+            } else {
+                coordinates.left += markerEl.offsetLeft;
+                coordinates.top += markerEl.offsetTop;
+            }
 
             markerEl.parentNode.removeChild(markerEl);
             return coordinates;
@@ -442,7 +447,7 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
             obj = element;
             iframe = ctx ? ctx.iframe : null;
             while(obj !== getDocument().body) {
@@ -457,10 +462,10 @@ angular.module('mentio')
                     obj = iframe;
                     iframe = null;
                 }
-            }            
+            }
          }
 
-        function getTextAreaOrInputUnderlinePosition (ctx, element, position) {
+        function getTextAreaOrInputUnderlinePosition (ctx, element, position, selectionEl) {
             var properties = [
                 'direction',
                 'boxSizing',
@@ -538,7 +543,12 @@ angular.module('mentio')
                 left: span.offsetLeft + parseInt(computed.borderLeftWidth)
             };
 
-            localToGlobalCoordinates(ctx, element, coordinates);
+            if (selectionEl[0].parentNode === document.body) {
+                localToGlobalCoordinates(ctx, element, coordinates);
+            } else {
+                coordinates.left += element.offsetLeft;
+                coordinates.top += element.offsetTop;
+            }
 
             getDocument(ctx).body.removeChild(div);
 
