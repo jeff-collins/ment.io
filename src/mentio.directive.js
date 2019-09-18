@@ -330,7 +330,7 @@ angular.module('mentio', [])
 
                 scope.$watch(
                     'iframeElement', function(newValue) {
-                        if (newValue) {
+                        if (newValue && newValue.contentWindow) {
                             var iframeDocument = newValue.contentWindow.document;
                             iframeDocument.addEventListener('click',
                                 function () {
