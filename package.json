@@ -48,6 +48,6 @@
     "karma-phantomjs-launcher": "~0.1.4",
     "karma-script-launcher": "^0.1.0",
     "karma-threshold-reporter": "~0.1.7",
-    "open": "0.0.5"
+    "open": "7.0.0"
   }
 }
