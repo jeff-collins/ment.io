@@ -1,53 +1,32 @@
 'use strict';
 
+const { series } = require('gulp');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
+var log = require('fancy-log');
 var fs = require('fs');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-//var wrap = require('gulp-wrap');
+var argv = require('minimist')(process.argv);
 var templateCache = require('gulp-angular-templatecache');
 var gjshint = require('gulp-jshint');
 var ngAnnotate = require('gulp-ng-annotate');
 var stylish = require('jshint-stylish');
 
-var port = gutil.env.port || 3000;
-var covport = gutil.env.covport || 3001;
-var lrport = gutil.env.lrport || 35729;
-var openBrowser = gutil.env.browser;
+var port = 3000;
+var covport = 3001;
+var lrport = 35729;
+var openBrowser;
 var bump = require('gulp-bump');
 
-/*
- * Default task is to start the site
- */
-gulp.task('default', ['site']);
+async function tpl() {
+    return gulp.src('src/**/*.tpl.html')
+        .pipe(templateCache({
+            module: 'mentio'
+        }))
+        .pipe(gulp.dest('src'));
+};
 
-gulp.task('site', ['copy', 'dist'], function () {
-    var express = require('express');
-    var app = express();
-
-    app.use(require('connect-livereload')({
-        port: lrport
-    }));
-
-    app.use(express.static('./'));
-
-    app.listen(port, function () {
-        var lrServer = require('gulp-livereload')();
-
-        gulp.watch(['src/**/*.*', 'ment.io/*.*'], ['dist']).on('change', function (file) {
-            console.log('Reload', file.path);
-            lrServer.changed(file.path);
-        });
-
-        // open the browser
-        require('open')('http://localhost:' + port + '/ment.io', openBrowser);
-
-        console.log('Example app started on port [%s]', port);
-    });
-});
-
-gulp.task('dist', ['tpl'], function () {
+function dist () {
     return gulp.src([
         'src/mentio.directive.js',
         'src/mentio.service.js',
@@ -60,35 +39,53 @@ gulp.task('dist', ['tpl'], function () {
     .pipe(gulp.dest('dist'))
     .pipe(uglify())
     .pipe(concat('mentio.min.js'))
-    .pipe(gulp.dest('dist'));
-});
+    .pipe(gulp.dest('dist')).on('end', function(){ log('Done!'); });
+};
 
-gulp.task('jshint', function () {
+async function copy() {
+    log('copy');
+    gulp.src(['bower_components/angular-ui-tinymce/src/tinymce.js'])
+    .pipe(gulp.dest('ment.io'))
+};
+
+async function site () {
+    var express = require('express');
+    var app = express();
+
+    app.use(require('connect-livereload')({
+        port: lrport
+    }));
+
+    app.use(express.static('./'));
+
+    app.listen(port, function () {
+        var lrServer = require('gulp-livereload')();
+
+        gulp.watch(['src/**/*.*', 'ment.io/*.*'], dist).on('change', function (file) {
+            log('Reload', file.path);
+            lrServer.changed(file.path);
+        });
+
+        // open the browser
+        require('open')('http://localhost:' + port + '/ment.io', openBrowser);
+
+        log('Example app started on port [%s]', port);
+    });
+};
+
+async function jshint() {
     return gulp.src('src/**/*.js')
         .pipe(gjshint())
         .pipe(gjshint.reporter(stylish));
-});
-
-gulp.task('tpl', function () {
-    return gulp.src('src/**/*.tpl.html')
-        .pipe(templateCache({
-            module: 'mentio'
-        }))
-        .pipe(gulp.dest('src'));
-});
-
-gulp.task('copy', function() {
-    gulp.src(['bower_components/angular-ui-tinymce/src/tinymce.js'])
-    .pipe(gulp.dest('ment.io'))
-});
+};
 
 // Basic usage:
 // Will patch the version
-gulp.task('bump', function(){
+async function bump(){
   gulp.src(['./package.json', './bower.json'])
   .pipe(bump())
   .pipe(gulp.dest('./'));
-});
+};
 
 function testTask (params) {
     var karma = require('gulp-karma');
@@ -113,20 +110,20 @@ function testTask (params) {
 /**
  * Run the karma spec tests
  */
-gulp.task('test', ['copy', 'dist'], function () {
+async function test() {
     testTask({
         isWatch: gutil.env.hasOwnProperty('watch')
     });
-});
+};
 
-gulp.task('coveralls', function () {
+async function coveralls() {
     var coveralls = require('gulp-coveralls');
 
     gulp.src('./coverage/**/lcov.info')
       .pipe(coveralls());
-});
+};
 
-gulp.task('coverage', function () {
+async function coverage() {
     var express = require('express');
     var app = express();
     var coverageFile;
@@ -165,4 +162,8 @@ gulp.task('coverage', function () {
             }
         });
     }, 3000);
-});
+};
+
+exports.test = series(copy, tpl, dist, test);
+exports.default = series(copy, tpl, dist, site);
+

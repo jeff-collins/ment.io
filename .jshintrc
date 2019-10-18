@@ -22,7 +22,7 @@
     "iterator" : false,
     "jquery" : true,
     "lastsemic" : true,
-    "latedef" : true,
+    "latedef" : false,
     "laxbreak" : false,
     "laxcomma" : false,
     "loopfunc" : false,
