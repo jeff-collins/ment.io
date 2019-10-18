@@ -43,7 +43,6 @@ function dist () {
 };
 
 async function copy() {
-    log('copy');
     gulp.src(['bower_components/angular-ui-tinymce/src/tinymce.js'])
     .pipe(gulp.dest('ment.io'))
 };
@@ -88,11 +87,12 @@ async function bump(){
 };
 
 function testTask (params) {
-    var karma = require('gulp-karma');
+    var karma = require('karma');
 
     var karmaConfig = {
-        configFile: './karma.conf.js',
-        action: params.isWatch ? 'watch' : 'run'
+        configFile: __dirname + '/karma.conf.js',
+        action: params.isWatch ? 'watch' : 'run',
+        singleRun: true
     };
 
     if (params.coverageReporter) {
@@ -103,8 +103,7 @@ function testTask (params) {
         karmaConfig.reporters = params.reporters;
     }
 
-    return gulp.src('DO_NOT_MATCH') //use the files in the karma.conf.js
-        .pipe(karma(karmaConfig));
+    new karma.Server(karmaConfig).start();
 }
 
 /**
@@ -112,7 +111,7 @@ function testTask (params) {
  */
 async function test() {
     testTask({
-        isWatch: gutil.env.hasOwnProperty('watch')
+        isWatch: false
     });
 };
 
