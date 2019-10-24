@@ -181,7 +181,7 @@ angular.module('mentio')
             var mentionInfo = getTriggerInfo(ctx, triggerCharSet, requireLeadingSpace, true, hasTrailingSpace);
 
             if (mentionInfo !== undefined) {
-                if (selectedElementIsTextAreaOrInput()) {
+                if (selectedElementIsTextAreaOrInput(ctx)) {
                     var myField = getDocument(ctx).activeElement;
                     text = text + ' ';
                     var startPos = mentionInfo.mentionPosition;
