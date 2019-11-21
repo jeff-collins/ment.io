@@ -16,7 +16,8 @@ angular.module('mentio', [])
                 requireLeadingSpace: '=mentioRequireLeadingSpace',
                 selectNotFound: '=mentioSelectNotFound',
                 trimTerm: '=mentioTrimTerm',
-                ngModel: '='
+                ngModel: '=',
+                labelProp: '@mentioLabelProp'
             },
             controller: function($scope, $timeout, $attrs) {
 
@@ -39,6 +40,7 @@ angular.module('mentio', [])
                 $scope.defaultSearch = function(locals) {
                     var results = [];
                     angular.forEach($scope.items, function(item) {
+                        item.label = item[$scope.labelProp];
                         if (item.label.toUpperCase().indexOf(locals.term.toUpperCase()) >= 0) {
                             results.push(item);
                         }
