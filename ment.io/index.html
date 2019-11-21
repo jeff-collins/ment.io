@@ -339,7 +339,7 @@
 
                 &lt;script type="text/ng-template" id="<b>/people-mentions.tpl</b>"&gt;
                     &lt;ul class="list-group user-search"&gt;
-                        &lt;i mentio-menu-item="person" ng-repeat="person in <b>items</b>" class="list-group-item"&gt;
+                        &lt;li mentio-menu-item="person" ng-repeat="person in <b>items</b>" class="list-group-item"&gt;
                             &lt;mg ng-src=" { {person.imageUrl} }" class="user-photo"&gt;
                             &lt;span class="text-primary"
                                 ng-bind-html="person.name | mentioHighlight:typedTerm:'menu-highlighted' | unsafe">&lt;/span&gt;
