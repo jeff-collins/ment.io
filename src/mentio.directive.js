@@ -667,13 +667,17 @@ angular.module('mentio', [])
         function escapeRegexp (queryToEscape) {
             return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
         }
+        function escapeHtml (stringToEscape) {
+            return stringToEscape.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
 
         return function (matchItem, query, hightlightClass) {
+            matchItem = escapeHtml('' + matchItem);
             if (query) {
                 var replaceText = hightlightClass ?
                                  '<span class="' + hightlightClass + '">$&</span>' :
                                  '<strong>$&</strong>';
-                return ('' + matchItem).replace(new RegExp(escapeRegexp(query), 'gi'), replaceText);
+                return matchItem.replace(new RegExp(escapeRegexp(escapeHtml(query)), 'gi'), replaceText);
             } else {
                 return matchItem;
             }
