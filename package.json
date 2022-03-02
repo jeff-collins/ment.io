@@ -39,7 +39,7 @@
     "gulp-wrap": "^0.15.0",
     "jasmine-reporters": "~0.4.1",
     "jshint-stylish": "^0.2.0",
-    "karma": "^4.4.0",
+    "karma": "^6.3.16",
     "karma-chrome-launcher": "^0.1.2",
     "karma-coverage": "^2.0.1",
     "karma-firefox-launcher": "^0.1.3",
